@@ -81,9 +81,6 @@ int getToken(string *attribute) {
 	//in case of error reuturn LEXER_ERROR;
 	int character; //int bcs of EOF
 	int state = S_START;
-	strClear(attribute);
-	// strAddChar(attribute, 'A');
-	// strAddChar(attribute, 'B');
 	while (1) {
 		character = getc(source);
 		switch (state) {

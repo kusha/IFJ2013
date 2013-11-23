@@ -16,6 +16,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "main.h"
 #include "str.h"
 
@@ -57,7 +58,7 @@ int strAddChar(string *s, char c) {
 }
 
 int strCmpConstStr(string *s1, char* s2) {
-	return strcmp(s1->str, s2);
+	return strcmp(s1->str, s2)?0:1;
 }
 
 // void debugStrPrint(string *s) {
