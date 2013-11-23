@@ -1,0 +1,16 @@
+<program> 		-> START <program_units>
+<program_units>	-> <func_define> <program_units>
+<program_units>	-> <cmd_sequence> <program_units>
+<program_units>	-> EOF
+<func_define>	-> function id ( <params> ) { <cmd_sequence> }
+<params>		-> E
+<params>		-> id <params_more>
+<params_more>	-> , id <params_more>
+<params_more>	-> E
+<cmd_sequence>	-> E
+<cmd_sequence>	-> <cmd> <cmd_sequence>
+<cmd>			-> $ id = <expression> ;									!!!jiny token pro $id
+<cmd>			-> if ( <expression> ) { <cmd_sequence> } else { <cmd_sequence> }
+<cmd>			-> while ( <expression> ) { <cmd_sequence> }
+<cmd>			-> $ id = id ( <params> ) ;
+<cmd>			-> return <expression> ;
