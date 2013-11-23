@@ -15,304 +15,464 @@
 
 #include <stdio.h> //getc
 #include <ctype.h> //isspace
-#include <stdbool.h> // true
-#include <string.h> //strcmp
-#include <stdlib.h> //atoi
 #include "main.h"
 #include "lexer.h"
 
-FILE *source;
+// S is STATE
+#define S_START			0
+#define S_IDENTIFIER	1
+#define S_VARIABLE_D	2
+#define S_VARIABLE_ID	3
+#define S_INTEGER		4
+#define S_DOUBLE		5
+#define S_EXPONENT_E	6
+#define S_EXPONENT		7
+#define S_STRING		8
+#define S_ESCAPE		9
+#define S_SYMBOL_CODE1	10
+#define S_SYMBOL_CODE2	11
+#define S_EQUAL			12
+#define S_CMP_IS		13
+#define S_CMP_NOT1		14
+#define S_CMP_NOT2		15
+#define S_LESS			16
+#define S_PHP1			17
+#define S_PHP2			18
+#define S_PHP3			19
+#define S_MORE			20
+#define S_DIVIDE		21
+#define S_MLINE_CMNT	22
+#define S_LINE_CMNT		23
+#define S_MLINE_ESC		24
+#define S_LINE_ESC		25
 
-int isKeyWord(char* word){
-  if((strcmp("if", word) == 0)){
-    return KEYWORD_IF;
-  }else if((strcmp("else", word) == 0)){
-    return KEYWORD_ELSE;
-  }else if((strcmp("funciton", word) == 0)){
-    return KEYWORD_FUNCTION;  
-  }else if((strcmp("return", word) == 0)){  
-    return KEYWORD_RETURN;  
-  }else if((strcmp("while", word) == 0)){  
-    return KEYWORD_WHILE;
-  }else if((strcmp("true", word) == 0) || (strcmp("false", word) == 0)){  
-    return LITERAL_LOGICAL;  
-  }else if((strcmp("null", word) == 0)){  
-    return LITERAL_NULL;
-  }else{
-    return IDENTIFIER;  
-  }
-   
-}
+
+FILE *source;
 
 void delegateSourceFile(FILE *f) {
 	source = f;
 }
 
+int checkKeywords(string *attribute) {
+	if (strCmpConstStr(attribute, "else")) {
+		return KEYWORD_ELSE;
+	} else if (strCmpConstStr(attribute, "function")) {
+		return KEYWORD_FUNCTION;
+	} else if (strCmpConstStr(attribute, "if")) {
+		return KEYWORD_IF;
+	} else if (strCmpConstStr(attribute, "return")) {
+		return KEYWORD_RETURN;
+	} else if (strCmpConstStr(attribute, "while")) {
+		return KEYWORD_WHILE;
+	} else if (strCmpConstStr(attribute, "false")) {
+		return LITERAL_LOGICAL;
+	} else if (strCmpConstStr(attribute, "null")) {
+		return LITERAL_NULL;
+	} else if (strCmpConstStr(attribute, "true")) {
+		return LITERAL_LOGICAL;
+	} else {				//maybe there will be std functions
+		return IDENTIFIER;
+	}
+}
+
+char hex;
+
 int getToken(string *attribute) {
 	//in case of error reuturn LEXER_ERROR;
-	int c; //int bcs of EOF
-	strClear(attribute);
+	int character; //int bcs of EOF
 	int state = S_START;
-  int i = 0, backs = i, x = i, xx = i, star = i, linec = i, e = i, j = i, space = i; // pomocný
-  char hexa[3];      // hexa číslo -- čtou se jen dva znaky(x00) -- má velikost 3 protože se tam ukládá i převedený číslo a to může být max 255(xFF) = 3 znaky
- 	unsigned int s;    // převedeny hexa číslo na int            
-  
-  while(true){
-    if((c = getc(source)) == EOF){
-		  return END_OF_FILE;	
-    }    
-    switch(state){
-      case S_START: 
-        if (isspace(c)){
-          state = S_START;                      // mezery se ignoruji
-	      }else if(isalpha(c) || c == '_'){
-          strAddChar(attribute, c);             
-	        state = IDENTIFIER;                   // znaky
-	      }else if(isdigit(c)){                   
-          strAddChar(attribute, c);
-	        state = LITERAL_INETEGER;             // čísla 
-	      }else if(c == '$'){    
-	        strAddChar(attribute, c);             
-	        state = IDENTIFIER_VARIABLE;          // identifikator
-        }else if(c == '"'){ 
-          //strAddChar(attribute, c);
-          state = LITERAL_STRING;               // string
-        }else if(c == '='){ 
-          strAddChar(attribute, c);
-          state = OPERATION_ASSIGN;             // přiřazení nebo porovnání je rovno
-        }else if (c == '+'){
-	        strAddChar(attribute, c);
-          return OPERATION_PLUS;                // plus
-	      }else if (c == '-'){
-          strAddChar(attribute, c);
-          return OPERATION_MINUS;               // minus
-        }else if(c == '/'){
-          //strAddChar(attribute, c);
-   	      state = OPERATION_DIVIDE; 	          // komentar nebo dělení
-   	    }else if(c == '*'){
-          strAddChar(attribute, c);             
-   	      return OPERATION_MULTIPLY; 	          // krát
-        }else if(c == '.'){
-          strAddChar(attribute, c);
-   	      return OPERATION_CONCATEN;            // zřetězení
-        }else if(c == '!'){
-          strAddChar(attribute, c);
-   	      state = COMPARE_IS_NOT;               // vykřičník (porovnání IS_NOT)
-        }else if(c == '<'){
-          strAddChar(attribute, c);
-   	      state = COMPARE_LESS;                 // porovnání je menší nebo začátek php (<?php)
-        }else if(c == '>'){
-          strAddChar(attribute, c);
-   	      state = COMPARE_MORE;                 // porovnání je větší
-        }else if(c == '{'){ 
-          strAddChar(attribute, c);
-          return LEFT_CURLY_BRACKET;            // levá složená závorka
-        }else if(c == '}'){ 
-          strAddChar(attribute, c);             
-          return RIGHT_CURLY_BRACKET;           // pravá složená závorka
-        }else if(c == '('){ 
-          strAddChar(attribute, c);             
-          return LEFT_BRACKET;                  // levá závorka
-        }else if(c == ')'){ 
-          strAddChar(attribute, c);             
-          return RIGHT_BRACKET;                 // pravá závorka
-	      }else if(c == ';'){
-          strAddChar(attribute, c);
-          return SEMICOLON;                     // středník
-	      }else if(c == ','){
-          strAddChar(attribute, c);
-          return COMMA;                         // čárka	      
-        }else{
-          return LEXER_ERROR;
-        }
-        i++;
-      break;
-      
-      case COMPARE_LESS:
-        if(c == '?'){
-          state = PHP;
-        }else if(c == '='){ 
-          strAddChar(attribute, c);
-          return COMPARE_LESS_EQ;         
-        }else{
-          ungetc(c, source);
-          return COMPARE_LESS;
-        }
-        i++;
-      break;
-      case COMPARE_MORE:
-        if(c == '='){
-          strAddChar(attribute, c);
-          return COMPARE_MORE_EQ;          
-        }else{
-          ungetc(c, source);
-          return COMPARE_MORE;         
-        }
-        i++;
-      break;
-      case COMPARE_IS_NOT:
-        if(c == '='){
-          strAddChar(attribute, c);
-          if(i == 2){
-            return COMPARE_IS_NOT;
-          }
-          i++;
-        }
-      break;
-      case OPERATION_ASSIGN:
-        if(c == '='){
-          strAddChar(attribute, c);
-          if(i == 2){
-            return COMPARE_IS;
-          }
-          i++;                    
-        }else{
-          ungetc(c, source);
-          return OPERATION_ASSIGN;
-        }  
-      break;
-      case IDENTIFIER:
-        if(isalnum(c) || (c == '_')){
-          strAddChar(attribute, c);
-          i++;    
-        }else{
-          ungetc(c, source);
-          return isKeyWord(attribute->str);        
-        }
-      break; 
-      case IDENTIFIER_VARIABLE:
-         if(isalnum(c) || (c == '_')){
-          strAddChar(attribute, c);
-          i++;    
-        }else{
-          ungetc(c, source);
-          return IDENTIFIER_VARIABLE;        
-        }       
-      break;
-      case LITERAL_INETEGER:
-        if(isdigit(c)){
-          strAddChar(attribute, c);        
-        }else if(!isdigit(c) && (c != '.') && (c != 'e') && (c != 'E')){
-          ungetc(c, source);
-          return LITERAL_INETEGER;         
-        }else if(c == '.'){
-          state = LITERAL_DOUBLE;
-          strAddChar(attribute, c); 
-        }else if(c == 'e' || c == 'E'){
-          state = LITERAL_DOUBLE;
-          strAddChar(attribute, c);
-          e++;  
-        }
-        i++;
-      break;
-      case OPERATION_DIVIDE:
-        if(c == '*' && star == 0){
-          star = 1;
-        }else if(star > 0){
-          if(c == '*' && star == 1){
-            star = 2;
-          }else if(c == '/' && star == 2){
-            star = 0;
-		        i = 0;
-            state = S_START;
-          }
-        }else if(c == '/' && linec == 0){
-          linec = 1;         
-        }else if(linec == 1 && i >= 2){
-          if(c == 10){                                 // zalomení řádku
-            linec = 0;
-		        i = 0;
-            state = S_START;
-          }
-        }else{
-          strAddChar(attribute, '/'); 
-          return OPERATION_DIVIDE;
-        }
-        i++;
-      break;
-      case LITERAL_STRING:
-        if(backs == 0 && x == 0 && c != '\\' && c != '"' && c != '$'){
-          if(c > 31){
-            strAddChar(attribute, c);
-          }
-        }else if(c == '"' && backs == 0){
-          return LITERAL_STRING;
-        }else if(c == '\\' && backs == 0){
-          backs = 1;      
-        }else if(backs == 1){
-          if(c == 'n'){
-            strAddChar(attribute, 10);
-          }else if(c == 't'){
-            strAddChar(attribute, 11);
-          }else if(c == '\\' || c == '"' || c == '$'){
-            strAddChar(attribute, c);
-          }else if(c == 'x'){
-            x = 1;
-            xx = 0;
-          }
-          backs = 0;
-        }else if(x > 0){
-          if((xx <= 1) && (isdigit(c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F') || (c == ' '))){
-            hexa[xx] = c;
-	          xx++;
-	          if(c == ' '){
-              space = 1;
-            }
-          }
-          x++;
-          if(xx >= 2){	// už mam načteny dva znaky
-            sscanf(hexa, "%x", &s);     
-            sprintf(hexa, "%d", s);		
-		        while(hexa[j] != '\0'){
-              strAddChar(attribute, hexa[j]); 
-              j++;     
-            }
-            if(space == 1){
-              strAddChar(attribute, ' ');
-            } 		
-		        x = 0;
-		        xx = 0;
-		        j = 0;
-		        hexa[0] = 0;
-	   	      hexa[1] = 0;
-	   	      hexa[2] = 0;
-          }           
-        }
-        i++;
-      break;
-      
-      case LITERAL_DOUBLE:
-        if((c == 'e' || c == 'E') && (e == 0)){
-          e++;
-          strAddChar(attribute, c);
-        }else if((c == '+' || c == '-') && (e != 0)){
-          strAddChar(attribute, c);
-        }else if(isdigit(c)){
-          strAddChar(attribute, c);
-        }else{
-          ungetc(c, source);
-          e = 0;
-          return LITERAL_DOUBLE;       
-        }
-        i++;
-      break;
-      
-      case PHP:
-        if((c == 'p' || c == 'P') && (i == 2 || i == 4)){
-          state = PHP;  
-          strAddChar(attribute, c);
-          if(i == 4){
-            return PHP;          
-          }
-        }else if((c == 'h' || c == 'H') && i == 3){
-          state = PHP;
-          strAddChar(attribute, c);
-        }
-        i++;
-      break;
-                    
-    }
-  }
-	
+	strClear(attribute);
+	// strAddChar(attribute, 'A');
+	// strAddChar(attribute, 'B');
+	while (1) {
+		character = getc(source);
+		switch (state) {
+			case S_START:
+				if (isspace(character)) {
+					state = S_START;
+				} else if (isalpha(character)||character=='_') {
+					strAddChar(attribute, character);
+					state = S_IDENTIFIER;
+				} else if (character=='$') {
+					strAddChar(attribute, character); //is dollar at start of varid needed?
+					state = S_VARIABLE_D;
+				} else if (isdigit(character)) {
+					strAddChar(attribute, character);
+					state = S_INTEGER;
+				} else if (character==',') {
+					return COMMA;
+				} else if (character==';') {
+					return SEMICOLON;
+				} else if (character=='(') {
+					return LEFT_BRACKET;
+				} else if (character==')') {
+					return RIGHT_BRACKET;
+				} else if (character=='{') {
+					return LEFT_CURLY_BRACKET;
+				} else if (character=='}') {
+					return RIGHT_CURLY_BRACKET;
+				} else if (character=='"') {
+					state = S_STRING;
+				} else if (character==EOF) {
+					return END;
+				} else if (character=='=') {
+					state = S_EQUAL;
+				} else if (character=='+') {
+					return OPERATION_PLUS;
+				} else if (character=='-') {
+					return OPERATION_MINUS;
+				} else if (character=='*') {
+					return OPERATION_MULTIPLY;
+				} else if (character=='.') {
+					return OPERATION_CONCATEN;
+				} else if (character=='!') {
+					state = S_CMP_NOT1;
+				} else if (character=='<') {
+					state = S_LESS;
+				} else if (character=='>') {
+					state = S_MORE;
+				} else if (character=='/') {
+					state = S_DIVIDE;
+				} else {
+					if (DEBUG_FLAG)
+						printf("LEXER_ERROR at %c [%i] with state=%i\n", \
+							character,character,state);
+					return LEXER_ERROR;
+				}
+				break;
+
+			case S_IDENTIFIER:
+				if (isalnum(character)||character=='_') {
+					strAddChar(attribute, character);
+				} else {
+					ungetc(character, source);
+					return checkKeywords(attribute);
+				}
+				break;
+
+			case S_VARIABLE_D:
+				if (isalpha(character)||character=='_') {
+					strAddChar(attribute, character);
+					state = S_VARIABLE_ID;
+				} else {
+					if (DEBUG_FLAG)
+						printf("LEXER_ERROR at %c [%i] with state=%i\n", \
+							character,character,state);
+					return LEXER_ERROR;
+				}
+				break;
+
+			case S_VARIABLE_ID:
+				if (isalnum(character)||character=='_') {
+					strAddChar(attribute, character);
+				} else {
+					ungetc(character, source);
+					return IDENTIFIER_VARIABLE; //no checkword check in vars?
+				}
+				break;
+
+			case S_INTEGER:
+				if (isdigit(character)) {
+					strAddChar(attribute, character);
+				} else if (character=='e'||character=='E') {
+					strAddChar(attribute, character); //what add at e/E for scanf?
+					state = S_EXPONENT_E;
+				} else if (character=='.') {
+					strAddChar(attribute, character);
+					state = S_DOUBLE;
+				} else {
+					ungetc(character, source);
+					return LITERAL_INETEGER;
+				}
+				break;
+
+			case S_DOUBLE:
+				if (isdigit(character)) {
+					strAddChar(attribute, character);
+				} else if (character=='e'||character=='E') {
+					strAddChar(attribute, character); //what add at e/E for scanf?
+					state = S_EXPONENT_E;
+				} else {
+					ungetc(character, source);
+					return LITERAL_DOUBLE;
+				}
+				break;
+
+			case S_EXPONENT_E:
+				if (character=='+'||character=='-'||isdigit(character))  {
+					strAddChar(attribute, character);
+					state = S_EXPONENT;
+				} else {
+					if (DEBUG_FLAG)
+						printf("LEXER_ERROR at %c [%i] with state=%i\n", \
+							character,character,state);
+					return LEXER_ERROR;
+				}
+				break;
+				
+			case S_EXPONENT:
+				if (isdigit(character)) {
+					strAddChar(attribute, character);
+				} else {
+					ungetc(character, source);
+					return LITERAL_DOUBLE;
+				}
+				break;
+				
+			case S_STRING:
+				hex = 0x00;
+				if (character=='"') {
+					return LITERAL_STRING;
+				} else if (character=='\\') {
+					state = S_ESCAPE;
+				} else if (character>31&&character!='$') {
+					strAddChar(attribute, character);
+				} else {
+					if (DEBUG_FLAG)
+						printf("LEXER_ERROR at %c [%i] with state=%i\n", \
+							character,character,state);
+					return LEXER_ERROR;
+				}
+				break;
+				
+			case S_ESCAPE:
+				if (character=='x') {
+					state = S_SYMBOL_CODE1;
+				} else if (character=='$') {
+					strAddChar(attribute, '$');
+					state = S_STRING;
+				} else if (character=='n') {
+					strAddChar(attribute, '\n');
+					state = S_STRING;
+				} else if (character=='t') {
+					strAddChar(attribute, '\t');
+					state = S_STRING;
+				} else if (character=='\\') {
+					strAddChar(attribute, '\\');
+					state = S_STRING;
+				} else if (character=='"') {
+					strAddChar(attribute, '\"');
+					state = S_STRING;
+				} else if (character>31) {
+					strAddChar(attribute, '\\');	//add \\ (esc for \) and character
+					strAddChar(attribute, character);
+					state = S_STRING;
+				} else {
+					if (DEBUG_FLAG)
+						printf("LEXER_ERROR at %c [%i] with state=%i\n", \
+							character,character,state);
+					return LEXER_ERROR;
+				}
+				break;
+				
+			case S_SYMBOL_CODE1:
+				if (isdigit(character)) {
+					hex += (character - '0');
+					state = S_SYMBOL_CODE2;
+				} else if (character>='a'&&character<='f') {
+					hex += (character - 'a' + 10);
+					state = S_SYMBOL_CODE2;
+				} else if (character>='A'&&character<='F') {
+					hex += (character - 'A' + 10);
+					state = S_SYMBOL_CODE2;
+				} else {
+					if (DEBUG_FLAG)
+						printf("LEXER_ERROR at %c [%i] with state=%i\n", \
+							character,character,state);
+					return LEXER_ERROR;
+				}
+				break;
+
+			case S_SYMBOL_CODE2:
+				hex = hex << 4;
+				if (isdigit(character)) {
+					hex += (character - '0');
+					strAddChar(attribute, hex);
+					state = S_STRING;
+				} else if (character>='a'&&character<='f') {
+					hex += (character - 'a' + 10);
+					strAddChar(attribute, hex);
+					state = S_STRING;
+				} else if (character>='A'&&character<='F') {
+					hex += (character - 'A' + 10);
+					strAddChar(attribute, hex);
+					state = S_STRING;
+				} else {
+					if (DEBUG_FLAG)
+						printf("LEXER_ERROR at %c [%i] with state=%i\n", \
+							character,character,state);
+					return LEXER_ERROR;
+				}
+				break;
+				
+			case S_EQUAL:
+				if (character=='=') {
+					state = S_CMP_IS;
+				} else {
+					ungetc(character, source);
+					return OPERATION_ASSIGN;
+				}
+				break;
+				
+			case S_CMP_IS:
+				if (character=='=') {
+					return COMPARE_IS;
+				} else {
+					if (DEBUG_FLAG)
+						printf("LEXER_ERROR at %c [%i] with state=%i\n", \
+							character,character,state);
+					return LEXER_ERROR;
+				}
+				break;
+				
+			case S_CMP_NOT1:
+				if (character=='=') {
+					state = S_CMP_NOT2;
+				} else {
+					if (DEBUG_FLAG)
+						printf("LEXER_ERROR at %c [%i] with state=%i\n", \
+							character,character,state);
+					return LEXER_ERROR;
+				}
+				break;
+				
+			case S_CMP_NOT2:
+				if (character=='=') {
+					return COMPARE_IS_NOT;
+				} else {
+					if (DEBUG_FLAG)
+						printf("LEXER_ERROR at %c [%i] with state=%i\n", \
+							character,character,state);
+					return LEXER_ERROR;
+				}
+				break;
+				
+			case S_LESS:
+				if (character=='?') {
+					state = S_PHP1;
+				} else if (character=='=') {
+					return COMPARE_LESS_EQ;
+				} else {
+					ungetc(character, source);
+					return COMPARE_LESS;
+				}
+				break;
+				
+			case S_PHP1:
+				if (character=='p') { //is <?php case sensitive?!
+					state = S_PHP2;
+				} else {
+					if (DEBUG_FLAG)
+						printf("LEXER_ERROR at %c [%i] with state=%i\n", \
+							character,character,state);
+					return LEXER_ERROR;
+				}
+				break;
+
+			case S_PHP2:
+				if (character=='h') {
+					state = S_PHP3;
+				} else {
+					if (DEBUG_FLAG)
+						printf("LEXER_ERROR at %c [%i] with state=%i\n", \
+							character,character,state);
+					return LEXER_ERROR;
+				}
+				break;
+			
+			case S_PHP3:
+				if (character=='p') {
+					return PHP;
+				} else {
+					if (DEBUG_FLAG)
+						printf("LEXER_ERROR at %c [%i] with state=%i\n", \
+							character,character,state);
+					return LEXER_ERROR;
+				}
+				break;
+
+			case S_MORE:
+				if (character=='=') {
+					return COMPARE_MORE_EQ;
+				} else {
+					ungetc(character, source);
+					return COMPARE_MORE;
+				}
+				break;
+				
+			case S_DIVIDE:
+				if (character=='/') {
+					state = S_LINE_CMNT;
+				} else if (character=='*') {
+					state = S_MLINE_CMNT;
+				} else {
+					ungetc(character, source);
+					return OPERATION_DIVIDE;
+				}
+				break;
+				
+			case S_MLINE_CMNT:
+				if (character=='*')  {
+					state = S_MLINE_ESC;
+				} //no error check (what a hell in comments?)
+				break;
+				
+			case S_MLINE_ESC:
+				if (character=='/')  {
+					state = S_START;
+				} else {
+					state = S_MLINE_CMNT;
+				}
+				break;
+				
+			case S_LINE_CMNT:
+				if (character=='\n')  {
+					state = S_START;
+				} //no error check (what a hell in comments?)
+				break;
+		}
+	}
 	return SUCCESS;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

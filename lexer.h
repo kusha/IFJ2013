@@ -24,10 +24,8 @@
 
 //must use macros for token names
 //bcs in parser switch it'll be harder to use enum
-
-#define S_START   0    // počáteční stav
-#define PHP					1  // <?php
-#define END_OF_FILE					2  // EOF
+#define PHP					0  // <?php
+#define END					1  // EOF
 
 #define IDENTIFIER			10 // (0..9|a..z|A..Z|_)+
 #define IDENTIFIER_VARIABLE	11 // $ + IDENTIFIER
@@ -44,10 +42,12 @@
 #define LITERAL_DOUBLE		33 // 12.43 12e10 12.32E-3
 #define LITERAL_STRING		34 // "\"Ahoj\n\$vete\x21'"
 
-#define LEFT_BRACKET		40 // (
-#define RIGHT_BRACKET		41 // )
-#define LEFT_CURLY_BRACKET	42 // {
-#define RIGHT_CURLY_BRACKET	43 // }
+#define COMMA				40 // , (od Tomase)
+#define SEMICOLON			41 // ; (od Tomase)
+#define LEFT_BRACKET		42 // (
+#define RIGHT_BRACKET		43 // )
+#define LEFT_CURLY_BRACKET	44 // {
+#define RIGHT_CURLY_BRACKET	45 // }
 
 #define OPERATION_ASSIGN	50 // =
 #define OPERATION_PLUS		51 // +
@@ -61,14 +61,10 @@
 #define COMPARE_LESS		62 // <
 #define COMPARE_LESS_EQ		63 // <=
 #define COMPARE_MORE		64 // >
-#define COMPARE_MORE_EQ   65 // >=
-
-#define SEMICOLON   66 // ;
-#define COMMA   67 // ,
+#define COMPARE_MORE_EQ		65 // >=
 
 #define LEXER_ERROR			-1 // lexer error code for parser
 
 //functions prototypes section
-int isKeyWord(char *word);
 void delegateSourceFile(FILE *f);
 int getToken(string *attribute);

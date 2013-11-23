@@ -18,7 +18,7 @@
 
 #include "main.h"
 #include "lexer.h"
-//#include "parser.h"
+#include "parser.h"
 
 int main (int argc, char*argv[]) {
 
@@ -32,30 +32,14 @@ int main (int argc, char*argv[]) {
 		if (DEBUG_FLAG) printf("file opening error\n");
 		return INTERNAL_ERROR;
 	}
-	delegateSourceFile(file); //delegate sources to scanner  
-  ////////////////////////////////////
-  int token = S_START;
-  string s;
-  if(strInit(&s) != STR_SUCCESS){
-    return 1;
-  }
-  
-  while(token != END_OF_FILE){
-    token = getToken(&s);
-    printf("token: %s %d\n", s.str, token);
-  }
-  ////////////////////////////////////
-  
-  
-  
-  
-  
-//	int statusCode;
-	   //processing section
-	   //STEP 1 init symbol table
-	   //STEP 2 init instrukctions list
-//	statusCode = parsePrimary(/* pointers to sumbol table, instruction list*/);
-/*	switch (statusCode) {
+	delegateSourceFile(file); //delegate sources to scanner
+
+	int statusCode;
+	//processing section
+	//STEP 1 init symbol table
+	//STEP 2 init instrukctions list
+	statusCode = parsePrimary(/* pointers to sumbol table, instruction list*/);
+	switch (statusCode) {
 		case SUCCESS:	
 			if (DEBUG_FLAG) printf("lexer+parser OK\n");
 			break;
@@ -65,14 +49,18 @@ int main (int argc, char*argv[]) {
 			fclose(file);
 			return statusCode;
 			break;
-	} */
+	}
 
-	   //symbols tables and instrukctions debugging
-	   //statusCode = interpreterRun(/* pointers to sumbol table, instruction list*/);
-	   //check returned status code
-      
-	   //destroy tables, lists
+	//symbols tables and instrukctions debugging
+	//statusCode = interpreterRun(/* pointers to sumbol table, instruction list*/);
+	//check returned status code
+
+	//destroy tables, lists
 	fclose(file);
 
-	return 0;
+	return statusCode;
 }
+
+
+
+
