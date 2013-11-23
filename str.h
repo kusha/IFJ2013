@@ -14,4 +14,5 @@ int strInit(string *s);
 void strFree(string *s);
 void strClear(string *s);
 int strAddChar(string *s, char c);
-int strCmpConstStr(string *s1, char* s2);
+int strCompareConst(string *s1, char* s2);
+int strCompare(string *s1, string *s2);
