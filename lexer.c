@@ -44,7 +44,6 @@
 #define S_MLINE_CMNT	22
 #define S_LINE_CMNT		23
 #define S_MLINE_ESC		24
-#define S_LINE_ESC		25
 
 
 FILE *source;
@@ -54,21 +53,21 @@ void delegateSourceFile(FILE *f) {
 }
 
 int checkKeywords(string *attribute) {
-	if (strCmpConstStr(attribute, "else")) {
+	if (strCompareConst(attribute, "else")) {
 		return KEYWORD_ELSE;
-	} else if (strCmpConstStr(attribute, "function")) {
+	} else if (strCompareConst(attribute, "function")) {
 		return KEYWORD_FUNCTION;
-	} else if (strCmpConstStr(attribute, "if")) {
+	} else if (strCompareConst(attribute, "if")) {
 		return KEYWORD_IF;
-	} else if (strCmpConstStr(attribute, "return")) {
+	} else if (strCompareConst(attribute, "return")) {
 		return KEYWORD_RETURN;
-	} else if (strCmpConstStr(attribute, "while")) {
+	} else if (strCompareConst(attribute, "while")) {
 		return KEYWORD_WHILE;
-	} else if (strCmpConstStr(attribute, "false")) {
+	} else if (strCompareConst(attribute, "false")) {
 		return LITERAL_LOGICAL;
-	} else if (strCmpConstStr(attribute, "null")) {
+	} else if (strCompareConst(attribute, "null")) {
 		return LITERAL_NULL;
-	} else if (strCmpConstStr(attribute, "true")) {
+	} else if (strCompareConst(attribute, "true")) {
 		return LITERAL_LOGICAL;
 	} else {				//maybe there will be std functions
 		return IDENTIFIER;
@@ -431,45 +430,3 @@ int getToken(string *attribute) {
 	}
 	return SUCCESS;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

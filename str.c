@@ -57,8 +57,12 @@ int strAddChar(string *s, char c) {
 	return STR_SUCCESS;
 }
 
-int strCmpConstStr(string *s1, char* s2) {
+int strCompareConst(string *s1, char* s2) {
 	return strcmp(s1->str, s2)?0:1;
+}
+
+int strCompare(string *s1, string *s2) {
+	return strcmp(s1->str, s2->str);
 }
 
 // void debugStrPrint(string *s) {
