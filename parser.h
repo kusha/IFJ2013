@@ -16,9 +16,10 @@
 	uses in main.c ...
 */
 
+#include "instructions.h"
 
-//functions prototypes section
-int parsePrimary(/* pointers to sumbol table, instruction list*/);
+// shared functions prototypes section
+int parseStarter(/* pointers to sumbol table, instruction list*/typeList *instructionList);
 
 
 

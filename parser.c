@@ -17,11 +17,10 @@
 #include <stdio.h>
 #include "main.h"
 #include "lexer.h"
+#include "parser.h" /*
+#include "instructions.h" via parser.h */ 
 
-//update token function
-string attribute;  // global
-int tokenType;
-
+/*	//DEBUG ONLY
 char *debugTokens(int token){
 	switch (token) {
 		case 0 : 	return "PHP                 "; break;
@@ -59,14 +58,51 @@ char *debugTokens(int token){
 		default:	return "NO_TOKEN_WARN       "; break;
 	}
 }
+*/
 
-int parsePrimary(/* pointers to sumbol table, instruction list*/) {
+// global variables
+
+string attribute;			// atribute string from lexer
+int tokenType;				// token type from lexer
+typeList *instrList;	// list of instructions - common
+							// symbol tables
+
+// internal prototypes
+
+/* parseStarter prototype already in header file */
+
+// generate functions
+
+void createInstruction(/*int instrCode, void* addressOne, void* addressTwo, void* addressThree*/) {
+	typeInstruction instruction;
+	instruction.instrCode = 0;
+	instruction.addressOne = NULL;		//DEBUG ONLY!!!!
+	instruction.addressTwo = NULL;
+	instruction.addressThree = NULL;
+	listAdd(instrList, instruction);
+}
+
+// starter function 
+
+int parseStarter(/* pointers to sumbol table, instruction list*/typeList *instructionList) {
 	if (DEBUG_FLAG) printf("Parser start\n");
 
+	// delegate instrusction list and tables to global variables
+	instrList = instructionList;
+
+	// init string for atribute
 	if (strInit(&attribute) == STR_ERROR) {
 		if (DEBUG_FLAG) printf("Atribute string allocation error\n");
 		return INTERNAL_ERROR;
 	}
+
+	// test of interpreter
+	createInstruction();
+	createInstruction();
+
+	/* 
+
+	DEBUG ONLY, PRINTS ALL TOKENS
 
 	while (tokenType != END) {
 		tokenType = getToken(&attribute);
@@ -78,8 +114,17 @@ int parsePrimary(/* pointers to sumbol table, instruction list*/) {
 		}
 	}
 
+	*/
+
+	//free atribute string
 	strFree(&attribute);
 
 	if (DEBUG_FLAG) printf("Parser complete\n");
 	return SUCCESS;
 }
+
+// recursive descent
+
+// precedence parser
+
+
