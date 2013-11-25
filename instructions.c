@@ -60,10 +60,21 @@ void listNext(typeList *list) {
 	}
 }
 
+
 // goto instruction needed!!!
 // void listGoto(...) {
 // 	...
 // }
+
+typeInstruction * getCurrent(typeList *list) {
+	if (list->active != NULL ) {
+		return &(list->active->instr);
+	} else {
+		if (DEBUG_FLAG) printf("There is no active instruction for response!\n");
+		return NULL;
+	}
+}
+
 
 // DEBUG FUNCTIONS
 // void listPrint(typeList *list) {

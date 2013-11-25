@@ -17,6 +17,8 @@
 // list of all instructions
 
 #define I_INSTR 0
+// there should be instruction of STOP 
+// which stop interpreter
 // ...
 
 // structure of 3AK instructions list
@@ -50,4 +52,5 @@ void listDispose(typeList *list);
 int listAdd(typeList *list, typeInstruction instr);
 void listFirst(typeList *list);
 void listNext(typeList *list);
+typeInstruction * getCurrent(typeList *list);
 //goto instruction
