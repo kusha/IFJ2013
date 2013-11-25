@@ -34,8 +34,8 @@ all: $(OUTPUT)
 # 	rm -rf *.o $(OUTPUT)
 
 
-$(OUTPUT): str.o lexer.o parser.o main.o 
-	$(CC) $(CFLAGS) -o $(OUTPUT) str.o lexer.o parser.o main.o 
+$(OUTPUT): str.o lexer.o instructions.o interpreter.o parser.o main.o 
+	$(CC) $(CFLAGS) -o $(OUTPUT) str.o lexer.o instructions.o interpreter.o parser.o main.o 
 
 clean:
 	rm -rf *.o $(OUTPUT)
