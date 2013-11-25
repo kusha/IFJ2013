@@ -12,8 +12,7 @@
 # Main make file
 
 CC = gcc
-CFLAGS = -std=c99 -W -Wall -pedantic -g 
-# what is -g in CFLAGS ?
+CFLAGS = -std=c99 -W -Wall -pedantic
 OUTPUT = ifj
 
 all: $(OUTPUT)
