@@ -18,6 +18,9 @@
 
 #include "instructions.h"
 
+#define SYNTAX_OK		0
+#define SYNTAX_WRONG	2
+
 // shared functions prototypes section
 int parseStarter(/* pointers to sumbol table, instruction list*/typeList *instructionList);
 
