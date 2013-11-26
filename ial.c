@@ -19,9 +19,8 @@ char Search(tNodePtr Root, string Key){
 int Insert(tNodePtr* Root, string Key, tData Data){
 	if (*Root==NULL){
 		if (((*Root)=malloc(sizeof(struct tNode)))==NULL) return ALLOC_FAIL;
-		(*Root)->key=Key;
-		(*Root)->key.str=malloc(sizeof(char)*Key.length);
-		strcpy((*Root)->key.str,Key.str);
+		strInit(&((*Root)->key);
+		strCopy(&((*Root)->key),&Key);
 		(*Root)->data=Data;
 		(*Root)->lptr=NULL;
 		(*Root)->rptr=NULL;	
