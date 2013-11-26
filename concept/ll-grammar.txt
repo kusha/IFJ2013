@@ -1,16 +1,29 @@
-<program> 		-> START <program_units>
+<program> 		-> PHP <program_units>
+
 <program_units>	-> <func_define> <program_units>
 <program_units>	-> <cmd_sequence> <program_units>
 <program_units>	-> EOF
+
 <func_define>	-> function id ( <params> ) { <cmd_sequence> }
-<params>		-> E
-<params>		-> id <params_more>
-<params_more>	-> , id <params_more>
-<params_more>	-> E
-<cmd_sequence>	-> E
+
+<params>		-> E 						: )
+<params>		-> $id <params_more>
+
+<params_more>	-> , $id <params_more>
+<params_more>	-> E 						: )
+
+<cmd_sequence>	-> E 						: } function EOF
 <cmd_sequence>	-> <cmd> <cmd_sequence>
-<cmd>			-> $ id = <expression> ;									!!!jiny token pro $id
+
+<cmd>			-> $id = <expression> ;			!!!jiny 
+token pro $id
 <cmd>			-> if ( <expression> ) { <cmd_sequence> } else { <cmd_sequence> }
 <cmd>			-> while ( <expression> ) { <cmd_sequence> }
-<cmd>			-> $ id = id ( <params> ) ;
 <cmd>			-> return <expression> ;
+<cmd>			-> $id = id ( <input> ) ;
+
+<input>		-> E 						: )
+<input>		-> <expression> <input_more>
+
+<input_more>	-> , <expression> <input_more>
+<input_more>	-> E 						: )
