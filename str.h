@@ -16,3 +16,4 @@ void strClear(string *s);
 int strAddChar(string *s, char c);
 int strCompareConst(string *s1, char* s2);
 int strCompare(string *s1, string *s2);
+int strCopy(string *s1, string *s2);

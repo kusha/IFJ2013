@@ -65,6 +65,19 @@ int strCompare(string *s1, string *s2) {
 	return strcmp(s1->str, s2->str);
 }
 
+int strCopy(string *s1, string *s2) {
+	int newLength = s2->length;
+	if (newLength >= s1->allocated)
+	{
+		if ((s1->str = (char*) realloc(s1->str, newLength + 1)) == NULL)
+			return STR_ERROR;
+		s1->allocated = newLength + 1;
+	}
+	strcpy(s1->str, s2->str);
+	s1->length = newLength;
+	return STR_SUCCESS;
+}
+
 // void debugStrPrint(string *s) {
 // 	if (DEBUG_FLAG) printf("%i\t%s\n", s->length, s->str);
 // }
