@@ -22,6 +22,11 @@
 
 //lexer datatypes and structures section
 
+//common resources
+extern int troubleLine;
+extern int troubleColumn;
+extern int troubleCharacter;
+
 //must use macros for token names
 //bcs in parser switch it'll be harder to use enum
 #define PHP					0  // <?php

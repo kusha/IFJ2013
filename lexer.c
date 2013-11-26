@@ -18,6 +18,8 @@
 #include "main.h"
 #include "lexer.h"
 
+#define DEBUG_FLAG 0
+
 // S is STATE
 #define S_START			0
 #define S_IDENTIFIER	1
@@ -76,12 +78,25 @@ int checkKeywords(string *attribute) {
 
 char hex;
 
+int troubleLine = 1;
+int troubleColumn = 1;
+int troubleCharacter;
+
 int getToken(string *attribute) {
 	//in case of error reuturn LEXER_ERROR;
 	int character; //int bcs of EOF
 	int state = S_START;
 	while (1) {
 		character = getc(source);
+
+		troubleCharacter = character;
+		if (character=='\n') {
+			troubleLine++;
+			troubleColumn = 1;
+		} else {
+			troubleColumn++;
+		}
+
 		switch (state) {
 			case S_START:
 				if (isspace(character)) {

@@ -20,42 +20,44 @@
 #include "parser.h" /*
 #include "instructions.h" via parser.h */ 
 
+#define DEBUG_FLAG 0
+
 ///*	//DEBUG ONLY
-char *debugTokens(int token){
+char *debugTokens(int token) {
 	switch (token) {
-		case 0 : 	return "PHP                 "; break;
-		case 1 : 	return "END                 "; break;
-		case 10: 	return "IDENTIFIER          "; break;
-		case 11: 	return "IDENTIFIER_VARIABLE "; break;
-		case 20: 	return "KEYWORD_ELSE        "; break;
-		case 21: 	return "KEYWORD_FUNCTION    "; break;
-		case 22: 	return "KEYWORD_IF          "; break;
-		case 23: 	return "KEYWORD_RETURN      "; break;
-		case 24: 	return "KEYWORD_WHILE       "; break;
-		case 30: 	return "LITERAL_NULL        "; break;
-		case 31: 	return "LITERAL_LOGICAL     "; break;
-		case 32: 	return "LITERAL_INETEGER    "; break;
-		case 33: 	return "LITERAL_DOUBLE      "; break;
-		case 34: 	return "LITERAL_STRING      "; break;
-		case 40: 	return "COMMA               "; break;
-		case 41: 	return "SEMICOLON           "; break;
-		case 42: 	return "LEFT_BRACKET        "; break;
-		case 43: 	return "RIGHT_BRACKET       "; break;
-		case 44: 	return "LEFT_CURLY_BRACKET  "; break;
-		case 45: 	return "RIGHT_CURLY_BRACKET "; break;
-		case 50: 	return "OPERATION_ASSIGN    "; break;
-		case 51: 	return "OPERATION_PLUS      "; break;
-		case 52: 	return "OPERATION_MINUS     "; break;
-		case 53: 	return "OPERATION_MULTIPLY  "; break;
-		case 54: 	return "OPERATION_DIVIDE    "; break;
-		case 55: 	return "OPERATION_CONCATEN  "; break;
-		case 60: 	return "COMPARE_IS          "; break;
-		case 61: 	return "COMPARE_IS_NOT      "; break;
-		case 62: 	return "COMPARE_LESS        "; break;
-		case 63: 	return "COMPARE_LESS_EQ     "; break;
-		case 64: 	return "COMPARE_MORE        "; break;
-		case 65: 	return "COMPARE_MORE_EQ     "; break;
-		default:	return "NO_TOKEN_WARN       "; break;
+		case 0 : 	return "PHP"				; break;
+		case 1 : 	return "END"				; break;
+		case 10: 	return "IDENTIFIER"			; break;
+		case 11: 	return "IDENTIFIER_VARIABLE"; break;
+		case 20: 	return "KEYWORD_ELSE"		; break;
+		case 21: 	return "KEYWORD_FUNCTION"	; break;
+		case 22: 	return "KEYWORD_IF"			; break;
+		case 23: 	return "KEYWORD_RETURN"		; break;
+		case 24: 	return "KEYWORD_WHILE"		; break;
+		case 30: 	return "LITERAL_NULL"		; break;
+		case 31: 	return "LITERAL_LOGICAL"	; break;
+		case 32: 	return "LITERAL_INETEGER"	; break;
+		case 33: 	return "LITERAL_DOUBLE"		; break;
+		case 34: 	return "LITERAL_STRING"		; break;
+		case 40: 	return "COMMA"				; break;
+		case 41: 	return "SEMICOLON"			; break;
+		case 42: 	return "LEFT_BRACKET"		; break;
+		case 43: 	return "RIGHT_BRACKET"		; break;
+		case 44: 	return "LEFT_CURLY_BRACKET"	; break;
+		case 45: 	return "RIGHT_CURLY_BRACKET"; break;
+		case 50: 	return "OPERATION_ASSIGN"	; break;
+		case 51: 	return "OPERATION_PLUS"		; break;
+		case 52: 	return "OPERATION_MINUS"	; break;
+		case 53: 	return "OPERATION_MULTIPLY"	; break;
+		case 54: 	return "OPERATION_DIVIDE"	; break;
+		case 55: 	return "OPERATION_CONCATEN"	; break;
+		case 60: 	return "COMPARE_IS "		; break;
+		case 61: 	return "COMPARE_IS_NOT"		; break;
+		case 62: 	return "COMPARE_LESS"		; break;
+		case 63: 	return "COMPARE_LESS_EQ"	; break;
+		case 64: 	return "COMPARE_MORE"		; break;
+		case 65: 	return "COMPARE_MORE_EQ"	; break;
+		default:	return "NO_TOKEN_WARN"		; break;
 	}
 }
 //*/
@@ -67,6 +69,8 @@ int tokenType;				// token type from lexer
 typeList *instrList;	// list of instructions - common
 							// symbol tables
 int recoverFlag = 0;
+
+int expectedTokenType;		// for debug
 
 
 // internal prototypes
@@ -103,7 +107,7 @@ int parserPrecedence();
 
 
 #define UPDATE_TOKEN																			\
-	if (DEBUG_FLAG) printf(KRED "Token: %s\t%s\n" KBLU,debugTokens(tokenType),attribute.str);	\
+	/* if (DEBUG_FLAG) printf(KRED "Token: %s\t%s\n" KBLU,debugTokens(tokenType),attribute.str); */	\
 	if (recoverFlag) {																			\
 		recoverFlag = 0;																		\
 	} else {																					\
@@ -112,18 +116,19 @@ int parserPrecedence();
 	}
 
 #define RECOVER_TOKEN																					\
-	if (DEBUG_FLAG) printf(KMAG "RECOVERED TOKEN: %s\t%s\n" KBLU,debugTokens(tokenType),attribute.str);	\																
+	/* if (DEBUG_FLAG) printf(KMAG "RECOVERED TOKEN: %s\t%s\n" KBLU,debugTokens(tokenType),attribute.str); */	\																
 	recoverFlag = 1;
 
 #define CALL(RULE) \
 	if ((status = RULE())!=SYNTAX_OK) { \
-		printf(KGRN "debug! ACTUAL:%s\n" KBLU,debugTokens(tokenType));  \
+		/* printf(KGRN "debug! ACTUAL:%s\n" KBLU,debugTokens(tokenType)); */ \
 		return status; \
 	} 
 
 #define IS_TOKEN(NEEDED) \
-	printf(KYEL "ACTUAL:%s\tNEED:%s\n"KBLU,debugTokens(tokenType),debugTokens(NEEDED)); \
-	if (tokenType != NEEDED) return SYNTAX_WRONG;
+	expectedTokenType = NEEDED; \
+	/* printf(KYEL "ACTUAL:%s\tNEED:%s\n"KBLU,debugTokens(tokenType),debugTokens(NEEDED)); */ \
+	if (tokenType != NEEDED) { return SYNTAX_WRONG; } else { expectedTokenType = -1; }
 
 // generate functions
 

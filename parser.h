@@ -21,8 +21,13 @@
 #define SYNTAX_OK		0
 #define SYNTAX_WRONG	2
 
+//common resources
+extern int tokenType;
+extern int expectedTokenType;
+
 // shared functions prototypes section
 int parseStarter(/* pointers to sumbol table, instruction list*/typeList *instructionList);
+char *debugTokens(int token);
 
 
 

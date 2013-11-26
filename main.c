@@ -26,6 +26,14 @@
 	listDispose(&instructionList); \
 	fclose(file);
 
+// DEBUG COLORS!!! TO DELETE
+#define KNRM  "\x1B[0m"
+#define KRED  "\x1B[31m"
+#define KGRN  "\x1B[32m"
+#define KYEL  "\x1B[33m"
+#define KBLU  "\x1B[34m"
+#define KMAG  "\x1B[35m"
+
 
 int main (int argc, char*argv[]) {
 
@@ -48,13 +56,32 @@ int main (int argc, char*argv[]) {
 	int statusCode;
 	
 	statusCode = parseStarter(/* pointers to sumbol table, instruction list*/&instructionList);
+	if (DEBUG_FLAG) printf("\n");
 	switch (statusCode) {
 		case SUCCESS:	
-			if (DEBUG_FLAG) printf("lexer+parser OK\n");
+			if (DEBUG_FLAG) printf("\t["KGRN"OK"KNRM"]\tLexical and syntax analysis\n\n");
+			printf("\r");
 			break;
-		default:		
-			if (DEBUG_FLAG) printf("lexer+parser ERROR\n");
+
+		default:
+			printf(KGRN"\t%i"KNRM":"KGRN"%i\t"KNRM,troubleLine,troubleColumn);
+			switch (statusCode) {
+				case LEXICAL_ERROR:
+					printf(KRED"lexical error:\t"KNRM" unexpected token at symbol '"KYEL"%c"KNRM"'\n\n", troubleCharacter);
+					break;
+				case PARSER_ERROR:
+					printf(KRED"syntax error:\t"KNRM);
+					if (expectedTokenType == -1) {
+						printf("unexpected rule at token "KYEL"%s"KNRM, debugTokens(tokenType));
+					} else {
+						printf("expected token is "KYEL"%s"KNRM" instead of "KYEL"%s"KNRM, debugTokens(expectedTokenType), debugTokens(tokenType));
+					}
+					printf("\n");
+					break;
+			}
+			if (DEBUG_FLAG) printf("\t["KRED"FAIL"KNRM"]\tLexical and syntax analysis\n");
 			CLOSE_ALL
+			if (DEBUG_FLAG) printf("\t["KBLU"INFO"KNRM"]\tExit with status code %i\n\n",statusCode);
 			return statusCode;
 			break;
 	}
