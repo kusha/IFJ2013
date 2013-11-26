@@ -66,6 +66,8 @@ string attribute;			// atribute string from lexer
 int tokenType;				// token type from lexer
 typeList *instrList;	// list of instructions - common
 							// symbol tables
+int recoverFlag = 0;
+
 
 // internal prototypes
 
@@ -97,12 +99,21 @@ int parserPrecedence();
 #define KGRN  "\x1B[32m"
 #define KYEL  "\x1B[33m"
 #define KBLU  "\x1B[34m"
+#define KMAG  "\x1B[35m"
 
 
-#define UPDATE_TOKEN \
-	if (DEBUG_FLAG) printf(KRED "Token: %s\t%s\n" KBLU,debugTokens(tokenType),attribute.str); \
-	strClear(&attribute); \
-	if ((tokenType=getToken(&attribute))==LEXER_ERROR) return LEXICAL_ERROR;
+#define UPDATE_TOKEN																			\
+	if (DEBUG_FLAG) printf(KRED "Token: %s\t%s\n" KBLU,debugTokens(tokenType),attribute.str);	\
+	if (recoverFlag) {																			\
+		recoverFlag = 0;																		\
+	} else {																					\
+		strClear(&attribute);																	\
+		if ((tokenType=getToken(&attribute))==LEXER_ERROR) return LEXICAL_ERROR;				\
+	}
+
+#define RECOVER_TOKEN																					\
+	if (DEBUG_FLAG) printf(KMAG "RECOVERED TOKEN: %s\t%s\n" KBLU,debugTokens(tokenType),attribute.str);	\																
+	recoverFlag = 1;
 
 #define CALL(RULE) \
 	if ((status = RULE())!=SYNTAX_OK) { \
@@ -210,7 +221,7 @@ int PROGRAM_UNITS() {
 			// <program_units> -> <cmd_sequence> <program_units>
 			if (DEBUG_FLAG) printf("<program_units> -> <cmd_sequence> <program_units>\n");
 			CALL(CMD_SEQUENCE)
-			// UPDATE_TOKEN
+			UPDATE_TOKEN
 			CALL(PROGRAM_UNITS)
 			return SYNTAX_OK;
 			break;
@@ -243,7 +254,7 @@ int FUNC_DEFINE() {
 	IS_TOKEN(LEFT_CURLY_BRACKET)
 	UPDATE_TOKEN
 	CALL(CMD_SEQUENCE)
-	//UPDATE_TOKEN
+	UPDATE_TOKEN
 	IS_TOKEN(RIGHT_CURLY_BRACKET)
 	return SYNTAX_OK;
 }
@@ -254,6 +265,7 @@ int PARAMS() {
 		case RIGHT_BRACKET:		//WARNING NOT WORKING () in expressions!
 			// <params> -> E : )
 			if (DEBUG_FLAG) printf("<params> -> E : )\n");
+			RECOVER_TOKEN
 			return SYNTAX_OK;
 			break;
 
@@ -275,6 +287,7 @@ int PARAMS_MORE() {
 		case RIGHT_BRACKET:		//WARNING NOT WORKING () in expressions!
 			// <params_more> -> E : )
 			if (DEBUG_FLAG) printf("<params_more> -> E : )\n");
+			RECOVER_TOKEN
 			return SYNTAX_OK;
 			break;
 
@@ -300,6 +313,7 @@ int CMD_SEQUENCE() {
 		case END:
 			// <cmd_sequence> -> E : } function EOF
 			if (DEBUG_FLAG) printf("<cmd_sequence> -> E : } function EOF\n");
+			RECOVER_TOKEN
 			return SYNTAX_OK;
 			break;
 
@@ -336,10 +350,7 @@ int CMD() {
 					IS_TOKEN(LEFT_BRACKET)
 					UPDATE_TOKEN
 					CALL(INPUT)
-					// WARNING
-					// difficult situation
-					// input + input_more returns updated token
-					// bcs they use precedent parser
+					UPDATE_TOKEN
 					IS_TOKEN(RIGHT_BRACKET)
 					UPDATE_TOKEN
 					IS_TOKEN(SEMICOLON)
@@ -366,7 +377,7 @@ int CMD() {
 					// <cmd> -> $id = <expression> ;
 					if (DEBUG_FLAG) printf("<cmd> -> $id = <expression> ;\n");
 					parserPrecedence();
-					// token already updated by precedence analysis
+					UPDATE_TOKEN
 					IS_TOKEN(SEMICOLON)
 					return SYNTAX_OK;
 					break;
@@ -381,13 +392,13 @@ int CMD() {
 			IS_TOKEN(LEFT_BRACKET)
 			UPDATE_TOKEN
 			parserPrecedence();
-			// token already updated by precedence analysis
+			UPDATE_TOKEN
 			IS_TOKEN(RIGHT_BRACKET)
 			UPDATE_TOKEN
 			IS_TOKEN(LEFT_CURLY_BRACKET)
 			UPDATE_TOKEN
 			CALL(CMD_SEQUENCE)
-			// UPDATE_TOKEN do not need update token after cmd sequence
+			UPDATE_TOKEN
 			IS_TOKEN(RIGHT_CURLY_BRACKET)
 			UPDATE_TOKEN
 			IS_TOKEN(KEYWORD_ELSE)
@@ -395,7 +406,7 @@ int CMD() {
 			IS_TOKEN(LEFT_CURLY_BRACKET)
 			UPDATE_TOKEN
 			CALL(CMD_SEQUENCE)
-			//UPDATE_TOKEN
+			UPDATE_TOKEN
 			IS_TOKEN(RIGHT_CURLY_BRACKET)
 			return SYNTAX_OK;
 			break;
@@ -407,13 +418,13 @@ int CMD() {
 			IS_TOKEN(LEFT_BRACKET)
 			UPDATE_TOKEN
 			parserPrecedence();
-			// token already updated by precedence analysis
+			UPDATE_TOKEN
 			IS_TOKEN(RIGHT_BRACKET)
 			UPDATE_TOKEN
 			IS_TOKEN(LEFT_CURLY_BRACKET)
 			UPDATE_TOKEN
 			CALL(CMD_SEQUENCE)
-			//UPDATE_TOKEN
+			UPDATE_TOKEN
 			IS_TOKEN(RIGHT_CURLY_BRACKET)
 			return SYNTAX_OK;
 			break;
@@ -423,7 +434,7 @@ int CMD() {
 			if (DEBUG_FLAG) printf("<cmd> -> return <expression> ;\n");
 			UPDATE_TOKEN
 			parserPrecedence();
-			// token already updated by precedence analysis
+			UPDATE_TOKEN
 			IS_TOKEN(SEMICOLON)
 			return SYNTAX_OK;
 			break;
@@ -438,6 +449,7 @@ int INPUT() {
 		case RIGHT_BRACKET:		//WARNING NOT WORKING () in expressions!
 			// <input> -> E : )
 			if (DEBUG_FLAG) printf("<input> -> E : )\n");
+			RECOVER_TOKEN
 			return SYNTAX_OK;
 			break;
 
@@ -461,7 +473,7 @@ int INPUT() {
 			// <input> -> <expression> <input_more>
 			if (DEBUG_FLAG) printf("<input> -> <expression> <input_more>\n");
 			parserPrecedence();
-			// token already updated by precedence analysis
+			UPDATE_TOKEN
 			CALL(INPUT_MORE)
 			return SYNTAX_OK;
 			break;
@@ -476,6 +488,7 @@ int INPUT_MORE() {
 		case RIGHT_BRACKET:		//WARNING NOT WORKING () in expressions!
 			// <input_more> -> E : )
 			if (DEBUG_FLAG) printf("<input_more> -> E : )\n");
+			RECOVER_TOKEN
 			return SYNTAX_OK;
 			break;
 
@@ -484,6 +497,7 @@ int INPUT_MORE() {
 			if (DEBUG_FLAG) printf("<input_more> -> , <expression> <input_more>\n");
 			UPDATE_TOKEN
 			parserPrecedence();
+			UPDATE_TOKEN
 			CALL(INPUT_MORE)
 			return SYNTAX_OK;
 			break;
@@ -526,6 +540,7 @@ int parserPrecedence() {
 			// <program_units>	-> EOF
 			if (DEBUG_FLAG) printf("<expression> -> E\n");
 			// instructions for this rule
+			RECOVER_TOKEN
 			return SYNTAX_OK;
 
 	}
