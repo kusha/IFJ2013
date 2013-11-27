@@ -1,45 +1,102 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "string.h"
 #include "ial.h"
 
-char Search(tNodePtr Root, string Key){
-	if (Root!=NULL){
-		int strCompaResult=strCompare(&Root->key,&Key);
-		if (strCompaResult==0) return 1;
-		else if (strCompaResult>0)
-			Search(Root->lptr,Key);
-		else 	
-			Search(Root->rptr,Key);
+void treeInit (typeNodePtr *Root) {
+	(*Root) = NULL;
+}	
+
+typeNodePtr * treeSearch (typeNodePtr * Root, string Key) {
+	if ((*Root) != NULL) {
+		int compareResult = strCompare(&(*Root)->key, &Key);
+		if (compareResult == 0) {
+			return Root;
+		} else {
+			if (compareResult > 0) {
+				return treeSearch (&(*Root)->left, Key);
+			} else {
+				return treeSearch (&(*Root)->right, Key);
+			}
+		}
+	} else {
+		return NULL;										//not founded
 	}
-	else return 0;
-}
+} 
 
 
-int Insert(tNodePtr* Root, string Key, tData Data){
-	if (*Root==NULL){
-		if (((*Root)=malloc(sizeof(struct tNode)))==NULL) return ALLOC_FAIL;
-		strInit(&((*Root)->key);
-		strCopy(&((*Root)->key),&Key);
-		(*Root)->data=Data;
-		(*Root)->lptr=NULL;
-		(*Root)->rptr=NULL;	
-	}
-	else {
-		int strCompaResult=strCompare(&((*Root)->key),&Key);
-		if (strCompaResult<0) Insert(&((*Root)->lptr),Key,Data);
-		else if (strCompaResult>0) Insert(&((*Root)->rptr),Key,Data);
-		else (*Root)->data=Data;
+int treeInsert (typeNodePtr * Root, string Key, typeData Data)	{	
+	if ((*Root) == NULL) {												// new node
+		if (((*Root)=malloc(sizeof(struct typeNode)))==NULL) return ALLOC_FAIL;
+		(*Root)->key = Key;
+		(*Root)->data = Data;
+		(*Root)->left = NULL;
+		(*Root)->right = NULL;
+	} else {
+		int compareResult = strCompare(&(*Root)->key, &Key);
+		if (compareResult > 0) {
+			return treeInsert (&(*Root)->left, Key, Data);
+		} else if (compareResult < 0) {
+			return treeInsert (&(*Root)->right, Key, Data);
+		} else {
+			(*Root)->data = Data;
+		}
 	}
 	return SUCCESS;
 }
 
-	
-	
-void Dispose(tNodePtr Root){
-	if (Root != NULL){
-		Dispose(Root->lptr);
-		Dispose(Root->rptr);
-		free(Root);
+void treePrint (typeNodePtr *Root) {	
+	if ((*Root) != NULL) {
+		printf("'%s' -> [%i , ", (*Root)->key.str,(*Root)->data.type);
+		char val;
+		switch ((*Root)->data.type) {
+			case _NULL:
+				printf("NULL]\n");
+				break;
+
+			case _LOGICAL:
+				val = (*Root)->data.valueOf.type_LOGICAL;
+				if (val==0) {
+					printf("false]\n");
+				} else {
+					printf("true]\n");
+				}
+				break;
+
+			case _INTEGER:
+				printf("%i", (*Root)->data.valueOf.type_INTEGER);
+				break;
+
+			case _DOUBLE:
+				printf("%f", (*Root)->data.valueOf.type_DOUBLE);
+				break;
+
+			case _STRING:
+				printf("%s", strGetContent(&(*Root)->data.valueOf.type_STRING));
+				break;
+				
+		}
+		printf("]\n");
+		treePrint(&(*Root)->left);
+		treePrint(&(*Root)->right);
 	}
-}	
+}
+
+void treeDispose (typeNodePtr *Root) {	
+	if ((*Root) != NULL) {
+		treeDispose(&(*Root)->left);
+		treeDispose(&(*Root)->right);
+		free(*Root);
+		(*Root) = NULL; //empty tree after dispose
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
