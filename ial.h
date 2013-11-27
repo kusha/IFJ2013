@@ -1,5 +1,4 @@
-#include "str.h"
-#include "instructions.h"
+// #include "instructions.h"
 
 #define _NULL		0
 #define _LOGICAL	1

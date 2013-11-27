@@ -18,7 +18,8 @@
 #include "main.h"
 #include "lexer.h"
 #include "parser.h" /*
-#include "instructions.h" via parser.h */ 
+#include "instructions.h" via parser.h */
+#include "tables.h" 
 
 #define DEBUG_FLAG 0
 
@@ -116,7 +117,7 @@ int parserPrecedence();
 	}
 
 #define RECOVER_TOKEN																					\
-	/* if (DEBUG_FLAG) printf(KMAG "RECOVERED TOKEN: %s\t%s\n" KBLU,debugTokens(tokenType),attribute.str); */	\																
+	/* if (DEBUG_FLAG) printf(KMAG "RECOVERED TOKEN: %s\t%s\n" KBLU,debugTokens(tokenType),attribute.str); */	\
 	recoverFlag = 1;
 
 #define CALL(RULE) \
@@ -189,8 +190,6 @@ int parseStarter(/* pointers to sumbol table, instruction list*/typeList *instru
 }
 
 // recursive descent
-
-
 
 int PROGRAM() {
 	int status;
@@ -514,9 +513,15 @@ int INPUT_MORE() {
 // precedence parser
 
 int parserPrecedence() {
-	// emulation of precedence parser
-	// it's just a trap
-	// WARNING NO ( ) support
+
+	// Precedence Parser Implementation
+
+	// exist term and noterm - operators and operands
+
+	int expectedType = -1; // -1 ? 0 term 1 noter 
+
+	printf("%s ", debugTokens(tokenType));
+
 	int status;
 	switch (tokenType) {
 		case IDENTIFIER_VARIABLE:

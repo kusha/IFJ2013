@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "ial.h"
 #include "tables.h"
 #include "main.h"
 
@@ -119,53 +118,53 @@ typeData * getEmpty() {
 
 // typeConversion (typeData * variable, )
 
-int main () {
+// int main () {
 
-	string myString1;
-	strInit(&myString1);
-	strAddChar(&myString1, '1');
-	strAddChar(&myString1, '2');
-	strAddChar(&myString1, 'e');
-	strAddChar(&myString1, '-');
+// 	string myString1;
+// 	strInit(&myString1);
+// 	strAddChar(&myString1, '1');
+// 	strAddChar(&myString1, '2');
+// 	strAddChar(&myString1, 'e');
+// 	strAddChar(&myString1, '-');
 
-	string myString2;
-	strInit(&myString2);
-	strAddChar(&myString2, 'v');
-	strAddChar(&myString2, 'd');
-	strAddChar(&myString2, 's');
+// 	string myString2;
+// 	strInit(&myString2);
+// 	strAddChar(&myString2, 'v');
+// 	strAddChar(&myString2, 'd');
+// 	strAddChar(&myString2, 's');
 
-	// strAddChar(&myString2, 'a');
-	// strAddChar(&myString2, 'k');
-	// strAddChar(&myString2, 'a');
+// 	// strAddChar(&myString2, 'a');
+// 	// strAddChar(&myString2, 'k');
+// 	// strAddChar(&myString2, 'a');
 
-	treeInit (&globalVars);
+// 	treeInit (&globalVars);
 
-	typeData * tempVariable1;
-	tempVariable1 = getEmpty();
+// 	typeData * tempVariable1;
+// 	tempVariable1 = getEmpty();
 
-	typeData * tempVariable2;
-	tempVariable2 = getLiteral(_DOUBLE, &myString1);
+// 	typeData * tempVariable2;
+// 	tempVariable2 = getLiteral(_DOUBLE, &myString1);
 
-	// typeData * tempVariable3;
-	// tempVariable3 = getVariable(string * name, char existFlag)
+// 	// typeData * tempVariable3;
+// 	// tempVariable3 = getVariable(string * name, char existFlag)
 
-	typeData * tempVariable3;
-	tempVariable3 = getVariable(&myString2, SHOULD_EXIST);
-	tempVariable3 = getVariable(&myString2, MAY_NOT_EXIST);
-
-
-	// typeData * tempVariable3;
-	// tempVariable3 = getVariable(&myString2, 0);
+// 	typeData * tempVariable3;
+// 	tempVariable3 = getVariable(&myString2, SHOULD_EXIST);
+// 	tempVariable3 = getVariable(&myString2, MAY_NOT_EXIST);
 
 
-	// if (tempVariable3 == NULL) {
-	// 	printf("NULL\n");
-	// }
+// 	// typeData * tempVariable3;
+// 	// tempVariable3 = getVariable(&myString2, 0);
 
-	treePrint (&globalVars);
 
-	treeDispose (&globalVars);
-}
+// 	// if (tempVariable3 == NULL) {
+// 	// 	printf("NULL\n");
+// 	// }
+
+// 	treePrint (&globalVars);
+
+// 	treeDispose (&globalVars);
+// }
 
 
 
