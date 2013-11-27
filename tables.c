@@ -2,21 +2,27 @@
 #include <stdlib.h>
 #include "ial.h"
 #include "tables.h"
+#include "main.h"
 
 typeNodePtr globalVars;			//global table of vars
 typeNodePtr globalFunctions;	//global table of functions
 
-// typeData * getVariable(string * name, char existFlag) {
-// 	// 1. if we call it from top-down and want to assign
-// 	// just assign expressiom / func result from temp var name
-// 	// 2. if we call from expression - NULL is semantic error
-// 	typeNodePtr * searchNode = treeSearch(&globalVars, *name);
-// 	if (searchNode == NULL) {
-// 		return NULL;
-// 	} else {
-// 		return &(*searchNode)->data;
-// 	}
-// }
+typeData * getVariable(string * name, char existFlag) {
+	// 1. if we call it from top-down and want to assign
+	// just assign expressiom / func result from temp var name
+	// 2. if we call from expression - NULL is semantic error
+	typeNodePtr * searchNode = treeSearch(&globalVars, *name);
+	if (searchNode == NULL && existFlag) {
+		if (DEBUG_FLAG) printf("Can't return unexist variable\n");
+		return NULL;
+	} else {
+		typeData newData;
+		newData.type = _NULL;
+		newData.valueOf.type_NULL = NULL;
+		if (treeInsert(&globalVars, *name, newData)==ALLOC_FAIL) return NULL;
+		return &(*treeSearch(&globalVars, *name))->data;
+	}
+}
 
 int varCounter = 0;
 string tempVariableName () {
@@ -33,14 +39,13 @@ string tempVariableName () {
 		i++;
 	} 
 	// will be Freeed by dispose
-	printf("Created variable with name %s\n", tempName.str);
+	if (DEBUG_FLAG) printf("Created variable with name %s\n", tempName.str);
 	// add counter
 	varCounter++;
 	return tempName;
 }
 
 typeData * getLiteral(int dataType, string * atribute) {
-	string newStr; //for STRING case (but here)
 	typeData newData;
 	newData.type = dataType;
 	switch (dataType) {
@@ -80,14 +85,37 @@ typeData * getLiteral(int dataType, string * atribute) {
 	return &(*treeSearch(&globalVars, newName))->data;
 }
 
-// typeData * getEmpty(int dataType) {
-// 	typeData newData;
-// 	newData.type = dataType;
-// 	newData.value = NULL;		///allocation at interpreter
-// 	string newName = tempVariableName();
-// 	if (treeInsert(&globalVars, newName, newData)==ALLOC_FAIL) return NULL;
-// 	return &(*treeSearch(&globalVars, newName))->data;
-// }
+typeData * getEmpty() {
+	typeData newData;
+	newData.type = _NULL;
+	newData.valueOf.type_NULL = NULL;
+	// switch (dataType) {			//initial values
+	// 	case _NULL:
+			
+	// 		break;
+
+	// 	case _LOGICAL:
+	// 		newData.valueOf.type_LOGICAL = 0;
+	// 		break;
+
+	// 	case _INTEGER:
+	// 		newData.valueOf.type_INTEGER = 0;
+	// 		break;
+
+	// 	case _DOUBLE:
+	// 		newData.valueOf.type_DOUBLE = 0.0;
+	// 		break;
+
+	// 	case _STRING:
+	// 		strInit(&newData.valueOf.type_STRING);
+	// 		break;
+
+	// 	// case TYPE_FUNCTION:
+	// }
+	string newName = tempVariableName();
+	if (treeInsert(&globalVars, newName, newData)==ALLOC_FAIL) return NULL;
+	return &(*treeSearch(&globalVars, newName))->data;
+}
 
 // typeConversion (typeData * variable, )
 
@@ -96,8 +124,9 @@ int main () {
 	string myString1;
 	strInit(&myString1);
 	strAddChar(&myString1, '1');
-	strAddChar(&myString1, '4');
-	strAddChar(&myString1, '3');
+	strAddChar(&myString1, '2');
+	strAddChar(&myString1, 'e');
+	strAddChar(&myString1, '-');
 
 	string myString2;
 	strInit(&myString2);
@@ -109,19 +138,20 @@ int main () {
 	// strAddChar(&myString2, 'k');
 	// strAddChar(&myString2, 'a');
 
-
-	// typeData myData;
-	// myData.type = 10;
-	// myData.value = 23;
-
 	treeInit (&globalVars);
 
-	// typeData * tempVariable1;
-	// tempVariable1 = getEmpty(TYPE_INETEGER);
-
+	typeData * tempVariable1;
+	tempVariable1 = getEmpty();
 
 	typeData * tempVariable2;
-	tempVariable2 = getLiteral(_INTEGER, &myString1);
+	tempVariable2 = getLiteral(_DOUBLE, &myString1);
+
+	// typeData * tempVariable3;
+	// tempVariable3 = getVariable(string * name, char existFlag)
+
+	typeData * tempVariable3;
+	tempVariable3 = getVariable(&myString2, SHOULD_EXIST);
+	tempVariable3 = getVariable(&myString2, MAY_NOT_EXIST);
 
 
 	// typeData * tempVariable3;
@@ -131,9 +161,6 @@ int main () {
 	// if (tempVariable3 == NULL) {
 	// 	printf("NULL\n");
 	// }
-
-
-	printf(" %i\n", tempVariable2);
 
 	treePrint (&globalVars);
 

@@ -50,15 +50,15 @@ void treePrint (typeNodePtr *Root) {
 		char val;
 		switch ((*Root)->data.type) {
 			case _NULL:
-				printf("NULL]\n");
+				printf("NULL");
 				break;
 
 			case _LOGICAL:
 				val = (*Root)->data.valueOf.type_LOGICAL;
 				if (val==0) {
-					printf("false]\n");
+					printf("false");
 				} else {
-					printf("true]\n");
+					printf("true");
 				}
 				break;
 
