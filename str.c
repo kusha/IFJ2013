@@ -78,6 +78,10 @@ int strCopy(string *s1, string *s2) {
 	return STR_SUCCESS;
 }
 
+char * strGetContent (string *s) {
+	return s->str;
+}
+
 // void debugStrPrint(string *s) {
 // 	if (DEBUG_FLAG) printf("%i\t%s\n", s->length, s->str);
 // }
