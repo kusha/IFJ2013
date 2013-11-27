@@ -16,10 +16,32 @@
 
 // list of all instructions
 
-#define I_INSTR 0
-// there should be instruction of STOP 
-// which stop interpreter
-// ...
+#define I_STOP 			0 // exit		----	----	----
+
+#define I_GOTO 			1 // ->			----	where	----
+#define I_GOTO_IF 		2 // ?->		true?	where	----
+
+#define I_ASSIGN		10 // =			where	from	----
+#define I_PLUS			11 // +			where	oper1	oper2
+#define I_MINUS			12 // -			where	oper1	oper2
+#define I_MULTIPLY		13 // *			where	oper1	oper2
+#define I_DIVIDE		14 // /			where	oper1	oper2
+#define I_CONCATEN		15 // .			where	oper1	oper2
+
+#define I_C_IS			20 // ===		result	oper1	oper2
+#define I_C_IS_NOT		21 // !==		result	oper1	oper2
+#define I_C_LESS		22 // <			result	oper1	oper2
+#define I_C_LESS_EQ		23 // <=		result	oper1	oper2
+#define I_C_MORE		24 // >			result	oper1	oper2
+#define I_C_MORE_EQ		25 // >=		result	oper1	oper2
+
+/*
+
+#define I_WRITE
+#define I_READ
+
+*/
+
 
 // structure of 3AK instructions list
 
