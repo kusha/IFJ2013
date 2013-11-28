@@ -21,8 +21,6 @@
 #include "instructions.h" via parser.h */
 #include "tables.h" 
 
-#define DEBUG_FLAG 0
-
 ///*	//DEBUG ONLY
 char *debugTokens(int token) {
 	switch (token) {
@@ -65,7 +63,7 @@ char *debugTokens(int token) {
 
 // global variables
 
-string attribute;			// atribute string from lexer
+string attribute;			// attribute string from lexer
 int tokenType;				// token type from lexer
 typeList *instrList;	// list of instructions - common
 							// symbol tables
@@ -86,6 +84,7 @@ int expectedTokenType;		// for debug
 #define CMD				r6
 #define INPUT			r7
 #define INPUT_MORE		r8
+#define PRECEDENCE 		parserPrecedence
 
 int PROGRAM();
 int PROGRAM_UNITS();
@@ -150,9 +149,9 @@ int parseStarter(/* pointers to sumbol table, instruction list*/typeList *instru
 	// delegate instrusction list and tables to global variables
 	instrList = instructionList;
 
-	// init string for atribute
+	// init string for attribute
 	if (strInit(&attribute) == STR_ERROR) {
-		if (DEBUG_FLAG) printf("Atribute string allocation error\n");
+		if (DEBUG_FLAG) printf("Attribute string allocation error\n");
 		return INTERNAL_ERROR;
 	}
 
@@ -182,7 +181,7 @@ int parseStarter(/* pointers to sumbol table, instruction list*/typeList *instru
 	UPDATE_TOKEN
 	statusCode = PROGRAM();
 
-	//free atribute string
+	//free attribute string
 	strFree(&attribute);
 
 	if (DEBUG_FLAG) printf("Parser complete with code %i\n", statusCode);
@@ -380,7 +379,7 @@ int CMD() {
 				case COMPARE_MORE_EQ:
 					// <cmd> -> $id = <expression> ;
 					if (DEBUG_FLAG) printf("<cmd> -> $id = <expression> ;\n");
-					parserPrecedence();
+					CALL(PRECEDENCE)
 					UPDATE_TOKEN
 					IS_TOKEN(SEMICOLON)
 					return SYNTAX_OK;
@@ -395,7 +394,7 @@ int CMD() {
 			UPDATE_TOKEN
 			IS_TOKEN(LEFT_BRACKET)
 			UPDATE_TOKEN
-			parserPrecedence();
+			CALL(PRECEDENCE)
 			UPDATE_TOKEN
 			IS_TOKEN(RIGHT_BRACKET)
 			UPDATE_TOKEN
@@ -421,7 +420,7 @@ int CMD() {
 			UPDATE_TOKEN
 			IS_TOKEN(LEFT_BRACKET)
 			UPDATE_TOKEN
-			parserPrecedence();
+			CALL(PRECEDENCE)
 			UPDATE_TOKEN
 			IS_TOKEN(RIGHT_BRACKET)
 			UPDATE_TOKEN
@@ -437,7 +436,7 @@ int CMD() {
 			// <cmd> -> return <expression> ;
 			if (DEBUG_FLAG) printf("<cmd> -> return <expression> ;\n");
 			UPDATE_TOKEN
-			parserPrecedence();
+			CALL(PRECEDENCE)
 			UPDATE_TOKEN
 			IS_TOKEN(SEMICOLON)
 			return SYNTAX_OK;
@@ -476,7 +475,7 @@ int INPUT() {
 		case COMPARE_MORE_EQ:
 			// <input> -> <expression> <input_more>
 			if (DEBUG_FLAG) printf("<input> -> <expression> <input_more>\n");
-			parserPrecedence();
+			CALL(PRECEDENCE)
 			UPDATE_TOKEN
 			CALL(INPUT_MORE)
 			return SYNTAX_OK;
@@ -500,7 +499,7 @@ int INPUT_MORE() {
 			// <input_more> -> , <expression> <input_more>
 			if (DEBUG_FLAG) printf("<input_more> -> , <expression> <input_more>\n");
 			UPDATE_TOKEN
-			parserPrecedence();
+			CALL(PRECEDENCE)
 			UPDATE_TOKEN
 			CALL(INPUT_MORE)
 			return SYNTAX_OK;
@@ -510,19 +509,28 @@ int INPUT_MORE() {
 	return SYNTAX_WRONG;
 }
 
-// precedence parser
+
+// Precedence Parser Implementation
+
+// global section of precedence parser
+
+#define TERM 		1 			//OPERATORS
+#define NOTERM 		0 			//OPERANDS
+#define WHATEVER	-1
+
+int bracketsCounter = 0;
+
+int expectedType = WHATEVER; // -1 ?! 0 term 1 noterm 
+int currentType = WHATEVER; // -1 ?! 0 term 1 noterm
 
 int parserPrecedence() {
 
-	// Precedence Parser Implementation
+	printf("TOKEN: %s\t EXPECTED: %i\n", debugTokens(tokenType), expectedType);
 
-	// exist term and noterm - operators and operands
+	typeData * actualNoterm;
+	int actualTerm;
 
-	int expectedType = -1; // -1 ? 0 term 1 noter 
-
-	printf("%s ", debugTokens(tokenType));
-
-	int status;
+	// prepare stack nodes
 	switch (tokenType) {
 		case IDENTIFIER_VARIABLE:
 		case LITERAL_NULL:
@@ -530,6 +538,24 @@ int parserPrecedence() {
 		case LITERAL_INETEGER:
 		case LITERAL_DOUBLE:
 		case LITERAL_STRING:
+			//noterm at input
+			if (expectedType == TERM) {
+				if (DEBUG_FLAG) printf("unexepected noterm in expression\n");
+				return SYNTAX_WRONG;	//unexpected token
+			} else {
+				expectedType = TERM;
+			}
+			if (tokenType == IDENTIFIER_VARIABLE) {
+				actualNoterm = getVariable(&attribute, SHOULD_EXIST);
+			} else {
+				actualNoterm = getLiteral(tokenType-30, &attribute); //TOKEN -> DATA_TYPE
+			}
+			if (actualNoterm == NULL) {
+				if (DEBUG_FLAG) printf("STOP! SEMANTIC ERROR! UNDEFINED VAR IN EXPRESSION\n");
+			}
+			currentType = NOTERM;
+			break;
+
 		case OPERATION_PLUS:
 		case OPERATION_MINUS:
 		case OPERATION_MULTIPLY:
@@ -540,22 +566,108 @@ int parserPrecedence() {
 		case COMPARE_LESS:
 		case COMPARE_MORE:
 		case COMPARE_MORE_EQ:
-			// <expression> -> <expression>
-			if (DEBUG_FLAG) printf("<expression> -> <expression>\n");
-			UPDATE_TOKEN
-			parserPrecedence();
-			return SYNTAX_OK;
+			//term at input
+			if (expectedType == NOTERM) {
+				if (DEBUG_FLAG) printf("unexepected noterm in expression\n");
+				return SYNTAX_WRONG;	//unexpected token
+			} else {
+				expectedType = NOTERM;
+			}
+			actualTerm = tokenType;
+			currentType = TERM;
+			break;
+
+		case LEFT_BRACKET:
+			// firstly control tokens
+			if (currentType != NOTERM) {		//NOT noterm bcs can be first!!!
+				currentType = TERM;
+				expectedType = NOTERM; 		//next after ( will be NOTERM
+			} else {
+				if (DEBUG_FLAG) printf("unexepected left bracket\n");
+				return SYNTAX_WRONG;	//unexpected token
+			}
+			//and than bracket counter
+			++bracketsCounter;
+			//update term
+			actualTerm = tokenType;
+			break;
+
+		case RIGHT_BRACKET:
+			// firstly control tokens
+			if (currentType != TERM) {		//NOT term bcs can be first!!! ?!WTF
+				currentType = NOTERM;
+				expectedType = TERM; 		//next after ( will be NOTERM
+			} else {
+				if (DEBUG_FLAG) printf("unexepected right bracket\n");
+				return SYNTAX_WRONG;	//unexpected token
+			}
+			//and than bracket counter
+			--bracketsCounter;
+			if (bracketsCounter<0) {	//exit right bracket position
+				if (DEBUG_FLAG) printf("1exit from PP with recovered %s\n", debugTokens(tokenType));
+				RECOVER_TOKEN
+				return SYNTAX_OK;
+			}
+			//update term
+			actualTerm = tokenType;
+			break;
 
 		default:
-			// <program_units>	-> EOF
-			if (DEBUG_FLAG) printf("<expression> -> E\n");
-			// instructions for this rule
+			//maybe token isn't for expression?
+			if (bracketsCounter != 0) {
+				if (DEBUG_FLAG) printf("exit from expression with brackets error\n");
+				return SYNTAX_WRONG;	//unexpected token
+			}
 			RECOVER_TOKEN
 			return SYNTAX_OK;
-
 	}
-	return SYNTAX_WRONG;
+
+	//ready to continue
+	UPDATE_TOKEN
+	return parserPrecedence();
 }
+
+
+// 	printf("%s ", debugTokens(tokenType));
+
+// 	int status;
+// 	switch (tokenType) {
+// 		case IDENTIFIER_VARIABLE:
+// 		case LITERAL_NULL:
+// 		case LITERAL_LOGICAL:
+// 		case LITERAL_INETEGER:
+// 		case LITERAL_DOUBLE:
+// 		case LITERAL_STRING:
+// 		case OPERATION_PLUS:
+// 		case OPERATION_MINUS:
+// 		case OPERATION_MULTIPLY:
+// 		case OPERATION_DIVIDE:
+// 		case OPERATION_CONCATEN:
+// 		case COMPARE_IS:
+// 		case COMPARE_IS_NOT:
+// 		case COMPARE_LESS:
+// 		case COMPARE_MORE:
+// 		case COMPARE_MORE_EQ:
+// 			// <expression> -> <expression>
+// 			if (DEBUG_FLAG) printf("<expression> -> <expression>\n");
+// 			UPDATE_TOKEN
+// 			parserPrecedence();
+// 			return SYNTAX_OK;
+
+// 		default:
+// 			// <program_units>	-> EOF
+// 			if (DEBUG_FLAG) printf("<expression> -> E\n");
+// 			// instructions for this rule
+// 			RECOVER_TOKEN
+// 			return SYNTAX_OK;
+
+// 	}
+// 	return SYNTAX_WRONG;
+// }
+
+// int recursivePrecedence () {
+// 	return SYNTAX_OK;
+// }
 
 
 
