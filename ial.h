@@ -1,5 +1,9 @@
-// #include "instructions.h"
-// #include "str.h"
+#ifndef __IAL_H__
+#define __IAL_H__
+
+#include "common.h"
+#include "str.h"
+#include "instructions.h"
 
 #define _NULL		0
 #define _LOGICAL	1
@@ -20,10 +24,10 @@ typedef struct Data{
 		double 			type_DOUBLE;
 		string			type_STRING;
 	} valueOf;	
-	union jump { 			//for TYPE_FUNCTION
-		typeInstruction *	entryPoint;
-		typeInstruction *	returnPoint;
-	};
+	// union jump { 			//for TYPE_FUNCTION
+	// 	typeInstruction *	entryPoint;
+	// 	typeInstruction *	returnPoint;
+	// };
 } typeData;
 
 typedef struct typeNode{
@@ -38,3 +42,5 @@ typeNodePtr * treeSearch (typeNodePtr * Root, string Key);
 int treeInsert (typeNodePtr * Root, string Key, typeData Data);
 void treeDispose (typeNodePtr *Root);
 void treePrint (typeNodePtr *Root);
+
+#endif

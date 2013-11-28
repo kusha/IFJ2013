@@ -15,7 +15,6 @@
 
 #include <stdio.h> //getc
 #include <ctype.h> //isspace
-#include "main.h"
 #include "lexer.h"
 
 #define DEBUG_FLAG 0

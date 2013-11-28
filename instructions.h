@@ -14,6 +14,12 @@
 	Header file of instruction list unit
 */
 
+#ifndef __INSTRUCTIONS_H__
+#define __INSTRUCTIONS_H__
+
+#include "common.h"
+#include "ial.h"
+
 // list of all instructions
 
 #define I_STOP 			0 // exit		----	----	----
@@ -76,3 +82,6 @@ void listFirst(typeList *list);
 void listNext(typeList *list);
 typeInstruction * getCurrent(typeList *list);
 //goto instruction
+
+
+#endif

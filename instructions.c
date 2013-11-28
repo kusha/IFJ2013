@@ -16,7 +16,6 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "main.h"
 #include "instructions.h"
 
 void listInit(typeList *list) {

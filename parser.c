@@ -15,11 +15,7 @@
 */
 
 #include <stdio.h>
-#include "main.h"
-#include "lexer.h"
-#include "parser.h" /*
-#include "instructions.h" via parser.h */
-#include "tables.h" 
+#include "parser.h"
 
 ///*	//DEBUG ONLY
 char *debugTokens(int token) {

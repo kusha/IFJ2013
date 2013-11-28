@@ -18,6 +18,10 @@
 	uses in main.c and in parser.c
 */
 
+#ifndef __LEXER_H__
+#define __LEXER_H__
+
+#include "common.h"
 #include "str.h"
 
 //lexer datatypes and structures section
@@ -73,3 +77,6 @@ extern int troubleCharacter;
 //functions prototypes section
 void delegateSourceFile(FILE *f);
 int getToken(string *attribute);
+
+
+#endif

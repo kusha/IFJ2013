@@ -15,12 +15,7 @@
 */
 
 #include <stdio.h>
-
 #include "main.h"
-#include "lexer.h"
-#include "parser.h" /*
-#include "instructions.h" via parser.h */ 
-#include "interpreter.h"
 
 #define CLOSE_ALL \
 	listDispose(&instructionList); \

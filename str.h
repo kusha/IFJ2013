@@ -1,3 +1,7 @@
+#ifndef __STR_H__
+#define __STR_H__
+
+#include "common.h"
 
 #define STR_SUCCESS		0 //successfull operation
 #define STR_ERROR		1 //allocation error/another
@@ -18,3 +22,6 @@ int strCompareConst(string *s1, char* s2);
 int strCompare(string *s1, string *s2);
 int strCopy(string *s1, string *s2);
 char * strGetContent (string *s);
+
+
+#endif

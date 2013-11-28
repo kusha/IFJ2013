@@ -14,5 +14,15 @@
 	Interpreter of 3AK instructions header file
 */
 
+#ifndef __INTERPRETER_H__
+#define __INTERPRETER_H__
+
+#include "common.h"
+#include "ial.h"
+#include "instructions.h"
+
 // one shared function
 int interpreterStart(/* same input like parser*/typeList *instrList);
+
+
+#endif

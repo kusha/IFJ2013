@@ -13,28 +13,16 @@
 
 CC = gcc
 CFLAGS = -std=c99 -W -Wall -pedantic
+LINKER = -c
 OUTPUT = ifj
+
+OBJS = str.o lexer.o instructions.o ial.o tables.o stack.o interpreter.o parser.o main.o
 
 all: $(OUTPUT)
 
 
-# $(OUTPUT): main.o lexer.o parser.o
-# 	$(CC) main.o lexer.o parser.o -o $(OUTPUT)
-
-# main.o: main.c
-# 	$(CC) $(CFLAGS) main.c
-
-# lexer.o: lexer.c
-# 	$(CC) $(CFLAGS) lexer.c
-
-# parser.o: parser.c
-# 	$(CC) $(CFLAGS) parser.c
-
-# clean:
-# 	rm -rf *.o $(OUTPUT)
-
-$(OUTPUT): str.o instructions.o ial.o tables.o lexer.o  interpreter.o parser.o main.o 
-	$(CC) $(CFLAGS) -o $(OUTPUT) str.o instructions.o ial.o tables.o lexer.o  interpreter.o parser.o main.o 
+$(OUTPUT): $(OBJS)
+	$(CC) $(CFLAGS) -o $(OUTPUT) $(OBJS) 
 
 clean:
 	rm -rf *.o $(OUTPUT)

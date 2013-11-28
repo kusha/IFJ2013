@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "tables.h"
-#include "main.h"
 
 typeNodePtr globalVars;			//global table of vars
 typeNodePtr globalFunctions;	//global table of functions

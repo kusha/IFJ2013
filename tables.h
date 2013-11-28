@@ -1,3 +1,8 @@
+#ifndef __TABLES_H__
+#define __TABLES_H__
+
+#include "common.h"
+#include "str.h"
 #include "ial.h"
 
 // existFlag
@@ -13,3 +18,5 @@
 typeData * getVariable(string * name, char existFlag);
 typeData * getLiteral(int dataType, string * atribute);
 typeData * getEmpty();
+
+#endif

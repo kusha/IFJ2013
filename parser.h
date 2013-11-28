@@ -16,7 +16,16 @@
 	uses in main.c ...
 */
 
+#ifndef __PARSER_H__
+#define __PARSER_H__
+
+#include "common.h"
+#include "lexer.h"
+#include "tables.h"
 #include "instructions.h"
+#include "stack.h"
+
+// #include "stack.h"
 
 #define SYNTAX_OK		0
 #define SYNTAX_WRONG	2
@@ -30,4 +39,4 @@ int parseStarter(/* pointers to sumbol table, instruction list*/typeList *instru
 char *debugTokens(int token);
 
 
-
+#endif

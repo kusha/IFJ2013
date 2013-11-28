@@ -17,7 +17,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "main.h"
 #include "str.h"
 
 #define DEBUG_FLAG 0

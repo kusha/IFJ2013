@@ -16,8 +16,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "main.h"
-#include "instructions.h"
+#include "interpreter.h"
 
 int interpreterStart(/* same input like parser*/typeList *instrList) {
 
