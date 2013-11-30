@@ -11,6 +11,8 @@
 **	Brandejs Zdenko		<xbrand06@stud.fit.vutbr.cz>
 **	Khudiakov Daniil	<xkhudi00@stud.fit.vutbr.cz>
 **
+**	Descripition.
+**
 ** -------------------------------------------------------------------------*/
 
 
@@ -821,7 +823,7 @@ int parserPrecedence() {
 							typeData * operandSecond = stackNotermTop(&notermStack);
 							stackNotermPop (&notermStack);
 							//CREATE INSTRUCTION!
-							printf(KBLU "%i = %i %s %i\n"KNRM,tempVar->valueOf.type_INTEGER,operandOne->valueOf.type_INTEGER,debugPreced(popedTerm),operandSecond->valueOf.type_INTEGER);
+							printf(CBLU "%i = %i %s %i\n" CNRM ,tempVar->valueOf.type_INTEGER,operandOne->valueOf.type_INTEGER,debugPreced(popedTerm),operandSecond->valueOf.type_INTEGER);
 							stackNotermPush (&notermStack, tempVar);
 							stackTermPop(&termStack);
 						}

@@ -1,92 +1,111 @@
-/*
-	IFJ project 2013
-	Interpreter of IFJ2013 language
-	4.11.2013 - 15.12.2013
-	
-	Team 13 (b/3/I):
+/* -- IFJ project 2013 ------------------------------------------------------
+**
+**	Interpreter of IFJ2013 language
+**	4.11.2013 - 15.12.2013
+**
+**	Team 13 (b/3/I):
+**
+**	Bank Tomáš			<xbankt00@stud.fit.vutbr.cz>
+**	Birger Mark			<xbirge00@stud.fit.vutbr.cz>
+**	Botka Roland		<xbotka00@stud.fit.vutbr.cz>
+**	Brandejs Zdenko		<xbrand06@stud.fit.vutbr.cz>
+**	Khudiakov Daniil	<xkhudi00@stud.fit.vutbr.cz>
+**
+**	Main program - control flow of the program.
+**
+** -------------------------------------------------------------------------*/
 
-	Bank Tomáš			<xbankt00@stud.fit.vutbr.cz>
-	Birger Mark			<xbirge00@stud.fit.vutbr.cz>
-	Botka Roland		<xbotka00@stud.fit.vutbr.cz>
-	Brandejs Zdenko		<xbrand06@stud.fit.vutbr.cz>
-	Khudiakov Daniil	<xkhudi00@stud.fit.vutbr.cz>
-	
-	Main file - control flow of the program
-*/
 
-#include <stdio.h>
-#include "main.h"
+/* -- Includes part --------------------------------------------------------*/
 
-#define CLOSE_ALL \
-	listDispose(&instructionList); \
+#include <stdio.h>	// for file opening
+#include "main.h"	// every .c file include same .h file
+
+
+/* -- Macros definition ----------------------------------------------------*/
+
+#define CLOSE_ALL					\
+	listDispose(&instructionList);	\
 	fclose(file);
 
-int main (int argc, char*argv[]) {
 
-	//input data section
+/* -- Main program flow ----------------------------------------------------*/
+
+int main (int argc, char * argv[]) {
+
+	/* -- Check input, delegate file pointer -------------------------------*/
+
 	FILE *file;
 	if (argc == 1 || argc > 2) {
-		if (DEBUG_FLAG) printf("wrong program params\n");
-		return INTERNAL_ERROR;
+		REPORT("Wrong input params.")
+		HALT(INTERNAL_ERROR)
 	}
 	if ((file = fopen(argv[1],"r")) == NULL) {
-		if (DEBUG_FLAG) printf("file opening error\n");
-		return INTERNAL_ERROR;
+		REPORT("File opening error.")
+		HALT(INTERNAL_ERROR)
 	}
-	delegateSourceFile(file); //delegate sources to scanner
+	delegateSourceFile(file);
 
-	//prepare data structures
+
+	/* -- Prepare instruction list -----------------------------------------*/
+
 	typeList instructionList;
 	listInit(&instructionList);
 
+
+	/* -- Common variables -------------------------------------------------*/
+
 	int statusCode;
+
+
+	/* -- Try to run parser ------------------------------------------------*/
 	
-	statusCode = parseStarter(/* pointers to sumbol table, instruction list*/&instructionList);
-	if (DEBUG_FLAG) printf("\n");
+	statusCode = parseStarter(&instructionList/*maybe also tables?*/);
+
 	switch (statusCode) {
 		case SUCCESS:	
-			if (DEBUG_FLAG) printf("\t["KGRN"OK"KNRM"]\tLexical and syntax analysis\n\n");
-			printf("\r");
+			REPORT("Lexical and syntax analysis - OK.")
 			break;
 
 		default:
-			printf(KGRN"\t%i"KNRM":"KGRN"%i\t"KNRM,troubleLine,troubleColumn);
 			switch (statusCode) {
 				case LEXICAL_ERROR:
-					printf(KRED"lexical error:\t"KNRM" unexpected token at symbol '"KYEL"%c"KNRM"'\n\n", troubleCharacter);
+					REPORT("Lexical analysis failure.")
 					break;
+
 				case PARSER_ERROR:
-					printf(KRED"syntax error:\t"KNRM);
-					if (expectedTokenType == -1) {
-						printf("unexpected rule at token "KYEL"%s"KNRM, debugTokens(tokenType));
-					} else {
-						printf("expected token is "KYEL"%s"KNRM" instead of "KYEL"%s"KNRM, debugTokens(expectedTokenType), debugTokens(tokenType));
-					}
-					printf("\n");
+					REPORT("Syntax analysis failure.")
 					break;
 			}
-			if (DEBUG_FLAG) printf("\t["KRED"FAIL"KNRM"]\tLexical and syntax analysis\n");
 			CLOSE_ALL
-			if (DEBUG_FLAG) printf("\t["KBLU"INFO"KNRM"]\tExit with status code %i\n\n",statusCode);
-			return statusCode;
+			HALT(statusCode)
 			break;
 	}
 
+
+	/* -- Try to interprete instruction list -------------------------------*/
+
 	statusCode = interpreterStart(/* same input like parser*/&instructionList);
+
 	switch (statusCode) {
 		case SUCCESS:	
-			if (DEBUG_FLAG) printf("interpreter OK\n");
+			REPORT("Interpreter - OK.")
 			break;
-		default:		
-			if (DEBUG_FLAG) printf("interpreter ERROR\n");
+
+		default:
+			// TODO switch for semantic errors
+			REPORT("Interpreter failure.")
 			CLOSE_ALL
-			return statusCode;
+			HALT(statusCode)
 			break;
 	}
 	
-	CLOSE_ALL	//destroy tables, lists, close file
 
-	return statusCode;
+	/* -- Conclusion -------------------------------------------------------*/
+
+	CLOSE_ALL
+	HALT(statusCode)
+
 }
 
 
