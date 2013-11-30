@@ -18,11 +18,13 @@
 #include <stdio.h>
 #include "interpreter.h"
 
-int interpreterStart(/* same input like parser*/typeList *instrList) {
+int interpreterStart(/*tables for vars (global), table for functions*/typeList *instrList) {
 
 	if (DEBUG_FLAG) printf("Interpeter start\n");
 
 	/*
+
+	// actualVarsTable = global / function
 	
 	REAL INTERPRETER SKETCH
 

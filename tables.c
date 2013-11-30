@@ -9,14 +9,14 @@ typeData * getVariable(string * name, char existFlag) {
 	// 1. if we call it from top-down and want to assign
 	// just assign expressiom / func result from temp var name
 	// 2. if we call from expression - NULL is semantic error
-	typeNodePtr * searchNode = treeSearch(&globalVars, *name);
+	typeNodePtr * searchNode = treeSearch(&globalVars, *name); 			
 	if (searchNode == NULL && existFlag) {
 		if (DEBUG_FLAG) printf("Can't return unexist variable\n");
 		return NULL;
 	} else {
 		typeData newData;
 		newData.type = _NULL;
-		newData.valueOf.type_NULL = NULL;
+		newData.valueOf.type_NULL = NULL;				///ERROR -FIRST IS NO TYPE
 		if (treeInsert(&globalVars, *name, newData)==ALLOC_FAIL) return NULL;
 		return &(*treeSearch(&globalVars, *name))->data;
 	}

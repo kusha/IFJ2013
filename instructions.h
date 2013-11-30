@@ -41,12 +41,15 @@
 #define I_C_MORE		24 // >			result	oper1	oper2
 #define I_C_MORE_EQ		25 // >=		result	oper1	oper2
 
-/*
+#define I_CONVERT		30 // type ->	change	d_type	----
 
-#define I_WRITE
-#define I_READ
+#define I_READ			40 // scanf s   target	----	----
+#define I_WRITE			41 // printf	input	----	----
 
-*/
+#define I_STR_LEN		50 // 		????	oper1	oper2
+#define I_SUB_STR		51 // 		????	oper1	oper2
+#define I_FIND_STR		52 // 		????	oper1	oper2
+#define I_SORT_STR		53 // 		????	oper1	oper2
 
 
 // structure of 3AK instructions list

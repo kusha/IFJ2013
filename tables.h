@@ -6,8 +6,9 @@
 #include "ial.h"
 
 // existFlag
-#define MAY_NOT_EXIST 	0
-#define SHOULD_EXIST 	1
+#define MAY_NOT_EXIST 		0
+#define SHOULD_EXIST 		1
+#define SHOULD_NOT_EXIST 	2
 
 
 // datatype defines in ial.h

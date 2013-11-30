@@ -24,6 +24,8 @@ typedef struct Data{
 		double 			type_DOUBLE;
 		string			type_STRING;
 	} valueOf;	
+	// pointer to intsruction
+	// pointer to array of tData pointers
 	// union jump { 			//for TYPE_FUNCTION
 	// 	typeInstruction *	entryPoint;
 	// 	typeInstruction *	returnPoint;
