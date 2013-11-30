@@ -11,9 +11,10 @@ typedef struct {
 	int top;
 } tStackTerm;
 
-int stackTermEmpty ( const tStackTerm* s );
-int stackTermFull ( const tStackTerm* s );
-int stackTermTop ( const tStackTerm* s);
+void stackTermInit ( tStackTerm* s );
+int stackTermEmpty ( tStackTerm* s );
+int stackTermFull ( tStackTerm* s );
+int stackTermTop ( tStackTerm* s);
 void stackTermPop ( tStackTerm* s );
 void stackTermPush ( tStackTerm* s, int c );
 
@@ -23,10 +24,12 @@ typedef struct {
 } tStackNoterm;
 
 void stackNotermInit ( tStackNoterm* s );
-int stackNotermEmpty ( const tStackNoterm* s );
-int stackNotermFull ( const tStackNoterm* s );
-typeData * stackNotermTop ( const tStackNoterm* s);
+int stackNotermEmpty ( tStackNoterm* s );
+int stackNotermFull ( tStackNoterm* s );
+typeData * stackNotermTop ( tStackNoterm* s);
+void stackNotermPop ( tStackNoterm* s );
 void stackNotermPush ( tStackNoterm* s, typeData * c );
 
+void printTermStack ( tStackTerm* s ) ;
 
 #endif

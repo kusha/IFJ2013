@@ -11,17 +11,17 @@ void stackTermInit ( tStackTerm* s ) {
 	}
 }
 
-int stackTermEmpty ( const tStackTerm* s ) {
+int stackTermEmpty ( tStackTerm* s ) {
 	return s->top == -1;
 }
 
-int stackTermFull ( const tStackTerm* s ) {
+int stackTermFull ( tStackTerm* s ) {
 	return s->top == MAX_STACK-1;
 }
 
-int stackTermTop ( const tStackTerm* s) {
+int stackTermTop ( tStackTerm* s) {
 	if (stackTermEmpty(s)) {
-		if (DEBUG_FLAG) printf("No elements is stack!\n");
+		if (DEBUG_FLAG) printf("No elements is stack TERMINALS!\n");
 		return -1;
 	} else {
 		return s->arr[s->top];
@@ -53,17 +53,17 @@ void stackNotermInit ( tStackNoterm* s ) {
 	}
 }
 
-int stackNotermEmpty ( const tStackNoterm* s ) {
+int stackNotermEmpty ( tStackNoterm* s ) {
 	return s->top == -1;
 }
 
-int stackNotermFull ( const tStackNoterm* s ) {
+int stackNotermFull ( tStackNoterm* s ) {
 	return s->top == MAX_STACK-1;
 }
 
-typeData * stackNotermTop ( const tStackNoterm* s) {
+typeData * stackNotermTop ( tStackNoterm* s) {
 	if (stackNotermEmpty(s)) {
-		if (DEBUG_FLAG) printf("No elements is stack!\n");
+		if (DEBUG_FLAG) printf("No elements is stack NOTERMINALS!\n");
 		return NULL;
 	} else {
 		return s->arr[s->top];
@@ -84,3 +84,18 @@ void stackNotermPush ( tStackNoterm* s, typeData * c ) {
 		s->arr[s->top] = c;
 	}
 }
+
+void printTermStack ( tStackTerm* s ) {
+	int i;
+	for (i = s->top; i >= 0; i--) {
+		printf("%i ", s->arr[i]);
+	}
+	printf("\n");
+}
+
+ // int main () {
+ // 	tStackTerm termStack; 			//stack of terms
+	// stackTermInit (&termStack);
+	// stackTermPush ( &termStack, 10);
+	// printf("%i\n", stackTermTop (&termStack));
+ // }
