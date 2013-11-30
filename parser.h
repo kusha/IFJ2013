@@ -22,8 +22,9 @@
 #include "common.h"
 #include "lexer.h"
 #include "tables.h"
-#include "instructions.h"
 #include "stack.h"
+#include "instructions.h"
+
 
 // #include "stack.h"
 
