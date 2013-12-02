@@ -90,7 +90,8 @@ int listAdd(typeList *list, typeInstruction instr);	//add instruction to the end
 void listFirst(typeList *list);						//set current instruction to start
 void listNext(typeList *list);						//set current to the next
 typeInstruction * getCurrent(typeList *list);		//return current instructions content
-// TODO goto instruction
+void listGoto(typeList *list, typeListItem *instr);	//goto instruction, set current
+typeListItem * getPtrToCurrent(typeList *list);		//generate pointer to instruction
 
 
 #endif

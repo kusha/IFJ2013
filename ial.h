@@ -39,7 +39,8 @@ typedef struct Data{						//datatype for data of node
 		int 			type_INTEGER;		//value of type integer
 		double 			type_DOUBLE;		//value of type double
 		string			type_STRING;		//value of type string (really structure)
-	} valueOf;	
+	} valueOf;
+	typeListItem * instruction;
 	// TODO
 	// pointer to intsruction
 	// pointer to array of tData pointers

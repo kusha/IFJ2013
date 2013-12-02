@@ -67,13 +67,11 @@ void listNext(typeList *list) {
 }
 
 
-/* -- Additional functions for current impleentation -----------------------*/
+/* -- Additional functions for current implementation -----------------------*/
 
-// TODO
-// goto instruction needed!!!
-// void listGoto(...) {
-// 	...
-// }
+void listGoto(typeList *list, typeListItem *instr) {
+	list->active = instr;
+}
 
 typeInstruction * getCurrent(typeList *list) {
 	if (list->active != NULL ) {
@@ -82,4 +80,8 @@ typeInstruction * getCurrent(typeList *list) {
 		if (DEBUG_FLAG) printf("There is no active instruction for response!\n");
 		return NULL;
 	}
+}
+
+typeListItem * getPtrToCurrent(typeList *list) {
+	return list->active;
 }
