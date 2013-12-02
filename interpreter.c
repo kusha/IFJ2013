@@ -21,6 +21,7 @@
 
 char * printInstr (int priority) {
 	switch (priority){
+		case I_ASSIGN:		return "I_ASSIGN	";
 		case I_MULTIPLY: 	return "I_MULTIPLY	";
 		case I_DIVIDE: 		return "I_DIVIDE	";
 		case I_PLUS: 		return "I_PLUS		";
@@ -38,6 +39,10 @@ char * printInstr (int priority) {
 
 void printOperand (typeData * pointer) {
 	int val;
+	if (pointer==NULL){
+		printf("<UNDEF>");
+		return;
+	}
 	switch ((*pointer).type) {
 		case _NULL:
 			printf("NULL");
