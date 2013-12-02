@@ -52,6 +52,7 @@ int listAdd(typeList *list, typeInstruction instr) {
 		list->last = item;
 	} else {
 		list->last->next = item;
+		list->last = item;
 	}
 	return SUCCESS;
 }
