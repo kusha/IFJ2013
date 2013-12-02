@@ -11,26 +11,11 @@
 **	Brandejs Zdenko		<xbrand06@stud.fit.vutbr.cz>
 **	Khudiakov Daniil	<xkhudi00@stud.fit.vutbr.cz>
 **
-**	Descripition.
+**	Descripition of parser.
 **
 ** -------------------------------------------------------------------------*/
 
 
-/*
-	IFJ project 2013
-	Interpreter of IFJ2013 language
-	4.11.2013 - 15.12.2013
-	
-	Team 13 (b/3/I):
-
-	Bank Tomáš			<xbankt00@stud.fit.vutbr.cz>
-	Birger Mark			<xbirge00@stud.fit.vutbr.cz>
-	Botka Roland		<xbotka00@stud.fit.vutbr.cz>
-	Brandejs Zdenko		<xbrand06@stud.fit.vutbr.cz>
-	Khudiakov Daniil	<xkhudi00@stud.fit.vutbr.cz>
-	
-	Parser file - main processing part
-*/
 
 #include <stdio.h>
 #include "parser.h"
@@ -115,12 +100,6 @@ int INPUT_MORE();
 
 int parserPrecedence();
 
-// DEBUG COLORS!!! TO DELETE
-#define KRED  "\x1B[31m"
-#define KGRN  "\x1B[32m"
-#define KYEL  "\x1B[33m"
-#define KBLU  "\x1B[34m"
-#define KMAG  "\x1B[35m"
 
 
 #define UPDATE_TOKEN																			\
@@ -539,6 +518,7 @@ int INPUT_MORE() {
 
 /* -- Macro definitions ----------------------------------------------------*/
 
+#undef DEBUG_FLAG
 #define DEBUG_FLAG 1
 
 #define EXPRESSION_END 15

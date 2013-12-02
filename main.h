@@ -25,8 +25,8 @@
 #include "parser.h"			// for parsing start
 #include "interpreter.h"	// for interpretation start
 
-#define HALT(CODE)												\
-	if (DEBUG_FLAG) printf("Exit with status code %i.\n",CODE);	\
+#define HALT(CODE) /* -- Prints exit status code and returns value --*/	\
+	if (DEBUG_FLAG) fprintf(stderr,"Exit with status code %i.\n",CODE);	\
 	return CODE;
 
 

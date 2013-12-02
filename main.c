@@ -85,7 +85,7 @@ int main (int argc, char * argv[]) {
 
 	/* -- Try to interprete instruction list -------------------------------*/
 
-	statusCode = interpreterStart(/* same input like parser*/&instructionList);
+	statusCode = interpreterStart(/*same input like parser*/&instructionList);
 
 	switch (statusCode) {
 		case SUCCESS:	
@@ -107,7 +107,3 @@ int main (int argc, char * argv[]) {
 	HALT(statusCode)
 
 }
-
-
-
-

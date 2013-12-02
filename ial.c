@@ -1,6 +1,29 @@
+/* -- IFJ project 2013 ------------------------------------------------------
+**
+**	Interpreter of IFJ2013 language
+**	4.11.2013 - 15.12.2013
+**
+**	Team 13 (b/3/I):
+**
+**	Bank Tomáš			<xbankt00@stud.fit.vutbr.cz>
+**	Birger Mark			<xbirge00@stud.fit.vutbr.cz>
+**	Botka Roland		<xbotka00@stud.fit.vutbr.cz>
+**	Brandejs Zdenko		<xbrand06@stud.fit.vutbr.cz>
+**	Khudiakov Daniil	<xkhudi00@stud.fit.vutbr.cz>
+**
+**	Binary Search Tree implementation. ...
+**
+** -------------------------------------------------------------------------*/
+
+
+/* -- Includes part --------------------------------------------------------*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "ial.h"
+
+
+/* -- Functions for BST ----------------------------------------------------*/
 
 void treeInit (typeNodePtr *Root) {
 	(*Root) = NULL;
@@ -25,7 +48,7 @@ typeNodePtr * treeSearch (typeNodePtr * Root, string Key) {
 
 
 int treeInsert (typeNodePtr * Root, string Key, typeData Data)	{	
-	if ((*Root) == NULL) {												// new node
+	if ((*Root) == NULL) {											// new node
 		if (((*Root)=malloc(sizeof(struct typeNode)))==NULL) return ALLOC_FAIL;
 		(*Root)->key = Key;
 		(*Root)->data = Data;
@@ -43,6 +66,18 @@ int treeInsert (typeNodePtr * Root, string Key, typeData Data)	{
 	}
 	return SUCCESS;
 }
+
+void treeDispose (typeNodePtr *Root) {	
+	if ((*Root) != NULL) {
+		treeDispose(&(*Root)->left);
+		treeDispose(&(*Root)->right);
+		free(*Root);
+		(*Root) = NULL; //empty tree after dispose
+	}
+}
+
+
+/* -- Debug function for BST printing --------------------------------------*/
 
 void treePrint (typeNodePtr *Root) {	
 	if ((*Root) != NULL) {
@@ -80,23 +115,3 @@ void treePrint (typeNodePtr *Root) {
 		treePrint(&(*Root)->right);
 	}
 }
-
-void treeDispose (typeNodePtr *Root) {	
-	if ((*Root) != NULL) {
-		treeDispose(&(*Root)->left);
-		treeDispose(&(*Root)->right);
-		free(*Root);
-		(*Root) = NULL; //empty tree after dispose
-	}
-}
-
-
-
-
-
-
-
-
-
-
-

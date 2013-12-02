@@ -43,6 +43,6 @@
 #define S_OTHER_ERROR	13	// exit codes: semantic error: another case
 
 #define INTERNAL_ERROR	99	// exit codes: internal interpreter error
-
+#define ALLOC_FAIL 		-1	// error occurred during allocation
 
 #endif

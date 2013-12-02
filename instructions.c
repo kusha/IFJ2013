@@ -1,22 +1,29 @@
-/*
-	IFJ project 2013
-	Interpreter of IFJ2013 language
-	4.11.2013 - 15.12.2013
-	
-	Team 13 (b/3/I):
+/* -- IFJ project 2013 ------------------------------------------------------
+**
+**	Interpreter of IFJ2013 language
+**	4.11.2013 - 15.12.2013
+**
+**	Team 13 (b/3/I):
+**
+**	Bank Tomáš			<xbankt00@stud.fit.vutbr.cz>
+**	Birger Mark			<xbirge00@stud.fit.vutbr.cz>
+**	Botka Roland		<xbotka00@stud.fit.vutbr.cz>
+**	Brandejs Zdenko		<xbrand06@stud.fit.vutbr.cz>
+**	Khudiakov Daniil	<xkhudi00@stud.fit.vutbr.cz>
+**
+**	Instruction list unit. One way list.
+**
+** -------------------------------------------------------------------------*/
 
-	Bank Tomáš			<xbankt00@stud.fit.vutbr.cz>
-	Birger Mark			<xbirge00@stud.fit.vutbr.cz>
-	Botka Roland		<xbotka00@stud.fit.vutbr.cz>
-	Brandejs Zdenko		<xbrand06@stud.fit.vutbr.cz>
-	Khudiakov Daniil	<xkhudi00@stud.fit.vutbr.cz>
-	
-	Instruction list unit
-*/
+
+/* -- Includes part --------------------------------------------------------*/
 
 #include <stdlib.h>
 #include <stdio.h>
 #include "instructions.h"
+
+
+/* -- Basic functions for one way list -------------------------------------*/
 
 void listInit(typeList *list) {
 	list->first = NULL;
@@ -60,6 +67,9 @@ void listNext(typeList *list) {
 }
 
 
+/* -- Additional functions for current impleentation -----------------------*/
+
+// TODO
 // goto instruction needed!!!
 // void listGoto(...) {
 // 	...
@@ -73,43 +83,3 @@ typeInstruction * getCurrent(typeList *list) {
 		return NULL;
 	}
 }
-
-
-// DEBUG FUNCTIONS
-// void listPrint(typeList *list) {
-// 	listFirst(list);
-// 	printf("instructions list: ");
-// 	while (list->active != NULL) {
-// 		printf("%i ",list->active->instr.instrCode);
-// 		listNext(list);
-// 	}
-// 	printf("\n");
-// }
-
-// int main() {
-// 	typeList instructionList;
-
-// 	typeInstruction instruction;
-// 	instruction.instrCode = 0;
-// 	instruction.addressOne = NULL;
-// 	instruction.addressTwo = NULL;
-// 	instruction.addressThree = NULL;
-
-// 	listInit(&instructionList);
-
-// 	listPrint(&instructionList);
-// 	listAdd(&instructionList, instruction);
-// 	listPrint(&instructionList);
-// 	listAdd(&instructionList, instruction);
-// 	listPrint(&instructionList);
-// 	listAdd(&instructionList, instruction);
-// 	listPrint(&instructionList);
-
-// 	listDispose(&instructionList);
-// }
-
-
-
-
-
-
