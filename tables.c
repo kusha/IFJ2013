@@ -20,8 +20,8 @@
 #include <stdlib.h>
 #include "tables.h"
 
-// typeNodePtr globalVars;			//global table of vars
-// typeNodePtr globalFunctions;	//global table of functions
+typeNodePtr globalVars;			//global table of vars
+typeNodePtr globalFunctions;	//global table of functions
 
 typeData * getVariable(string * name, char existFlag) {
 	// 1. if we call it from top-down and want to assign
