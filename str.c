@@ -1,18 +1,19 @@
-/*
-	IFJ project 2013
-	Interpreter of IFJ2013 language
-	4.11.2013 - 15.12.2013
-	
-	Team 13 (b/3/I):
-
-	Bank Tomáš			<xbankt00@stud.fit.vutbr.cz>
-	Birger Mark			<xbirge00@stud.fit.vutbr.cz>
-	Botka Roland		<xbotka00@stud.fit.vutbr.cz>
-	Brandejs Zdenko		<xbrand06@stud.fit.vutbr.cz>
-	Khudiakov Daniil	<xkhudi00@stud.fit.vutbr.cz>
-	
-	String functions file
-*/
+/* -- IFJ project 2013 ------------------------------------------------------
+**
+**	Interpreter of IFJ2013 language
+**	4.11.2013 - 15.12.2013
+**
+**	Team 13 (b/3/I):
+**
+**	Bank Tomáš			<xbankt00@stud.fit.vutbr.cz>
+**	Birger Mark			<xbirge00@stud.fit.vutbr.cz>
+**	Botka Roland		<xbotka00@stud.fit.vutbr.cz>
+**	Brandejs Zdenko		<xbrand06@stud.fit.vutbr.cz>
+**	Khudiakov Daniil	<xkhudi00@stud.fit.vutbr.cz>
+**
+**	String support functions.
+**
+** -------------------------------------------------------------------------*/
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -80,75 +81,3 @@ int strCopy(string *s1, string *s2) {
 char * strGetContent (string *s) {
 	return s->str;
 }
-
-// void debugStrPrint(string *s) {
-// 	if (DEBUG_FLAG) printf("%i\t%s\n", s->length, s->str);
-// }
-
-// int main() {
-// 	string myString;
-// 	strInit(&myString);
-// 	debugStrPrint(&myString);
-// 	strAddChar(&myString, 'a');
-// 	debugStrPrint(&myString);
-// 	strAddChar(&myString, 'a');
-// 	debugStrPrint(&myString);
-// 	strAddChar(&myString, 'a');
-// 	debugStrPrint(&myString);
-// 	strAddChar(&myString, 'a');
-// 	debugStrPrint(&myString);
-// 	strAddChar(&myString, 'a');
-// 	debugStrPrint(&myString);
-// 	strAddChar(&myString, 'a');
-// 	debugStrPrint(&myString);
-// 	strAddChar(&myString, 'a');
-// 	debugStrPrint(&myString);
-// 	strAddChar(&myString, 'a');
-// 	debugStrPrint(&myString);
-// 	strAddChar(&myString, 'a');
-// 	debugStrPrint(&myString);
-// 	strClear(&myString);
-// 	debugStrPrint(&myString);	
-// 	strAddChar(&myString, 'a');
-// 	debugStrPrint(&myString);
-// 	strAddChar(&myString, 'a');
-// 	debugStrPrint(&myString);
-// 	strAddChar(&myString, 'a');
-// 	debugStrPrint(&myString);
-// 	strFree(&myString);
-// 	debugStrPrint(&myString);
-// 	strAddChar(&myString, 'a');
-// 	debugStrPrint(&myString);
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

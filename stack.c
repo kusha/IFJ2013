@@ -1,7 +1,28 @@
+/* -- IFJ project 2013 ------------------------------------------------------
+**
+**	Interpreter of IFJ2013 language
+**	4.11.2013 - 15.12.2013
+**
+**	Team 13 (b/3/I):
+**
+**	Bank Tomáš			<xbankt00@stud.fit.vutbr.cz>
+**	Birger Mark			<xbirge00@stud.fit.vutbr.cz>
+**	Botka Roland		<xbotka00@stud.fit.vutbr.cz>
+**	Brandejs Zdenko		<xbrand06@stud.fit.vutbr.cz>
+**	Khudiakov Daniil	<xkhudi00@stud.fit.vutbr.cz>
+**
+**	Helper stack for precedence analysis.
+**
+** -------------------------------------------------------------------------*/
+
+
+/* -- Includes part --------------------------------------------------------*/
+
 #include <stdio.h>
 #include "stack.h"
 
-// Terminals Section
+
+/* -- Functionы for stack of integer ---------------------------------------*/
 
 void stackTermInit ( tStackTerm* s ) {
 	if (s == NULL) {
@@ -43,7 +64,8 @@ void stackTermPush ( tStackTerm* s, int c ) {
 	}
 }
 
-// Noterminals section
+
+/* -- Functionы for stack of type Data pointers ----------------------------*/
 
 void stackNotermInit ( tStackNoterm* s ) {
 	if (s == NULL) {
@@ -85,6 +107,9 @@ void stackNotermPush ( tStackNoterm* s, typeData * c ) {
 	}
 }
 
+
+/* -- Debug only function for stack printing -------------------------------*/
+
 void printTermStack ( tStackTerm* s ) {
 	int i;
 	for (i = s->top; i >= 0; i--) {
@@ -92,10 +117,3 @@ void printTermStack ( tStackTerm* s ) {
 	}
 	printf("\n");
 }
-
- // int main () {
- // 	tStackTerm termStack; 			//stack of terms
-	// stackTermInit (&termStack);
-	// stackTermPush ( &termStack, 10);
-	// printf("%i\n", stackTermTop (&termStack));
- // }

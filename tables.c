@@ -1,9 +1,27 @@
+/* -- IFJ project 2013 ------------------------------------------------------
+**
+**	Interpreter of IFJ2013 language
+**	4.11.2013 - 15.12.2013
+**
+**	Team 13 (b/3/I):
+**
+**	Bank Tomáš			<xbankt00@stud.fit.vutbr.cz>
+**	Birger Mark			<xbirge00@stud.fit.vutbr.cz>
+**	Botka Roland		<xbotka00@stud.fit.vutbr.cz>
+**	Brandejs Zdenko		<xbrand06@stud.fit.vutbr.cz>
+**	Khudiakov Daniil	<xkhudi00@stud.fit.vutbr.cz>
+**
+**	Defines for all units of the project.
+**
+** -------------------------------------------------------------------------*/
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "tables.h"
 
-typeNodePtr globalVars;			//global table of vars
-typeNodePtr globalFunctions;	//global table of functions
+// typeNodePtr globalVars;			//global table of vars
+// typeNodePtr globalFunctions;	//global table of functions
 
 typeData * getVariable(string * name, char existFlag) {
 	// 1. if we call it from top-down and want to assign
