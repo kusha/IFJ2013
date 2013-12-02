@@ -22,7 +22,7 @@
 
 #include "common.h"			//for common defines
 #include "str.h"			//string datatypes in keys & data
-#include "instructions.h"	//for start instruction pointers
+// #include "instructions.h"	//for start instruction pointers
 
 #define _NULL		0	//code of type null
 #define _LOGICAL	1	//code of type boolean
@@ -40,7 +40,7 @@ typedef struct Data{						//datatype for data of node
 		double 			type_DOUBLE;		//value of type double
 		string			type_STRING;		//value of type string (really structure)
 	} valueOf;
-	typeListItem * instruction;
+	void * instruction;
 	// TODO
 	// pointer to intsruction
 	// pointer to array of tData pointers

@@ -69,8 +69,8 @@ void listNext(typeList *list) {
 
 /* -- Additional functions for current implementation -----------------------*/
 
-void listGoto(typeList *list, typeListItem *instr) {
-	list->active = instr;
+void listGoto(typeList *list, void *instr) {
+	list->active = (typeListItem *) instr;
 }
 
 typeInstruction * getCurrent(typeList *list) {
