@@ -128,13 +128,16 @@ int parserPrecedence();
 
 // generate functions
 
-void createInstruction(int instrCode, void* addressOne, void* addressTwo, void* addressThree) {
+void createInstruction(int instrCode, typeData * addressOne, typeData * addressTwo, typeData * addressThree) {
+	printf(CGRN"Called instruction creation: %i\n"CNRM,instrCode);
 	typeInstruction instruction;
-	instruction.instrCode = 0;
-	instruction.addressOne = NULL;		//DEBUG ONLY!!!!
-	instruction.addressTwo = NULL;
-	instruction.addressThree = NULL;
-	listAdd(instrList, instruction);
+	instruction.instrCode = instrCode;
+	instruction.addressOne = addressOne;
+	instruction.addressTwo = addressTwo;
+	instruction.addressThree = addressThree;
+	if (listAdd(instrList, instruction)!=SUCCESS) {
+		printf(CRED"Error in list addition\n"CNRM);
+	}
 }
 
 // starter function 
@@ -650,6 +653,25 @@ char * debugPreced (int token) {
 	}
 }
 
+int tableToInstruction (int inTable) {
+	switch (inTable){
+		case 0: 	return I_MULTIPLY	;
+		case 1: 	return I_DIVIDE		;
+		case 2: 	return I_PLUS		;
+		case 3: 	return I_MINUS		;
+		case 4: 	return I_CONCATEN	;
+		case 5: 	return I_C_LESS		;
+		case 6: 	return I_C_MORE		;
+		case 7: 	return I_C_LESS_EQ	;
+		case 8: 	return I_C_MORE_EQ	;
+		case 9: 	return I_C_IS		;
+		case 10: 	return I_C_IS_NOT	;
+		default: 	REPORT("Udefined instruction added to list.")
+					return -1;
+	}
+}
+
+
 
 char * priorToInstr (int priority) {
 	switch (priority){
@@ -798,12 +820,13 @@ int parserPrecedence() {
 						} else {
 							if (DEBUG_FLAG) printf("activating rule for instruction\n");
 							typeData * tempVar = getEmpty();
-							typeData * operandOne = stackNotermTop(&notermStack);
-							stackNotermPop (&notermStack);
 							typeData * operandSecond = stackNotermTop(&notermStack);
+							stackNotermPop (&notermStack);
+							typeData * operandOne = stackNotermTop(&notermStack);
 							stackNotermPop (&notermStack);
 							//CREATE INSTRUCTION!
 							printf(CBLU "%i = %i %s %i\n" CNRM ,tempVar->valueOf.type_INTEGER,operandOne->valueOf.type_INTEGER,debugPreced(popedTerm),operandSecond->valueOf.type_INTEGER);
+							createInstruction(tableToInstruction(popedTerm), tempVar, operandOne, operandSecond);
 							stackNotermPush (&notermStack, tempVar);
 							stackTermPop(&termStack);
 						}
