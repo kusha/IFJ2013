@@ -341,6 +341,9 @@ int CMD() {
 		case IDENTIFIER_VARIABLE:
 			// <cmd> -> $id = <expression> ;
 			// <cmd> -> $id = id ( <input> ) ;
+			if (1) {
+				typeData * resultVar = getVariable(&attribute, MAY_NOT_EXIST);
+			}
 			UPDATE_TOKEN
 			IS_TOKEN(OPERATION_ASSIGN)
 			UPDATE_TOKEN
@@ -587,17 +590,17 @@ static int PTable [16][16] = {												//incoming
 /* +[51]	*/ {	PLess	,PLess	,PMore	,PMore	,PError	,PMore	,PMore	,PMore	,PMore	,PMore	,PMore	,PLess	,PError	,PLess	,PMore 	,PMore	},
 /* -[52]	*/ {	PLess	,PLess	,PMore	,PMore	,PError	,PMore	,PMore	,PMore	,PMore	,PMore	,PMore	,PLess	,PError	,PLess	,PMore 	,PMore	},
 /* .[55]	*/ {	PError	,PError	,PError	,PError	,PMore	,PMore	,PMore	,PMore	,PMore	,PMore	,PMore	,PLess	,PLess	,PLess	,PMore 	,PMore	},
-/* <[62]	*/ {	PLess	,PLess	,PLess	,PLess	,PLess	,PError	,PError	,PError	,PError	,PError	,PError	,PLess	,PLess	,PLess	,PLess 	,PMore	},
-/* >[64]	*/ {	PLess	,PLess	,PLess	,PLess	,PLess	,PError	,PError	,PError	,PError	,PError	,PError	,PLess	,PLess	,PLess	,PLess 	,PMore	},
-/* <=[63]	*/ {	PLess	,PLess	,PLess	,PLess	,PLess	,PError	,PError	,PError	,PError	,PError	,PError	,PLess	,PLess	,PLess	,PLess 	,PMore	},
-/* >=[65]	*/ {	PLess	,PLess	,PLess	,PLess	,PLess	,PError	,PError	,PError	,PError	,PError	,PError	,PLess	,PLess	,PLess	,PLess 	,PMore	},
-/* ===[60]	*/ {	PLess	,PLess	,PLess	,PLess	,PLess	,PError	,PError	,PError	,PError	,PError	,PError	,PLess	,PLess	,PLess	,PLess 	,PMore	},
-/* !==[61]	*/ {	PLess	,PLess	,PLess	,PLess	,PLess	,PError	,PError	,PError	,PError	,PError	,PError	,PLess	,PLess	,PLess	,PLess 	,PMore	},
+/* <[62]	*/ {	PLess	,PLess	,PLess	,PLess	,PLess	,PError	,PError	,PError	,PError	,PError	,PError	,PLess	,PLess	,PLess	,PMore 	,PMore	},
+/* >[64]	*/ {	PLess	,PLess	,PLess	,PLess	,PLess	,PError	,PError	,PError	,PError	,PError	,PError	,PLess	,PLess	,PLess	,PMore 	,PMore	},
+/* <=[63]	*/ {	PLess	,PLess	,PLess	,PLess	,PLess	,PError	,PError	,PError	,PError	,PError	,PError	,PLess	,PLess	,PLess	,PMore 	,PMore	},
+/* >=[65]	*/ {	PLess	,PLess	,PLess	,PLess	,PLess	,PError	,PError	,PError	,PError	,PError	,PError	,PLess	,PLess	,PLess	,PMore 	,PMore	},
+/* ===[60]	*/ {	PLess	,PLess	,PLess	,PLess	,PLess	,PError	,PError	,PError	,PError	,PError	,PError	,PLess	,PLess	,PLess	,PMore 	,PMore	},
+/* !==[61]	*/ {	PLess	,PLess	,PLess	,PLess	,PLess	,PError	,PError	,PError	,PError	,PError	,PError	,PLess	,PLess	,PLess	,PMore 	,PMore	},
 /* ID[10]	*/ {	PMore	,PMore	,PMore	,PMore	,PMore	,PMore	,PMore	,PMore	,PMore	,PMore	,PMore	,PError	,PError	,PError	,PMore 	,PMore	},
 /* STR[34]	*/ {	PError	,PError	,PError	,PError	,PMore	,PMore	,PMore	,PMore	,PMore	,PMore	,PMore	,PError	,PError	,PError	,PMore 	,PMore	},
 /* ([42]	*/ {	PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PError	,PEqual ,PMore	},
 /* )[43]	*/ {	PMore	,PMore	,PMore	,PMore	,PMore	,PMore	,PMore	,PMore	,PMore	,PMore	,PMore	,PError	,PError	,PError	,PError ,PMore	},
-/* $		*/ {	PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PLess 	,PEqual	}
+/* $		*/ {	PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PError ,PEqual	}
 //in stack
 };
 
@@ -781,6 +784,9 @@ int parserPrecedence() {
 			}
 			if (actualNoterm == NULL) {
 				if (DEBUG_FLAG) printf("STOP! SEMANTIC ERROR! UNDEFINED VAR IN EXPRESSION\n");
+				//DEBUG ONLY
+
+				////////////
 			}
 			stackNotermPush(&notermStack, actualNoterm);
 			currentToken = tokenToPriority(tokenType);
@@ -814,7 +820,7 @@ int parserPrecedence() {
 				case PMore:
 					while (priority!=PLess && priority!=PEqual) {
 						int popedTerm = stackTermTop(&termStack);
-						if (popedTerm==11) {	//vseeeee!!!!!! //check for rule E->id
+						if (popedTerm==11||popedTerm==12) {	//vseeeee!!!!!! //check for rule E->id
 							if (DEBUG_FLAG) printf("rule E->id, just pop\n");
 							stackTermPop(&termStack);
 						} else {
@@ -833,10 +839,14 @@ int parserPrecedence() {
 						priority = PTable[stackTermTop(&termStack)][currentToken];
 						if (DEBUG_FLAG) printf("priority: %s\n",priorToStr(priority));
 						if (priority == PError) {
-							// if (!(currentToken == EXPRESSION_END && stackTermTop(&termStack) == EXPRESSION_END)) {
-							if (DEBUG_FLAG) printf("error expression exit in PMore\n");
-							return SYNTAX_WRONG;
-							// }
+							if (currentToken == 14 && stackTermTop(&termStack) == EXPRESSION_END) {
+								exitFlag = 1;
+								currentToken = tokenToPriority(tokenType);
+								break;
+							} else {
+								if (DEBUG_FLAG) printf("error expression exit in PMore\n");
+								return SYNTAX_WRONG;	
+							}
 						}
 						if (priority == PEqual) {
 							stackTermPop(&termStack);
@@ -860,7 +870,10 @@ int parserPrecedence() {
 		}
 		if (exitFlag) {
 			// ONE tDAta in nonterm stack for return
-
+			typeData * tempVar = getEmpty(); //really is return pointer
+			typeData * operandOne = stackNotermTop(&notermStack);
+			stackNotermPop (&notermStack);
+			createInstruction(I_ASSIGN, tempVar, operandOne, NULL);
 			RECOVER_TOKEN
 			return SYNTAX_OK;
 		} else {
