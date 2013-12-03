@@ -16,7 +16,7 @@ CFLAGS = -std=c99 -W -Wall -pedantic
 LINKER = -c
 OUTPUT = ifj
 
-OBJS = str.o lexer.o instructions.o ial.o tables.o stack.o interpreter.o parser.o main.o
+OBJS = str.o lexer.o instructions.o ial.o tables.o arrays.o stack.o interpreter.o parser.o main.o
 
 all: $(OUTPUT)
 

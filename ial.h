@@ -32,6 +32,16 @@
 #define _STRING		4	//code of type string
 #define _FUNCTION	5	//code for functions table
 
+/* -- Debug function for BST printing --------------------------------------*/
+
+#define MAX_PARAMS 100	//number of maximum params for function
+typedef struct inputArray {			//input array structure from arrays.h
+	struct Data * arr[MAX_PARAMS];
+	int size;			
+} typeInputArray;
+
+/* -------------------------------------------------------------------------*/
+
 typedef struct Data{						//datatype for data of node
 	char type;								//type of current data (more above)
 	union {									//dynamic types: all types in one
