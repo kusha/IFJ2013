@@ -24,6 +24,7 @@
 #include "str.h"			//string datatypes in keys & data
 // #include "instructions.h"	//for start instruction pointers
 
+#define _NONE		-1	//code of non type (task page )
 #define _NULL		0	//code of type null
 #define _LOGICAL	1	//code of type boolean
 #define _INTEGER	2	//code of type integer

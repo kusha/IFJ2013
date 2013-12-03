@@ -37,6 +37,7 @@ typeData * getVariable(string * name, char existFlag) {
 		newData.valueOf.type_NULL = NULL;				///ERROR -FIRST IS NO TYPE
 		if (treeInsert(&globalVars, *name, newData)==ALLOC_FAIL) return NULL;
 		return &(*treeSearch(&globalVars, *name))->data;
+		newData.type = _NONE;
 	}
 }
 
@@ -128,6 +129,7 @@ typeData * getEmpty() {
 
 	// 	// case TYPE_FUNCTION:
 	// }
+	newData.type = _NONE;
 	string newName = tempVariableName();
 	if (treeInsert(&globalVars, newName, newData)==ALLOC_FAIL) return NULL;
 	return &(*treeSearch(&globalVars, newName))->data;

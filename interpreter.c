@@ -44,6 +44,10 @@ void printOperand (typeData * pointer) {
 		return;
 	}
 	switch ((*pointer).type) {
+		case _NONE:
+			printf("<NONE>");
+			break;
+
 		case _NULL:
 			printf("NULL");
 			break;
