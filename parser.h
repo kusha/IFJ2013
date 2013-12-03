@@ -24,6 +24,7 @@
 #include "tables.h"
 #include "stack.h"
 #include "instructions.h"
+#include "arrays.h"
 
 
 // #include "stack.h"

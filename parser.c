@@ -20,9 +20,6 @@
 #include <stdio.h>
 #include "parser.h"
 
-#undef DEBUG_FLAG
-#define DEBUG_FLAG 0
-
 ///*	//DEBUG ONLY
 char *debugTokens(int token) {
 	switch (token) {
@@ -129,7 +126,7 @@ int parserPrecedence();
 // generate functions
 
 void createInstruction(int instrCode, typeData * addressOne, typeData * addressTwo, typeData * addressThree) {
-	printf(CGRN"Called instruction creation: %i\n"CNRM,instrCode);
+	printf("Called instruction creation: %i\n",instrCode);
 	typeInstruction instruction;
 	instruction.instrCode = instrCode;
 	instruction.addressOne = addressOne;
@@ -197,12 +194,12 @@ int parseStarter(/* pointers to sumbol table, instruction list*/typeList *instru
 
 typeNodePtr globalTable;
 typeNodePtr functionsTable;
-typeNodePtr actualTable;
+typeNodePtr * actualTable;
 
 void initTables() {
 	globalTable = createTable();
 	functionsTable = createTable();
-	actualTable = globalTable;
+	actualTable = &globalTable;
 }
 
 
@@ -266,6 +263,12 @@ int PROGRAM_UNITS() {
 	return SYNTAX_WRONG;
 }
 
+
+
+/* -- Function definition --------------------------------------------------*/
+
+typeInputArray * currentFunctionInput;
+
 int FUNC_DEFINE() {
 	// <func_define> -> function id ( <params> ) { <cmd_sequence> }
 	if (DEBUG_FLAG) printf("<func_define> -> function id ( <params> ) { <cmd_sequence> }\n");
@@ -273,18 +276,56 @@ int FUNC_DEFINE() {
 	IS_TOKEN(KEYWORD_FUNCTION)
 	UPDATE_TOKEN
 	IS_TOKEN(IDENTIFIER)
+
+
+	//GOTO EXCEPT
+	// typeListItem * exceptPoint = NULL;
+	typeData * gotoData = getEmpty(actualTable);
+	gotoData->type = _FUNCTION;
+	gotoData->instruction  = NULL; // = exceptPoint;
+	createInstruction(I_GOTO, NULL, gotoData, NULL);
+
+	//COMMON CREATION
+	typeData * currentFunction;
+	currentFunction = getVariable(&functionsTable, &attribute, SHOULD_NOT_EXIST);
+	if (currentFunction == NULL) {
+		REPORT("Function redefinition")
+		return S_FUNC_ERROR;
+	}
+	currentFunction->type = _FUNCTION;
+	currentFunction->instruction = getPtrToCurrent(instrList);
+
+	//TABLE
+	typeNodePtr newTable;
+	newTable = createTable();
+	actualTable = &newTable;
+
+	//INPUT
+	typeInputArray functionInput;
+	arrayClear( &functionInput );
+	currentFunctionInput = &functionInput;	//set to global
+
 	UPDATE_TOKEN
 	IS_TOKEN(LEFT_BRACKET)
 	UPDATE_TOKEN
 	CALL(PARAMS)
 	UPDATE_TOKEN
 	IS_TOKEN(RIGHT_BRACKET)
+
+	currentFunction->funcWith.inputData = functionInput;
+
 	UPDATE_TOKEN
 	IS_TOKEN(LEFT_CURLY_BRACKET)
 	UPDATE_TOKEN
 	CALL(CMD_SEQUENCE)
 	UPDATE_TOKEN
 	IS_TOKEN(RIGHT_CURLY_BRACKET)
+
+	actualTable = &globalTable;
+	gotoData->instruction  = getPtrToCurrent(instrList); 
+	// exceptPoint = getPtrToCurrent(instrList);
+
+
 	return SYNTAX_OK;
 }
 
@@ -301,6 +342,12 @@ int PARAMS() {
 		case IDENTIFIER_VARIABLE:
 			// <params> -> $id <params_more>
 			if (DEBUG_FLAG) printf("<params> -> $id <params_more>\n");
+
+
+			typeData * currentParam = getVariable(actualTable, &attribute, SHOULD_NOT_EXIST);
+			arrayAdd( currentFunctionInput, currentParam);
+
+
 			UPDATE_TOKEN
 			CALL(PARAMS_MORE)
 			return SYNTAX_OK;
@@ -325,6 +372,10 @@ int PARAMS_MORE() {
 			if (DEBUG_FLAG) printf("<params_more> -> , $id <params_more>\n");
 			UPDATE_TOKEN
 			IS_TOKEN(IDENTIFIER_VARIABLE)
+
+			typeData * currentParam = getVariable(actualTable, &attribute, SHOULD_NOT_EXIST);
+			arrayAdd( currentFunctionInput, currentParam);
+
 			UPDATE_TOKEN
 			CALL(PARAMS_MORE)
 			return SYNTAX_OK;
@@ -333,6 +384,9 @@ int PARAMS_MORE() {
 	}
 	return SYNTAX_WRONG;
 }
+
+/* -------------------------------------------------------------------------*/
+
 
 int CMD_SEQUENCE() {
 	int status;
@@ -362,6 +416,8 @@ int CMD_SEQUENCE() {
 	return SYNTAX_WRONG;
 }
 
+/* -- Real commands --------------------------------------------------------*/
+
 int CMD() {
 	int status;
 	switch (tokenType) {
@@ -369,7 +425,7 @@ int CMD() {
 			// <cmd> -> $id = <expression> ;
 			// <cmd> -> $id = id ( <input> ) ;
 			if (1) {
-				typeData * resultVar = getVariable(&actualTable, &attribute, MAY_NOT_EXIST);
+				typeData * resultVar = getVariable(actualTable, &attribute, MAY_NOT_EXIST);
 			}
 			UPDATE_TOKEN
 			IS_TOKEN(OPERATION_ASSIGN)
@@ -548,6 +604,9 @@ int INPUT_MORE() {
 **
 ** -------------------------------------------------------------------------*/
 
+#undef DEBUG_FLAG
+#define DEBUG_FLAG 0
+
 
 /* -- Macro definitions ----------------------------------------------------*/
 
@@ -593,7 +652,7 @@ static int priorityTable [15][15] = {
 /*/	 ID	/*/	 {M	,M	,M	,M	,M	,M	,M	,M	,M	,M	,M	,W	,W	,M 	,M } ,
 /*/	 (	/*/	 {L	,L	,L	,L	,L	,L	,L	,L	,L	,L	,L	,L	,L	,E	,M } ,
 /*/	 )	/*/	 {M	,M	,M	,M	,M	,M	,M	,M	,M	,M	,M	,W	,W	,W	,M } ,
-/*/	 $	/*/	 {L	,L	,L	,L	,L	,L	,L	,L	,L	,L	,L	,L	,L	,L 	,E }
+/*/	 $	/*/	 {L	,L	,L	,L	,L	,L	,L	,L	,L	,L	,L	,L	,L	,W 	,E }
 /* ^^^^^ */
 /*IN_STACK*/
 };
@@ -733,9 +792,9 @@ int parserPrecedence() {
 			tokenType == LITERAL_DOUBLE 		|| \
 			tokenType == LITERAL_STRING ) {
 			if (tokenType == IDENTIFIER_VARIABLE) {
-				actualNoterm = getVariable(&actualTable, &attribute, SHOULD_EXIST);
+				actualNoterm = getVariable(actualTable, &attribute, SHOULD_EXIST);
 			} else {
-				actualNoterm = getLiteral(&actualTable, tokenType-30, &attribute);
+				actualNoterm = getLiteral(actualTable, tokenType-30, &attribute);
 			}
 			if (actualNoterm == NULL) {
 				if (DEBUG_FLAG) printf("STOP! SEMANTIC ERROR! UNDEFINED VAR IN EXPRESSION\n");
@@ -776,7 +835,7 @@ int parserPrecedence() {
 							stackTermPop(&termStack);
 						} else {
 							if (DEBUG_FLAG) printf("activating rule for instruction\n");
-							typeData * tempVar = getEmpty(&actualTable);
+							typeData * tempVar = getEmpty(actualTable);
 							typeData * operandSecond = stackNotermTop(&notermStack);
 							stackNotermPop (&notermStack);
 							typeData * operandOne = stackNotermTop(&notermStack);
@@ -819,7 +878,7 @@ int parserPrecedence() {
 			}
 		}
 		if (exitFlag) {
-			typeData * tempVar = getEmpty(&actualTable); 	//for debug, should get element
+			typeData * tempVar = getEmpty(actualTable); 	//for debug, should get element
 			typeData * operandOne = stackNotermTop(&notermStack);
 			stackNotermPop (&notermStack);
 			createInstruction(I_ASSIGN, tempVar, operandOne, NULL);
