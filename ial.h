@@ -22,7 +22,6 @@
 
 #include "common.h"			//for common defines
 #include "str.h"			//string datatypes in keys & data
-// #include "instructions.h"	//for start instruction pointers
 
 #define _NONE		-1	//code of non type (task page )
 #define _NULL		0	//code of type null
@@ -52,13 +51,10 @@ typedef struct Data{						//datatype for data of node
 		string			type_STRING;		//value of type string (really structure)
 	} valueOf;
 	void * instruction;
-	// TODO
-	// pointer to intsruction
-	// pointer to array of tData pointers
-	// union jump { 			//for TYPE_FUNCTION
-	// 	typeInstruction *	entryPoint;
-	// 	typeInstruction *	returnPoint;
-	// };
+	union {									//for function only
+		typeInputArray		inputData;		//array of pointers to typeData (input)
+		struct typeNode *	table;			//table of variables of current function
+	} funcWith;
 } typeData;									//datatype declaration (without struct)
 
 typedef struct typeNode{		//structure of tree node
