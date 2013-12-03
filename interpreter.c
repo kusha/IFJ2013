@@ -23,6 +23,8 @@
 char * printInstr (int priority) {
 	switch (priority){
 		case I_STOP:		return "I_STOP		";
+		case I_GOTO:		return "I_GOTO		";
+		case I_GOTO_IF:		return "I_GOTO_IF	";
 		case I_ASSIGN:		return "I_ASSIGN	";
 		case I_MULTIPLY: 	return "I_MULTIPLY	";
 		case I_DIVIDE: 		return "I_DIVIDE	";
@@ -35,6 +37,13 @@ char * printInstr (int priority) {
 		case I_C_MORE_EQ: 	return "I_C_MORE_EQ	";
 		case I_C_IS: 		return "I_C_IS		";
 		case I_C_IS_NOT: 	return "I_C_IS_NOT	";
+		case I_CONVERT: 	return "I_CONVERT	";
+		case I_READ: 		return "I_READ		";
+		case I_WRITE: 		return "I_WRITE		";
+		case I_STR_LEN: 	return "I_STR_LEN	";
+		case I_SUB_STR: 	return "I_SUB_STR	";
+		case I_FIND_STR: 	return "I_FIND_STR	";
+		case I_SORT_STR: 	return "I_SORT_STR	";
 		default:			return "I_UNDEFINED ";
 	}
 }
@@ -42,7 +51,7 @@ char * printInstr (int priority) {
 void printOperand (typeData * pointer) {
 	int val;
 	if (pointer==NULL){
-		printf("<NOUSE>");
+		printf("-----");
 		return;
 	}
 	switch ((*pointer).type) {
@@ -73,6 +82,14 @@ void printOperand (typeData * pointer) {
 
 		case _STRING:
 			printf("%s", strGetContent(&(*pointer).valueOf.type_STRING));
+			break;
+
+		case _FUNCTION:
+			if ((*pointer).instruction == NULL) {
+				printf("NULL");	//error
+			} else {
+				printf("%p", (*pointer).instruction);
+			}
 			break;
 			
 	}
@@ -128,8 +145,8 @@ int interpreterStart(typeList *instrList) {
 	listFirst(instrList);
 	typeInstruction* currentInstr;
 	while (1) {
-		printf("INSTRUCTIONS\n");
 		currentInstr = getCurrent(instrList);
+		printf(CBLU"PROCESSING %s\n"CNRM, printInstr(instrList->active->instr.instrCode));
 		switch (currentInstr->instrCode) {
 			
 			case I_STOP:
