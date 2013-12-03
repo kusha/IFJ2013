@@ -175,6 +175,9 @@ int parseStarter(/* pointers to sumbol table, instruction list*/typeList *instru
 
 	*/
 
+	//init tables
+	initTables();
+
 	int statusCode;
 
 	UPDATE_TOKEN
@@ -187,7 +190,30 @@ int parseStarter(/* pointers to sumbol table, instruction list*/typeList *instru
 	return statusCode;
 }
 
-// recursive descent
+/* -- Tables block -----------------------------------------------------------
+**
+**
+** -------------------------------------------------------------------------*/
+
+typeNodePtr globalTable;
+typeNodePtr actualTable;
+
+void initTables() {
+	globalTable = createTable();
+	actualTable = globalTable;
+}
+
+
+
+
+/* -- Recursive descent ------------------------------------------------------
+**
+**	Input:		updated token + typeData pointer
+**	Output:		instructions + result pointer + recovered token + result code
+**
+**	Desciption of the algorithm.
+**
+** -------------------------------------------------------------------------*/
 
 int PROGRAM() {
 	int status;
@@ -232,6 +258,7 @@ int PROGRAM_UNITS() {
 			// <program_units>	-> EOF
 			if (DEBUG_FLAG) printf("<program_units>	-> EOF\n");
 			// instructions for this rule
+			createInstruction(I_STOP, NULL, NULL, NULL);
 			return SYNTAX_OK;
 			break;
 
@@ -342,7 +369,7 @@ int CMD() {
 			// <cmd> -> $id = <expression> ;
 			// <cmd> -> $id = id ( <input> ) ;
 			if (1) {
-				typeData * resultVar = getVariable(&attribute, MAY_NOT_EXIST);
+				typeData * resultVar = getVariable(&actualTable, &attribute, MAY_NOT_EXIST);
 			}
 			UPDATE_TOKEN
 			IS_TOKEN(OPERATION_ASSIGN)
@@ -778,9 +805,9 @@ int parserPrecedence() {
 			tokenType == LITERAL_DOUBLE 		|| \
 			tokenType == LITERAL_STRING ) {
 			if (tokenType == IDENTIFIER_VARIABLE) {
-				actualNoterm = getVariable(&attribute, SHOULD_EXIST);
+				actualNoterm = getVariable(&actualTable, &attribute, SHOULD_EXIST);
 			} else {
-				actualNoterm = getLiteral(tokenType-30, &attribute); //TOKEN -> DATA_TYPE
+				actualNoterm = getLiteral(&actualTable, tokenType-30, &attribute); //TOKEN -> DATA_TYPE
 			}
 			if (actualNoterm == NULL) {
 				if (DEBUG_FLAG) printf("STOP! SEMANTIC ERROR! UNDEFINED VAR IN EXPRESSION\n");
@@ -825,7 +852,7 @@ int parserPrecedence() {
 							stackTermPop(&termStack);
 						} else {
 							if (DEBUG_FLAG) printf("activating rule for instruction\n");
-							typeData * tempVar = getEmpty();
+							typeData * tempVar = getEmpty(&actualTable);
 							typeData * operandSecond = stackNotermTop(&notermStack);
 							stackNotermPop (&notermStack);
 							typeData * operandOne = stackNotermTop(&notermStack);
@@ -870,7 +897,7 @@ int parserPrecedence() {
 		}
 		if (exitFlag) {
 			// ONE tDAta in nonterm stack for return
-			typeData * tempVar = getEmpty(); //really is return pointer
+			typeData * tempVar = getEmpty(&actualTable); //really is return pointer
 			typeData * operandOne = stackNotermTop(&notermStack);
 			stackNotermPop (&notermStack);
 			createInstruction(I_ASSIGN, tempVar, operandOne, NULL);

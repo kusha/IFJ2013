@@ -38,6 +38,7 @@ extern int expectedTokenType;
 // shared functions prototypes section
 int parseStarter(/* pointers to sumbol table, instruction list*/typeList *instructionList);
 char *debugTokens(int token);
+void initTables();
 
 
 #endif
