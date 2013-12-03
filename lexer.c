@@ -25,27 +25,28 @@
 #define S_VARIABLE_D	2
 #define S_VARIABLE_ID	3
 #define S_INTEGER		4
-#define S_DOUBLE		5
-#define S_EXPONENT_E	6
-#define S_EXPONENT		7
-#define S_STRING		8
-#define S_ESCAPE		9
-#define S_SYMBOL_CODE1	10
-#define S_SYMBOL_CODE2	11
-#define S_EQUAL			12
-#define S_CMP_IS		13
-#define S_CMP_NOT1		14
-#define S_CMP_NOT2		15
-#define S_LESS			16
-#define S_PHP1			17
-#define S_PHP2			18
-#define S_PHP3			19
-#define S_MORE			20
-#define S_DIVIDE		21
-#define S_MLINE_CMNT	22
-#define S_LINE_CMNT		23
-#define S_MLINE_ESC		24
-
+#define S_DOUBLE_D		5
+#define S_DOUBLE		6
+#define S_EXPONENT_E	7
+#define S_EXPONENT_S	8
+#define S_EXPONENT		9
+#define S_STRING		10
+#define S_ESCAPE		11
+#define S_SYMBOL_CODE1	12
+#define S_SYMBOL_CODE2	13
+#define S_EQUAL			14
+#define S_CMP_IS		15
+#define S_CMP_NOT1		16
+#define S_CMP_NOT2		17
+#define S_LESS			18
+#define S_PHP1			19
+#define S_PHP2			20
+#define S_PHP3			21
+#define S_MORE			22
+#define S_DIVIDE		23
+#define S_MLINE_CMNT	24
+#define S_LINE_CMNT		25
+#define S_MLINE_ESC		26
 
 FILE *source;
 
@@ -87,7 +88,6 @@ int getToken(string *attribute) {
 	int state = S_START;
 	while (1) {
 		character = getc(source);
-
 		troubleCharacter = character;
 		if (character=='\n') {
 			troubleLine++;
@@ -189,12 +189,22 @@ int getToken(string *attribute) {
 					state = S_EXPONENT_E;
 				} else if (character=='.') {
 					strAddChar(attribute, character);
-					state = S_DOUBLE;
+					state = S_DOUBLE_D;
 				} else {
 					ungetc(character, source);
 					return LITERAL_INETEGER;
 				}
 				break;
+
+			case S_DOUBLE_D:
+				if (isdigit(character)) {
+					strAddChar(attribute, character);
+					state = S_DOUBLE;
+				} else {
+					return LEXER_ERROR;
+				}
+				break;
+
 
 			case S_DOUBLE:
 				if (isdigit(character)) {
@@ -209,7 +219,22 @@ int getToken(string *attribute) {
 				break;
 
 			case S_EXPONENT_E:
-				if (character=='+'||character=='-'||isdigit(character))  {
+				if (character=='+'||character=='-') {
+					strAddChar(attribute, character); //what add at e/E for scanf?
+					state = S_EXPONENT_S;
+				} else if (isdigit(character))  {
+					strAddChar(attribute, character);
+					state = S_EXPONENT;
+				} else {
+					if (DEBUG_FLAG)
+						printf("LEXER_ERROR at %c [%i] with state=%i\n", \
+							character,character,state);
+					return LEXER_ERROR;
+				}
+				break;
+
+			case S_EXPONENT_S:
+				if (isdigit(character))  {
 					strAddChar(attribute, character);
 					state = S_EXPONENT;
 				} else {
