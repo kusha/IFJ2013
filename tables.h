@@ -30,9 +30,9 @@
 
 #define MAX_TEMP_VARS		16	// maximum number of temp vars (10^16)
 
-typeData * getVariable(string * name, char existFlag);	// generates var
-typeData * getLiteral(int dataType, string * atribute);	// generates literal
-typeData * getEmpty();									// generates temp
-
+typeData * getVariable(typeNodePtr * table, string * name, char existFlag);		// generates var
+typeData * getLiteral(typeNodePtr * table, int dataType, string * atribute);	// generates literal
+typeData * getEmpty(typeNodePtr * table);										// generates temp
+typeNodePtr createTable(); //returns new table
 
 #endif
