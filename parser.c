@@ -190,20 +190,20 @@ int parseStarter(/* pointers to sumbol table, instruction list*/typeList *instru
 	return statusCode;
 }
 
-/* -- Tables block -----------------------------------------------------------
+/* -- Tables creation block --------------------------------------------------
 **
 **
 ** -------------------------------------------------------------------------*/
 
 typeNodePtr globalTable;
+typeNodePtr functionsTable;
 typeNodePtr actualTable;
 
 void initTables() {
 	globalTable = createTable();
+	functionsTable = createTable();
 	actualTable = globalTable;
 }
-
-
 
 
 /* -- Recursive descent ------------------------------------------------------
@@ -553,8 +553,9 @@ int INPUT_MORE() {
 
 #undef DEBUG_FLAG
 #define DEBUG_FLAG 1
+#define CLOSE_BRACKET 13
 
-#define EXPRESSION_END 15
+#define EXPRESSION_END 14
 
 #define PLess 0
 #define PMore 1
@@ -576,60 +577,31 @@ int INPUT_MORE() {
 #define E	PEqual
 #define W	PError
 
-// IDENTIFIER_VARIABLE
-// LITERAL_NULL
-// LITERAL_LOGICAL
-// LITERAL_INETEGER
-// LITERAL_DOUBLE
-// LITERAL_STRING
-
-static int priorityTable [16][16] = {
-/* INCOMING > *   /   +   -   .   <   >   <=  >= === !== ID  STR  (   )   $ /*/
-/*/	 *	/*/	{ M , M , M , M , M , M , M , M , M , M , M , M , M , M , M , M } ,
-/*/	 /	/*/	{ M , M , M , M , M , M , M , M , M , M , M , M , M , M , M , M } ,
-/*/	 +	/*/	{ M , M , M , M , M , M , M , M , M , M , M , M , M , M , M , M } ,
-/*/	 -	/*/	{ M , M , M , M , M , M , M , M , M , M , M , M , M , M , M , M } ,
-/*/	 .	/*/	{ M , M , M , M , M , M , M , M , M , M , M , M , M , M , M , M } ,
-/*/	 <	/*/	{ M , M , M , M , M , M , M , M , M , M , M , M , M , M , M , M } ,
-/*/	 >	/*/	{ M , M , M , M , M , M , M , M , M , M , M , M , M , M , M , M } ,
-/*/	 <=	/*/	{ M , M , M , M , M , M , M , M , M , M , M , M , M , M , M , M } ,
-/*/	 >=	/*/	{ M , M , M , M , M , M , M , M , M , M , M , M , M , M , M , M } ,
-/*/	=== /*/	{ M , M , M , M , M , M , M , M , M , M , M , M , M , M , M , M } ,
-/*/	!==	/*/	{ M , M , M , M , M , M , M , M , M , M , M , M , M , M , M , M } ,
-/*/	 ID	/*/	{ M , M , M , M , M , M , M , M , M , M , M , M , M , M , M , M } ,
-/*/	STR	/*/	{ M , M , M , M , M , M , M , M , M , M , M , M , M , M , M , M } ,
-/*/	 (	/*/	{ M , M , M , M , M , M , M , M , M , M , M , M , M , M , M , M } ,
-/*/	 )	/*/	{ M , M , M , M , M , M , M , M , M , M , M , M , M , M , M , M } ,
-/*/	 $	/*/	{ M , M , M , M , M , M , M , M , M , M , M , M , M , M , M , M }
+static int priorityTable [15][15] = {
+/* INCOMING > *	 /	 +   -   .   <   >  <=  >= === !==  ID   (   )   $ /*/
+/*/	 *	/*/	 {M	,M	,M	,M	,W	,M	,M	,M	,M	,M	,M	,L	,L	,M 	,M } ,
+/*/	 /	/*/	 {M	,M	,M	,M	,W	,M	,M	,M	,M	,M	,M	,L	,L	,M 	,M } ,
+/*/	 +	/*/	 {L	,L	,M	,M	,W	,M	,M	,M	,M	,M	,M	,L	,L	,M 	,M } ,
+/*/	 -	/*/	 {L	,L	,M	,M	,W	,M	,M	,M	,M	,M	,M	,L	,L	,M 	,M } ,
+/*/	 .	/*/	 {W	,W	,W	,W	,M	,M	,M	,M	,M	,M	,M	,L	,L	,M 	,M } ,
+/*/	 <	/*/	 {L	,L	,L	,L	,L	,W	,W	,W	,W	,W	,W	,L	,L	,M	,M } ,
+/*/	 >	/*/	 {L	,L	,L	,L	,L	,W	,W	,W	,W	,W	,W	,L	,L	,M	,M } ,
+/*/	 <=	/*/	 {L	,L	,L	,L	,L	,W	,W	,W	,W	,W	,W	,L	,L	,M	,M } ,
+/*/	 >=	/*/	 {L	,L	,L	,L	,L	,W	,W	,W	,W	,W	,W	,L	,L	,M	,M } ,
+/*/	=== /*/	 {L	,L	,L	,L	,L	,W	,W	,W	,W	,W	,W	,L	,L	,M	,M } ,
+/*/	!==	/*/	 {L	,L	,L	,L	,L	,W	,W	,W	,W	,W	,W	,L	,L	,M	,M } ,
+/*/	 ID	/*/	 {M	,M	,M	,M	,M	,M	,M	,M	,M	,M	,M	,W	,W	,M 	,M } ,
+/*/	 (	/*/	 {L	,L	,L	,L	,L	,L	,L	,L	,L	,L	,L	,L	,L	,E	,M } ,
+/*/	 )	/*/	 {M	,M	,M	,M	,M	,M	,M	,M	,M	,M	,M	,W	,W	,W	,M } ,
+/*/	 $	/*/	 {L	,L	,L	,L	,L	,L	,L	,L	,L	,L	,L	,L	,L	,L 	,E }
 /* ^^^^^ */
-/*ALREADY*/
+/*IN_STACK*/
 };
 
 #undef M
 #undef L
 #undef E
 #undef W
-
-static int PTable [16][16] = {												//incoming
-/*      			*[53]	/[54]	+[51]	-[52]	.[55]	<[62]	>[64]	<=[63]	>=[65]	===[60]	!==[61]	ID[10]	STR[34]	([42]	)[43]	$    */
-/* *[53]	*/ {	PMore	,PMore	,PMore	,PMore	,PError	,PMore	,PMore	,PMore	,PMore	,PMore	,PMore	,PLess	,PError	,PLess	,PMore 	,PMore	},
-/* /[54]	*/ {	PMore	,PMore	,PMore	,PMore	,PError	,PMore	,PMore	,PMore	,PMore	,PMore	,PMore	,PLess	,PError	,PLess	,PMore 	,PMore	},
-/* +[51]	*/ {	PLess	,PLess	,PMore	,PMore	,PError	,PMore	,PMore	,PMore	,PMore	,PMore	,PMore	,PLess	,PError	,PLess	,PMore 	,PMore	},
-/* -[52]	*/ {	PLess	,PLess	,PMore	,PMore	,PError	,PMore	,PMore	,PMore	,PMore	,PMore	,PMore	,PLess	,PError	,PLess	,PMore 	,PMore	},
-/* .[55]	*/ {	PError	,PError	,PError	,PError	,PMore	,PMore	,PMore	,PMore	,PMore	,PMore	,PMore	,PLess	,PLess	,PLess	,PMore 	,PMore	},
-/* <[62]	*/ {	PLess	,PLess	,PLess	,PLess	,PLess	,PError	,PError	,PError	,PError	,PError	,PError	,PLess	,PLess	,PLess	,PMore 	,PMore	},
-/* >[64]	*/ {	PLess	,PLess	,PLess	,PLess	,PLess	,PError	,PError	,PError	,PError	,PError	,PError	,PLess	,PLess	,PLess	,PMore 	,PMore	},
-/* <=[63]	*/ {	PLess	,PLess	,PLess	,PLess	,PLess	,PError	,PError	,PError	,PError	,PError	,PError	,PLess	,PLess	,PLess	,PMore 	,PMore	},
-/* >=[65]	*/ {	PLess	,PLess	,PLess	,PLess	,PLess	,PError	,PError	,PError	,PError	,PError	,PError	,PLess	,PLess	,PLess	,PMore 	,PMore	},
-/* ===[60]	*/ {	PLess	,PLess	,PLess	,PLess	,PLess	,PError	,PError	,PError	,PError	,PError	,PError	,PLess	,PLess	,PLess	,PMore 	,PMore	},
-/* !==[61]	*/ {	PLess	,PLess	,PLess	,PLess	,PLess	,PError	,PError	,PError	,PError	,PError	,PError	,PLess	,PLess	,PLess	,PMore 	,PMore	},
-/* ID[10]	*/ {	PMore	,PMore	,PMore	,PMore	,PMore	,PMore	,PMore	,PMore	,PMore	,PMore	,PMore	,PError	,PError	,PError	,PMore 	,PMore	},
-/* STR[34]	*/ {	PError	,PError	,PError	,PError	,PMore	,PMore	,PMore	,PMore	,PMore	,PMore	,PMore	,PError	,PError	,PError	,PMore 	,PMore	},
-/* ([42]	*/ {	PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PError	,PEqual ,PMore	},
-/* )[43]	*/ {	PMore	,PMore	,PMore	,PMore	,PMore	,PMore	,PMore	,PMore	,PMore	,PMore	,PMore	,PError	,PError	,PError	,PError ,PMore	},
-/* $		*/ {	PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PLess	,PError ,PEqual	}
-//in stack
-};
 
 
 /* -- Helper functions -----------------------------------------------------*/
@@ -652,11 +624,10 @@ int tokenToPriority (int token) {
 		case LITERAL_LOGICAL:
 		case LITERAL_INETEGER:
 		case LITERAL_DOUBLE:
-									return 11;
-		case LITERAL_STRING: 		return 12;
-		case LEFT_BRACKET: 			return 13;
-		case RIGHT_BRACKET: 		return 14;
-		case EXPRESSION_END: 		return 15;
+		case LITERAL_STRING: 		return 11;
+		case LEFT_BRACKET: 			return 12;
+		case RIGHT_BRACKET: 		return 13;
+		case EXPRESSION_END: 		return 14;
 		default: 					return -1;
 	}
 }
@@ -675,10 +646,9 @@ char * debugPreced (int token) {
 		case 9:		return "COMPARE_IS"				;
 		case 10:	return "COMPARE_IS_NOT"			;
 		case 11:	return "IDENTIFIER/LITERAL"		;
-		case 12:	return "LITERAL_STRING"			;
-		case 13:	return "LEFT_BRACKET"			;
-		case 14:	return "RIGHT_BRACKET"			;
-		case 15:	return "EXPRESSION_END"			;
+		case 12:	return "LEFT_BRACKET"			;
+		case 13:	return "RIGHT_BRACKET"			;
+		case 14:	return "EXPRESSION_END"			;
 		default: 	return "WARNING!!!UNDEF OPER"	;
 	}
 }
@@ -729,75 +699,33 @@ char * priorToStr (int priority) {
 }
 
 
-#define TERM 		1 			//OPERATORS
-#define NOTERM 		0 			//OPERANDS
+#define TERM 		1 
+#define NOTERM 		0 
 #define WHATEVER	-1
-
-/*
-#define PUSH_CURRENT										\
-	if (DEBUG_FLAG) printf("just pushed: %s\n", debugTokens(currentToken)); \
-	switch (currentType) {									\
-		case NOTERM:										\
-			stackNotermPush(&notermStack, actualNoterm);	\
-			break;											\
-		case TERM:											\
-			stackTermPush(&termStack, actualTerm);			\
-			break;											\
-	} */
-
-// int priorityCheck(int alrady, int current, tStackTerm * termStack) {
-// 	int currentPrior = tokenToPriority(currentToken);
-// 	if (stackTermEmpty(termStack)) {
-
-// 	}
-// 	if (currentPrior == -1) {
-// 		return PMore;
-// 	}
-// 	PTable[stackTermTop(&termStack)][tokenToPriority(currentToken)]
-// }
 
 int parserPrecedence() {
 
-	int bracketsCounter = 0;
-
 	int currentToken = WHATEVER;
-	int lastToken = WHATEVER;
-
-	int flagNoterm = 0;
-
-	// int currentType = WHATEVER;
-	// int lastType = WHATEVER;
 
 	tStackTerm termStack;
 	stackTermInit(&termStack);
 
-	tStackNoterm notermStack;		// stack of noterms
+	tStackNoterm notermStack;
 	stackNotermInit(&notermStack);
 
-	stackTermPush(&termStack, EXPRESSION_END); // push dollar
+	stackTermPush(&termStack, EXPRESSION_END);
 
-	//cleared in while
 
 	typeData * actualNoterm;
-	// int actualTerm;
 
 	int exitFlag = 0;
 
-
-	//start of while
 	while (1) {
-
-		// actualTerm = 0;
-
-		//update types
-
-		// lastType = currentType;
 
 		printf("\nSTACK CONTENT:\n");
 		printTermStack(&termStack);
 		printf("tokenType: %s\n", debugTokens(tokenType));
 
-		//NO TERMINAL ALWAYS PUSH
 		if (tokenType == IDENTIFIER_VARIABLE 	|| \
 			tokenType == LITERAL_NULL 			|| \
 			tokenType == LITERAL_LOGICAL 		|| \
@@ -807,20 +735,16 @@ int parserPrecedence() {
 			if (tokenType == IDENTIFIER_VARIABLE) {
 				actualNoterm = getVariable(&actualTable, &attribute, SHOULD_EXIST);
 			} else {
-				actualNoterm = getLiteral(&actualTable, tokenType-30, &attribute); //TOKEN -> DATA_TYPE
+				actualNoterm = getLiteral(&actualTable, tokenType-30, &attribute);
 			}
 			if (actualNoterm == NULL) {
 				if (DEBUG_FLAG) printf("STOP! SEMANTIC ERROR! UNDEFINED VAR IN EXPRESSION\n");
-				//DEBUG ONLY
-
-				////////////
 			}
 			stackNotermPush(&notermStack, actualNoterm);
 			currentToken = tokenToPriority(tokenType);
 			stackTermPush(&termStack, currentToken);
 			if (DEBUG_FLAG) printf("noterminal pushed: %s\n", debugPreced(currentToken));
 		} else {
-			//TERMINAL CASE
 			if (!(tokenType == OPERATION_PLUS	|| \
 			tokenType == OPERATION_MINUS 		|| \
 			tokenType == OPERATION_MULTIPLY 	|| \
@@ -834,20 +758,20 @@ int parserPrecedence() {
 			tokenType == COMPARE_MORE_EQ 		|| \
 			tokenType == LEFT_BRACKET 			|| \
 			tokenType == RIGHT_BRACKET 			)) {
-				//exit from expression
 				currentToken = tokenToPriority(EXPRESSION_END);
 				exitFlag = 1;
+				printf("%i\n", tokenType);
 				if (DEBUG_FLAG) printf("We should exit\n");
 			} else {
 				currentToken = tokenToPriority(tokenType);
 			}
-			int priority = PTable[stackTermTop(&termStack)][currentToken];
+			int priority = priorityTable[stackTermTop(&termStack)][currentToken];
 			if (DEBUG_FLAG) printf("priority: %s\n",priorToStr(priority));
 			switch (priority) {
 				case PMore:
 					while (priority!=PLess && priority!=PEqual) {
 						int popedTerm = stackTermTop(&termStack);
-						if (popedTerm==11||popedTerm==12) {	//vseeeee!!!!!! //check for rule E->id
+						if (popedTerm==11) {
 							if (DEBUG_FLAG) printf("rule E->id, just pop\n");
 							stackTermPop(&termStack);
 						} else {
@@ -857,23 +781,23 @@ int parserPrecedence() {
 							stackNotermPop (&notermStack);
 							typeData * operandOne = stackNotermTop(&notermStack);
 							stackNotermPop (&notermStack);
-							//CREATE INSTRUCTION!
 							printf(CBLU "%i = %i %s %i\n" CNRM ,tempVar->valueOf.type_INTEGER,operandOne->valueOf.type_INTEGER,debugPreced(popedTerm),operandSecond->valueOf.type_INTEGER);
 							createInstruction(tableToInstruction(popedTerm), tempVar, operandOne, operandSecond);
 							stackNotermPush (&notermStack, tempVar);
 							stackTermPop(&termStack);
 						}
-						priority = PTable[stackTermTop(&termStack)][currentToken];
+						printf("%i %i\n", currentToken, stackTermTop(&termStack));
+						priority = priorityTable[stackTermTop(&termStack)][currentToken];
 						if (DEBUG_FLAG) printf("priority: %s\n",priorToStr(priority));
 						if (priority == PError) {
-							if (currentToken == 14 && stackTermTop(&termStack) == EXPRESSION_END) {
+							if (currentToken == CLOSE_BRACKET && stackTermTop(&termStack) == EXPRESSION_END) {
 								exitFlag = 1;
 								currentToken = tokenToPriority(tokenType);
-								break;
+ 								break;
 							} else {
 								if (DEBUG_FLAG) printf("error expression exit in PMore\n");
-								return SYNTAX_WRONG;	
-							}
+ 								return SYNTAX_WRONG;  
+ 							}
 						}
 						if (priority == PEqual) {
 							stackTermPop(&termStack);
@@ -892,227 +816,18 @@ int parserPrecedence() {
 				case PError:
 					if (DEBUG_FLAG) printf("error expression exit\n");
 					return SYNTAX_WRONG;
-				//Eequal neeesed
 			}
 		}
 		if (exitFlag) {
-			// ONE tDAta in nonterm stack for return
-			typeData * tempVar = getEmpty(&actualTable); //really is return pointer
+			typeData * tempVar = getEmpty(&actualTable); 	//for debug, should get element
 			typeData * operandOne = stackNotermTop(&notermStack);
 			stackNotermPop (&notermStack);
 			createInstruction(I_ASSIGN, tempVar, operandOne, NULL);
 			RECOVER_TOKEN
+			printf("%i\n", tokenType);
 			return SYNTAX_OK;
 		} else {
 			UPDATE_TOKEN
 		}
 	}
 }
-
-// 		// prepare stack nodes
-// 		switch (tokenType) {
-// 			case IDENTIFIER_VARIABLE:
-// 			case LITERAL_NULL:
-// 			case LITERAL_LOGICAL:
-// 			case LITERAL_INETEGER:
-// 			case LITERAL_DOUBLE:
-// 			case LITERAL_STRING:
-// 				//noterm at input
-// 				// if (expectedType == TERM) {
-// 				// 	if (DEBUG_FLAG) printf("unexepected noterm in expression\n");
-// 				// 	return SYNTAX_WRONG;	//unexpected token
-// 				// } else {
-// 				// 	expectedType = TERM;
-// 				// }
-// 				if (tokenType == IDENTIFIER_VARIABLE) {
-// 					actualNoterm = getVariable(&attribute, SHOULD_EXIST);
-// 				} else {
-// 					actualNoterm = getLiteral(tokenType-30, &attribute); //TOKEN -> DATA_TYPE
-// 				}
-// 				if (actualNoterm == NULL) {
-// 					if (DEBUG_FLAG) printf("STOP! SEMANTIC ERROR! UNDEFINED VAR IN EXPRESSION\n");
-// 				}
-// 				if (DEBUG_FLAG) printf("noterminal pushed: %s\n", debugTokens(currentToken));
-// 				stackNotermPush(&notermStack, actualNoterm);
-// 				// lastType = currentType;
-// 				// currentType = NOTERM;
-// 				break;
-
-// 			case OPERATION_PLUS:
-// 			case OPERATION_MINUS:
-// 			case OPERATION_MULTIPLY:
-// 			case OPERATION_DIVIDE:
-// 			case OPERATION_CONCATEN:
-// 			case COMPARE_IS:
-// 			case COMPARE_IS_NOT:
-// 			case COMPARE_LESS:
-// 			case COMPARE_MORE:
-// 			case COMPARE_MORE_EQ:
-// 				//term at input
-// 				// if (expectedType == NOTERM) {
-// 				// 	if (DEBUG_FLAG) printf("unexepected noterm in expression\n");
-// 				// 	return SYNTAX_WRONG;	//unexpected token
-// 				// } else {
-// 				// 	expectedType = NOTERM;
-// 				// }
-// 				lastToken = tokenType;
-// 				currentToken = tokenType;
-				
-// 				// lastType = currentType;
-// 				// currentType = TERM;
-// 				break;
-
-// 			case LEFT_BRACKET:
-// 				// firstly control tokens
-// 				// if (currentType != NOTERM) {		//NOT noterm bcs can be first!!!
-// 				// 	currentType = TERM;
-// 				// 	expectedType = NOTERM; 		//next after ( will be NOTERM
-// 				// } else {
-// 				// 	if (DEBUG_FLAG) printf("unexepected left bracket\n");
-// 				// 	return SYNTAX_WRONG;	//unexpected token
-// 				// }
-// 				//and than bracket counter
-// 				++bracketsCounter;
-// 				//update term
-// 				// actualTerm = tokenType;
-// 				// currentType = TERM;
-// 				break;
-
-// 			case RIGHT_BRACKET:
-// 				// firstly control tokens
-// 				// if (currentType != TERM) {		//NOT term bcs can be first!!! ?!WTF
-// 				// 	currentType = NOTERM;
-// 				// 	expectedType = TERM; 		//next after ( will be NOTERM
-// 				// } else {
-// 				// 	if (DEBUG_FLAG) printf("unexepected right bracket\n");
-// 				// 	return SYNTAX_WRONG;	//unexpected token
-// 				// }
-// 				//and than bracket counter
-// 				--bracketsCounter;
-// 				if (bracketsCounter<0) {	//exit right bracket position
-// 					if (DEBUG_FLAG) printf("exit from PP with recovered %s\n", debugTokens(tokenType));
-// 					RECOVER_TOKEN
-// 					return SYNTAX_OK;
-// 				}
-// 				//update term
-// 				// actualTerm = tokenType;
-// 				// currentType = TERM;
-// 				break;
-
-// 			default:
-// 				//maybe token isn't for expression?
-// 				if (bracketsCounter != 0) {
-// 					if (DEBUG_FLAG) printf("exit from expression with brackets error\n");
-// 					return SYNTAX_WRONG;	//unexpected token
-// 				}
-// 				RECOVER_TOKEN
-// 				return SYNTAX_OK;
-// 		}
-
-
-
-// 		if (lastToken == WHATEVER) {	//just put first noterm to stack
-// 			PUSH_CURRENT //first can be (
-// 		} else {
-// 			int priority = PTable[tokenToPriority(lastToken)][tokenToPriority(currentToken)];
-// 			if (DEBUG_FLAG) printf("prtiority: %i\n",priority );
-// 			//declaration before switch
-// 			typeData * tempVar;
-// 			typeData * operandOne;
-// 			typeData * operandSecond;
-// 			//switch
-// 			switch (priority) {
-// 				case PError:
-// 					if (DEBUG_FLAG) printf("unresolved sequence in expression: %s %s\n", debugTokens(lastToken), debugTokens(currentToken));
-// 					return SYNTAX_WRONG;
-// 					break;
-// 				case PLess:
-// 					PUSH_CURRENT
-// 					break;
-// 				case PMore:
-// 				case PEqual:
-// 					// current rype should be term - noterm has more priority
-
-// 					tempVar = getEmpty();
-// 					operandOne = stackNotermTop(&notermStack);
-// 					stackNotermPop (&notermStack);
-// 					operandSecond = actualNoterm;
-// 					//CREATE INSTRUCTION!
-// 					printf(KBLU "%p = %p %s %p\n"KNRM,tempVar,operandOne,debugTokens(currentToken),operandSecond);
-// 					stackNotermPush (&notermStack, tempVar);
-// 					stackTermPop(&termStack);
-// 					stackTermPush (&termStack, actualTerm);
-// 					// }
-// 					break;
-				
-// 			}
-// 		}
-
-// 		//ready to continue
-// 		UPDATE_TOKEN
-// 	}
-
-// 	return SYNTAX_WRONG;
-// }
-
-
-// // 	printf("%s ", debugTokens(tokenType));
-
-// // 	int status;
-// // 	switch (tokenType) {
-// // 		case IDENTIFIER_VARIABLE:
-// // 		case LITERAL_NULL:
-// // 		case LITERAL_LOGICAL:
-// // 		case LITERAL_INETEGER:
-// // 		case LITERAL_DOUBLE:
-// // 		case LITERAL_STRING:
-// // 		case OPERATION_PLUS:
-// // 		case OPERATION_MINUS:
-// // 		case OPERATION_MULTIPLY:
-// // 		case OPERATION_DIVIDE:
-// // 		case OPERATION_CONCATEN:
-// // 		case COMPARE_IS:
-// // 		case COMPARE_IS_NOT:
-// // 		case COMPARE_LESS:
-// // 		case COMPARE_MORE:
-// // 		case COMPARE_MORE_EQ:
-// // 			// <expression> -> <expression>
-// // 			if (DEBUG_FLAG) printf("<expression> -> <expression>\n");
-// // 			UPDATE_TOKEN
-// // 			parserPrecedence();
-// // 			return SYNTAX_OK;
-
-// // 		default:
-// // 			// <program_units>	-> EOF
-// // 			if (DEBUG_FLAG) printf("<expression> -> E\n");
-// // 			// instructions for this rule
-// // 			RECOVER_TOKEN
-// // 			return SYNTAX_OK;
-
-// // 	}
-// // 	return SYNTAX_WRONG;
-// // }
-
-// // int recursivePrecedence () {
-// // 	return SYNTAX_OK;
-// // }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
