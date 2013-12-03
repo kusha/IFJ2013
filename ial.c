@@ -115,3 +115,27 @@ void treePrint (typeNodePtr *Root) {
 		treePrint(&(*Root)->right);
 	}
 }
+
+
+/* -- Shell sort -----------------------------------------------------------*/
+
+char *sort_string(char *string) {						//shell sort serazeni znaku retezce podle ordinalni hodnoty od nejmensi po nejvetsi
+	int n, step, i, j;
+	char tmp;										//pomocna pro razeni
+	n = strlen(string);								//zjistime delku stringu -> n
+	step = n / 2;
+	while(step > 0){									//opakuj dokud bude krok 1 a vetsi
+		for(i = step; i < n - step; i++){
+			j = i - step + 1;
+			while((j >= 0) && (string[j] > string[j + step])){
+				tmp = string[j + step];					//nasledujici 3 radky prohozeni hodnot jako u Bubble
+				string[j + step] = string[j];
+				string[j] = tmp;
+				j = j - step;							//snizeni indexu o krok
+			}
+		}
+		step = step / 2;								//opet puleni kroku
+	}
+	return string;
+}
+

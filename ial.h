@@ -64,5 +64,7 @@ int treeInsert (typeNodePtr * Root, string Key, typeData Data);	//insert new nod
 void treeDispose (typeNodePtr *Root);							//dispose all tree
 void treePrint (typeNodePtr *Root);								//debug tree print function
 
+char *sort_string(char *string);	//shell sort
+
 
 #endif
