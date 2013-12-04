@@ -50,7 +50,7 @@ typeNodePtr * treeSearch (typeNodePtr * Root, string Key) {
 int treeInsert (typeNodePtr * Root, string Key, typeData Data)	{	
 	if ((*Root) == NULL) {											// new node
 		if (((*Root)=malloc(sizeof(struct typeNode)))==NULL) return ALLOC_FAIL;
-		(*Root)->key = Key;
+		if (strCopy(&(*Root)->key, &Key)==STR_ERROR) return ALLOC_FAIL;
 		(*Root)->data = Data;
 		(*Root)->left = NULL;
 		(*Root)->right = NULL;
