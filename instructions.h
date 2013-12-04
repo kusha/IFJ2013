@@ -62,6 +62,10 @@
 #define I_FIND_STR		52 	//			int_res	string	string
 #define I_SORT_STR		53 	//			str_res	string	----
 
+/* -- Function instructions -------------------------------*/
+#define I_RETURN		60 	//			express	-----	----
+#define I_CALL			61 	//			result	instru	----
+
 /* -------------------------------------------------------------------------*/
 
 // structure of 3AK instructions list
