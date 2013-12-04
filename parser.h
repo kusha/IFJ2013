@@ -32,6 +32,8 @@
 #define SYNTAX_OK		0
 #define SYNTAX_WRONG	2
 
+#define MAX_PUT_STRING 1000
+
 //common resources
 extern int tokenType;
 extern int expectedTokenType;

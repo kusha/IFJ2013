@@ -196,11 +196,16 @@ typeNodePtr globalTable;
 typeNodePtr functionsTable;
 typeNodePtr * actualTable;
 
+tStackTable deepStack;
+
 void initTables() {
 	globalTable = createTable();
 	functionsTable = createTable();
 	actualTable = &globalTable;
+	stackTableInit ( &deepStack );	
 }
+
+
 
 
 /* -- Recursive descent ------------------------------------------------------
@@ -279,10 +284,9 @@ int FUNC_DEFINE() {
 
 
 	//GOTO EXCEPT
-	// typeListItem * exceptPoint = NULL;
 	typeData * gotoData = getEmpty(actualTable);
 	gotoData->type = _FUNCTION;
-	gotoData->instruction  = NULL; // = exceptPoint;
+	gotoData->instruction  = NULL;
 	createInstruction(I_GOTO, NULL, gotoData, NULL);
 
 	//COMMON CREATION
@@ -323,7 +327,6 @@ int FUNC_DEFINE() {
 
 	actualTable = &globalTable;
 	gotoData->instruction  = getPtrToCurrent(instrList); 
-	// exceptPoint = getPtrToCurrent(instrList);
 
 
 	return SYNTAX_OK;
@@ -407,7 +410,9 @@ int CMD_SEQUENCE() {
 			// <cmd_sequence> -> <cmd> <cmd_sequence>
 			if (DEBUG_FLAG) printf("<cmd_sequence> -> <cmd> <cmd_sequence>\n");
 			CALL(CMD)
+			printf("CURRENT TOKEN:%i\n", tokenType);
 			UPDATE_TOKEN
+
 			CALL(CMD_SEQUENCE)
 			return SYNTAX_OK;
 			break;
@@ -418,15 +423,16 @@ int CMD_SEQUENCE() {
 
 /* -- Real commands --------------------------------------------------------*/
 
+typeData * expressionResult;
+typeInputArray inputArray;
+
 int CMD() {
 	int status;
 	switch (tokenType) {
-		case IDENTIFIER_VARIABLE:
+		case IDENTIFIER_VARIABLE: {
 			// <cmd> -> $id = <expression> ;
 			// <cmd> -> $id = id ( <input> ) ;
-			if (1) {
-				typeData * resultVar = getVariable(actualTable, &attribute, MAY_NOT_EXIST);
-			}
+			typeData * resultVar = getVariable(actualTable, &attribute, MAY_NOT_EXIST);
 			UPDATE_TOKEN
 			IS_TOKEN(OPERATION_ASSIGN)
 			UPDATE_TOKEN
@@ -434,12 +440,230 @@ int CMD() {
 				case IDENTIFIER:
 					// <cmd> -> $id = id ( <input> ) ;
 					if (DEBUG_FLAG) printf("<cmd> -> $id = id ( <input> ) ;\n");
+
+					string nameSaver;
+					strInit(&nameSaver); 
+					if (strCopy(&nameSaver, &attribute)==STR_ERROR) return INTERNAL_ERROR;
+
+					arrayClear( &inputArray );
 					UPDATE_TOKEN
 					IS_TOKEN(LEFT_BRACKET)
 					UPDATE_TOKEN
 					CALL(INPUT)
 					UPDATE_TOKEN
 					IS_TOKEN(RIGHT_BRACKET)
+
+
+					string convertHelper;
+					strInit(&convertHelper); 
+
+
+					//CHECK FOR BUILT-IN
+					if (strCompareConst(&nameSaver, "boolval")) {
+						if (strAddChar(&convertHelper, 48+_LOGICAL)==STR_ERROR) return INTERNAL_ERROR;
+						typeData * target = getLiteral(actualTable, _INTEGER, &convertHelper);
+						typeData * tester;
+						typeData * converted;
+						if ((converted = arrayGet(&inputArray, 0))==NULL) {
+							REPORT("too few params")
+							return S_PARAM_ERROR;
+						}
+						if ((tester = arrayGet(&inputArray, 1))!=NULL) {
+							REPORT("too many params")
+							return S_PARAM_ERROR;
+						}
+						createInstruction(I_CONVERT, resultVar, converted, target);
+					} else if (strCompareConst(&nameSaver, "doubleval")) {
+						if (strAddChar(&convertHelper, 48+_DOUBLE)==STR_ERROR) return INTERNAL_ERROR;
+						typeData * target = getLiteral(actualTable, _INTEGER, &convertHelper);
+						typeData * tester;
+						typeData * converted;
+						if ((converted = arrayGet(&inputArray, 0))==NULL) {
+							REPORT("too few params")
+							return S_PARAM_ERROR;
+						}
+						if ((tester = arrayGet(&inputArray, 1))!=NULL) {
+							REPORT("too many params")
+							return S_PARAM_ERROR;
+						}
+						createInstruction(I_CONVERT, resultVar, converted, target);
+					} else if (strCompareConst(&nameSaver, "intval")) {
+						if (strAddChar(&convertHelper, 48+_INTEGER)==STR_ERROR) return INTERNAL_ERROR;
+						typeData * target = getLiteral(actualTable, _INTEGER, &convertHelper);
+						typeData * tester;
+						typeData * converted;
+						if ((converted = arrayGet(&inputArray, 0))==NULL) {
+							REPORT("too few params")
+							return S_PARAM_ERROR;
+						}
+						if ((tester = arrayGet(&inputArray, 1))!=NULL) {
+							REPORT("too many params")
+							return S_PARAM_ERROR;
+						}
+						createInstruction(I_CONVERT, resultVar, converted, target);
+					} else if (strCompareConst(&nameSaver, "strval")) {
+						if (strAddChar(&convertHelper, 48+_STRING)==STR_ERROR) return INTERNAL_ERROR;
+						typeData * target = getLiteral(actualTable, _INTEGER, &convertHelper);
+						typeData * tester;
+						typeData * converted;
+						if ((converted = arrayGet(&inputArray, 0))==NULL) {
+							REPORT("too few params")
+							return S_PARAM_ERROR;
+						}
+						if ((tester = arrayGet(&inputArray, 1))!=NULL) {
+							REPORT("too many params")
+							return S_PARAM_ERROR;
+						}
+						createInstruction(I_CONVERT, resultVar, converted, target);
+					} else if (strCompareConst(&nameSaver, "get_string")) {
+						typeData * tester;
+						if ((tester = arrayGet(&inputArray, 0))!=NULL) {
+							REPORT("too many params")
+							return S_PARAM_ERROR;
+						}
+						createInstruction(I_READ, resultVar, NULL, NULL);
+					} else if (strCompareConst(&nameSaver, "put_string")) {
+						int idx = 0;
+						typeData * forPrint= arrayGet(&inputArray, idx);
+						while (forPrint != NULL) {
+							createInstruction(I_WRITE, forPrint, NULL, NULL);
+							idx++;
+							forPrint= arrayGet(&inputArray, idx);
+						}
+						char str[MAX_PUT_STRING];
+						sprintf(str, "%d", idx);
+						int i = 0;
+						while (str[i]!='\0') {
+							strAddChar(&convertHelper, str[i]);
+							i++;
+						} 
+						typeData * counter = getLiteral(actualTable, _INTEGER, &convertHelper);
+						createInstruction(I_ASSIGN, resultVar, counter, NULL);
+					} else if (strCompareConst(&nameSaver, "strlen")) {
+						typeData * tester;
+						typeData * inputString;
+						if ((inputString = arrayGet(&inputArray, 0))==NULL) {
+							REPORT("too few params")
+							return S_PARAM_ERROR;
+						}
+						if ((tester = arrayGet(&inputArray, 1))!=NULL) {
+							REPORT("too many params")
+							return S_PARAM_ERROR;
+						}
+						createInstruction(I_STR_LEN, resultVar, inputString, NULL);
+					} else if (strCompareConst(&nameSaver, "get_substring")) {
+						typeData * tester;
+						typeData * inputString;
+						typeData * subStart;
+						typeData * subFinish;
+						if ((inputString = arrayGet(&inputArray, 0))==NULL) {
+							REPORT("too few params")
+							return S_PARAM_ERROR;
+						}
+						if ((subStart = arrayGet(&inputArray, 2))==NULL) {
+							REPORT("too few params")
+							return S_PARAM_ERROR;
+						}
+						if ((subFinish = arrayGet(&inputArray, 3))==NULL) {
+							REPORT("too few params")
+							return S_PARAM_ERROR;
+						}
+						if ((tester = arrayGet(&inputArray, 4))!=NULL) {
+							REPORT("too many params")
+							return S_PARAM_ERROR;
+						}
+						int str_len, start_sub, finish_sub;
+						if (inputString->type == _STRING) {
+							str_len = inputString->valueOf.type_STRING.length;
+						} else {
+							REPORT("get_substring() first param isn't string")
+							return S_PARAM_ERROR;
+						}
+						if (subStart->type == _INTEGER) {
+							start_sub = inputString->valueOf.type_INTEGER;
+						} else {
+							REPORT("get_substring() second param isn't integer")
+							return S_PARAM_ERROR;
+						}
+						if (subFinish->type == _INTEGER) {
+							finish_sub = inputString->valueOf.type_INTEGER;
+						} else {
+							REPORT("get_substring() third param isn't integer")
+							return S_PARAM_ERROR;
+						}
+						if (start_sub < 0			|| \
+							finish_sub < 0			|| \
+							start_sub > finish_sub	|| \
+							start_sub >= str_len	|| \
+							finish_sub > str_len	){
+							REPORT("Get substring error.")
+							return S_OTHER_ERROR;
+						}
+						int second_value = 0 - (str_len - finish_sub);
+						char str[10];//like int max
+						sprintf(str, "%d", second_value);
+						int i = 0;
+						while (str[i]!='\0') {
+							strAddChar(&convertHelper, str[i]);
+							i++;
+						} 
+						typeData * finishSub = getLiteral(actualTable, _INTEGER, &convertHelper);
+						typeData * tempString = getEmpty(actualTable);
+						createInstruction(I_SUB_STR, tempString, inputString, subStart);
+						createInstruction(I_SUB_STR, resultVar, tempString, finishSub);
+					} else if (strCompareConst(&nameSaver, "find_string")) {
+						typeData * tester;
+						typeData * inputString1;
+						typeData * inputString2;
+						if ((inputString1 = arrayGet(&inputArray, 0))==NULL) {
+							REPORT("too few params")
+							return S_PARAM_ERROR;
+						}
+						if ((inputString2 = arrayGet(&inputArray, 1))==NULL) {
+							REPORT("too few params")
+							return S_PARAM_ERROR;
+						}
+						if ((tester = arrayGet(&inputArray, 2))!=NULL) {
+							REPORT("too many params")
+							return S_PARAM_ERROR;
+						}
+						createInstruction(I_FIND_STR, resultVar, inputString1, inputString2);
+					} else if (strCompareConst(&nameSaver, "sort_string")) {
+						typeData * tester;
+						typeData * inputString;
+						if ((inputString = arrayGet(&inputArray, 0))==NULL) {
+							REPORT("too few params")
+							return S_PARAM_ERROR;
+						}
+						if ((tester = arrayGet(&inputArray, 1))!=NULL) {
+							REPORT("too many params")
+							return S_PARAM_ERROR;
+						}
+						createInstruction(I_SORT_STR, resultVar, inputString, NULL);
+					} else {				//user function
+						
+						typeData * currentFunction;
+						currentFunction = getVariable(&functionsTable, &attribute, SHOULD_EXIST);
+
+						UPDATE_TOKEN
+						IS_TOKEN(LEFT_BRACKET)
+						UPDATE_TOKEN
+						CALL(INPUT)
+						UPDATE_TOKEN
+						IS_TOKEN(RIGHT_BRACKET)
+
+						if (arraysMerge( &currentFunction->funcWith.inputData, &inputArray) == MERGE_FAIL){
+						 	REPORT("Uncompaitable params in function call")
+						 	return S_PARAM_ERROR;
+						}
+
+						//ONE FUNCTION ONLY!!!
+						// void stackTablePush ( &deepStack, getPtrToCurrent(instrList), resultVar );
+						createInstruction(I_GOTO, NULL, currentFunction, NULL);
+						
+						//??????????????????????
+
+					}
 					UPDATE_TOKEN
 					IS_TOKEN(SEMICOLON)
 					return SYNTAX_OK;
@@ -466,13 +690,16 @@ int CMD() {
 					// <cmd> -> $id = <expression> ;
 					if (DEBUG_FLAG) printf("<cmd> -> $id = <expression> ;\n");
 					CALL(PRECEDENCE)
+
+					createInstruction(I_ASSIGN, resultVar, expressionResult, NULL);
+
 					UPDATE_TOKEN
 					IS_TOKEN(SEMICOLON)
 					return SYNTAX_OK;
 					break;
 			}
 			return SYNTAX_WRONG;
-			break;
+			break; }
 
 		case KEYWORD_IF:
 			// <cmd> -> if ( <expression> ) { <cmd_sequence> } else { <cmd_sequence> }
@@ -481,22 +708,49 @@ int CMD() {
 			IS_TOKEN(LEFT_BRACKET)
 			UPDATE_TOKEN
 			CALL(PRECEDENCE)
+
+			typeData * gotoDataIf = getEmpty(actualTable);
+			gotoDataIf->type = _FUNCTION;
+			gotoDataIf->instruction  = NULL;
+
+			typeData * gotoDataElse = getEmpty(actualTable);
+			gotoDataElse->type = _FUNCTION;
+			gotoDataElse->instruction  = NULL;
+
+			typeData * gotoDataExit = getEmpty(actualTable);
+			gotoDataExit->type = _FUNCTION;
+			gotoDataExit->instruction  = NULL;
+
+			createInstruction(I_GOTO_IF, expressionResult, gotoDataIf, gotoDataElse);
+
 			UPDATE_TOKEN
 			IS_TOKEN(RIGHT_BRACKET)
 			UPDATE_TOKEN
 			IS_TOKEN(LEFT_CURLY_BRACKET)
+
+			gotoDataIf->instruction = getPtrToCurrent(instrList);
+
 			UPDATE_TOKEN
 			CALL(CMD_SEQUENCE)
 			UPDATE_TOKEN
 			IS_TOKEN(RIGHT_CURLY_BRACKET)
+
+			createInstruction(I_GOTO, NULL, gotoDataExit, NULL);
+
 			UPDATE_TOKEN
 			IS_TOKEN(KEYWORD_ELSE)
 			UPDATE_TOKEN
 			IS_TOKEN(LEFT_CURLY_BRACKET)
+
+			gotoDataElse->instruction = getPtrToCurrent(instrList);
+
 			UPDATE_TOKEN
 			CALL(CMD_SEQUENCE)
 			UPDATE_TOKEN
 			IS_TOKEN(RIGHT_CURLY_BRACKET)
+
+			gotoDataExit->instruction = getPtrToCurrent(instrList);
+
 			return SYNTAX_OK;
 			break;
 
@@ -505,8 +759,29 @@ int CMD() {
 			if (DEBUG_FLAG) printf("<cmd> -> while ( <expression> ) { <cmd_sequence> }\n");
 			UPDATE_TOKEN
 			IS_TOKEN(LEFT_BRACKET)
+
+			typeData * gotoDataRepeat = getEmpty(actualTable);
+			gotoDataRepeat->type = _FUNCTION;
+			gotoDataRepeat->instruction = getPtrToCurrent(instrList);
+
+
 			UPDATE_TOKEN
 			CALL(PRECEDENCE)
+
+
+			typeData * gotoDataDo = getEmpty(actualTable);
+			gotoDataDo->type = _FUNCTION;
+			gotoDataDo->instruction  = NULL;
+
+			typeData * gotoDataBreak = getEmpty(actualTable);
+			gotoDataBreak->type = _FUNCTION;
+			gotoDataBreak->instruction  = NULL;
+
+			createInstruction(I_GOTO_IF, expressionResult, gotoDataDo, gotoDataBreak);
+
+			gotoDataDo->instruction = getPtrToCurrent(instrList);
+
+
 			UPDATE_TOKEN
 			IS_TOKEN(RIGHT_BRACKET)
 			UPDATE_TOKEN
@@ -514,7 +789,13 @@ int CMD() {
 			UPDATE_TOKEN
 			CALL(CMD_SEQUENCE)
 			UPDATE_TOKEN
+
+			createInstruction(I_GOTO, NULL, gotoDataRepeat, NULL);
+
 			IS_TOKEN(RIGHT_CURLY_BRACKET)
+
+			gotoDataBreak->instruction = getPtrToCurrent(instrList);
+
 			return SYNTAX_OK;
 			break;
 
@@ -531,6 +812,8 @@ int CMD() {
 	}
 	return SYNTAX_WRONG;
 }
+
+/* -------------------------------------------------------------------------*/
 
 int INPUT() {
 	int status;
@@ -562,6 +845,9 @@ int INPUT() {
 			// <input> -> <expression> <input_more>
 			if (DEBUG_FLAG) printf("<input> -> <expression> <input_more>\n");
 			CALL(PRECEDENCE)
+
+			arrayAdd( &inputArray, expressionResult);
+
 			UPDATE_TOKEN
 			CALL(INPUT_MORE)
 			return SYNTAX_OK;
@@ -586,6 +872,9 @@ int INPUT_MORE() {
 			if (DEBUG_FLAG) printf("<input_more> -> , <expression> <input_more>\n");
 			UPDATE_TOKEN
 			CALL(PRECEDENCE)
+
+			arrayAdd( &inputArray, expressionResult);
+
 			UPDATE_TOKEN
 			CALL(INPUT_MORE)
 			return SYNTAX_OK;
@@ -594,6 +883,8 @@ int INPUT_MORE() {
 	}
 	return SYNTAX_WRONG;
 }
+
+/* -------------------------------------------------------------------------*/
 
 /* -- Precedence Parser ------------------------------------------------------
 **
@@ -878,12 +1169,10 @@ int parserPrecedence() {
 			}
 		}
 		if (exitFlag) {
-			typeData * tempVar = getEmpty(actualTable); 	//for debug, should get element
-			typeData * operandOne = stackNotermTop(&notermStack);
+			expressionResult = stackNotermTop(&notermStack);
 			stackNotermPop (&notermStack);
-			createInstruction(I_ASSIGN, tempVar, operandOne, NULL);
 			RECOVER_TOKEN
-			printf("%i\n", tokenType);
+			printf("was %i\n", tokenType);
 			return SYNTAX_OK;
 		} else {
 			UPDATE_TOKEN
