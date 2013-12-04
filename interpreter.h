@@ -20,6 +20,7 @@
 #include "common.h"
 #include "ial.h"
 #include "instructions.h"
+#include "stack.h"
 
 // one shared function
 int interpreterStart(/* same input like parser*/typeList *instrList);
