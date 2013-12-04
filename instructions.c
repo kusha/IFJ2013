@@ -57,6 +57,25 @@ int listAdd(typeList *list, typeInstruction instr) {
 	return SUCCESS;
 }
 
+int listAddNext(typeList *list, typeInstruction instr) {
+	if (list->active != NULL ) {
+		typeListItem *item;
+		if ((item = malloc(sizeof(typeListItem)))==NULL) {
+			return ALLOC_FAIL;
+		}
+		item->instr = instr;
+		item->next = list->active->next;
+		list->active->next = item;
+		if (list->active == list->last) {
+			list->last = item;
+		}
+	} else {
+		REPORT("No actual for listAddNext")
+		return INTERNAL_ERROR;
+	}
+	return SUCCESS;
+}
+
 void listFirst(typeList *list) {
 	list->active = list->first;
 }

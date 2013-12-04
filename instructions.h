@@ -88,14 +88,15 @@ typedef struct {				//structure for list of nodes
 	struct listItem* last;		//pointer to last instruction in list
 } typeList;						//datatype declaration (without struct)
 
-void listInit(typeList *list);						//inicialize new instructions list
-void listDispose(typeList *list);					//dispose all nodes of list
-int listAdd(typeList *list, typeInstruction instr);	//add instruction to the end of list
-void listFirst(typeList *list);						//set current instruction to start
-void listNext(typeList *list);						//set current to the next
-typeInstruction * getCurrent(typeList *list);		//return current instructions content
-void listGoto(typeList *list, void *instr);			//goto instruction, set current
-typeListItem * getPtrToCurrent(typeList *list);		//generate pointer to instruction
+void listInit(typeList *list);							//inicialize new instructions list
+void listDispose(typeList *list);						//dispose all nodes of list
+int listAdd(typeList *list, typeInstruction instr);		//add instruction to the end of list
+int listAddNext(typeList *list, typeInstruction instr);	//add right after the next
+void listFirst(typeList *list);							//set current instruction to start
+void listNext(typeList *list);							//set current to the next
+typeInstruction * getCurrent(typeList *list);			//return current instructions content
+void listGoto(typeList *list, void *instr);				//goto instruction, set current
+typeListItem * getPtrToCurrent(typeList *list);			//generate pointer to instruction
 
 
 #endif
