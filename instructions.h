@@ -31,7 +31,7 @@
 
 /* -- Goto instrutcions -----------------------------------*/
 #define I_GOTO 			1 	// ->		-----	where	-----
-#define I_GOTO_IF 		2 	// ?->		true?	where	-----
+#define I_GOTO_IF 		2 	// ?->		true?	where	else
 
 /* -- Operation instructions ------------------------------*/
 #define I_ASSIGN		10 	// =		where	from	-----
@@ -50,17 +50,17 @@
 #define I_C_MORE_EQ		25 	// >=		result	oper1	oper2
 
 /* -- Datatype convertation instruction -------------------*/
-#define I_CONVERT		30 	// type ->	change	d_type	-----
+#define I_CONVERT		30 	// type ->	targer	input	d_type
 
 /* -- IO instructions -------------------------------------*/
 #define I_READ			40 	// scanf	target	-----	-----
 #define I_WRITE			41 	// printf	input	-----	-----
 
 /* -- Special instructions for strings --------------------*/
-#define I_STR_LEN		50 	//			????	oper1	oper2
-#define I_SUB_STR		51 	//			????	oper1	oper2
-#define I_FIND_STR		52 	//			????	oper1	oper2
-#define I_SORT_STR		53 	//			????	oper1	oper2
+#define I_STR_LEN		50 	//			int_res	string	----
+#define I_SUB_STR		51 	//			str_res	string	string
+#define I_FIND_STR		52 	//			int_res	string	string
+#define I_SORT_STR		53 	//			str_res	string	----
 
 /* -------------------------------------------------------------------------*/
 
