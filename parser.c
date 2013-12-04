@@ -196,13 +196,10 @@ typeNodePtr globalTable;
 typeNodePtr functionsTable;
 typeNodePtr * actualTable;
 
-tStackTable deepStack;
-
 void initTables() {
 	globalTable = createTable();
 	functionsTable = createTable();
 	actualTable = &globalTable;
-	stackTableInit ( &deepStack );	
 }
 
 
@@ -640,28 +637,39 @@ int CMD() {
 							return S_PARAM_ERROR;
 						}
 						createInstruction(I_SORT_STR, resultVar, inputString, NULL);
-					} else {				//user function
+					} else {															//user function
 						
 						typeData * currentFunction;
-						currentFunction = getVariable(&functionsTable, &attribute, SHOULD_EXIST);
-
-						UPDATE_TOKEN
-						IS_TOKEN(LEFT_BRACKET)
-						UPDATE_TOKEN
-						CALL(INPUT)
-						UPDATE_TOKEN
-						IS_TOKEN(RIGHT_BRACKET)
-
-						if (arraysMerge( &currentFunction->funcWith.inputData, &inputArray) == MERGE_FAIL){
-						 	REPORT("Uncompaitable params in function call")
-						 	return S_PARAM_ERROR;
+						currentFunction = getVariable(&functionsTable, &nameSaver, SHOULD_EXIST);
+						if (currentFunction == NULL) {
+							REPORT("Undefined funciton call")
+							return S_FUNC_ERROR;
 						}
 
-						//ONE FUNCTION ONLY!!!
-						// void stackTablePush ( &deepStack, getPtrToCurrent(instrList), resultVar );
+
+						int idx = 0;
+						typeData * forMerge1 = arrayGet(&inputArray, idx);
+						typeData * forMerge2;
+						while (forMerge1 != NULL) {
+
+							if ((forMerge2=arrayGet(&currentFunction->funcWith.inputData, idx))==NULL) {
+								REPORT("User func params error")
+								return S_PARAM_ERROR;
+							}
+							createInstruction(I_ASSIGN, forMerge2, forMerge1, NULL);
+							idx++;
+							forMerge1 = arrayGet(&inputArray, idx);
+						}
+
+
+						typeData * returnPoint = getEmpty(actualTable);
+						returnPoint->type = _FUNCTION;
+						returnPoint->instruction  = NULL;
+
+						createInstruction(I_CALL, returnPoint, resultVar, NULL);
 						createInstruction(I_GOTO, NULL, currentFunction, NULL);
-						
-						//??????????????????????
+
+						returnPoint->instruction = getPtrToCurrent(instrList); 
 
 					}
 					UPDATE_TOKEN
@@ -804,6 +812,10 @@ int CMD() {
 			if (DEBUG_FLAG) printf("<cmd> -> return <expression> ;\n");
 			UPDATE_TOKEN
 			CALL(PRECEDENCE)
+
+			printf(CRED"TYPE_FROM_PARSER: %i\n"CNRM, expressionResult->type);
+			createInstruction(I_RETURN, expressionResult, NULL, NULL);
+
 			UPDATE_TOKEN
 			IS_TOKEN(SEMICOLON)
 			return SYNTAX_OK;
