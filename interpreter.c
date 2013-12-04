@@ -56,7 +56,8 @@ void printOperand (typeData * pointer) {
 	}
 	switch ((*pointer).type) {
 		case _NONE:
-			printf("<NONE>");
+			//printf("<NONE>");
+			printf("%p",pointer);
 			break;
 
 		case _NULL:
@@ -130,7 +131,7 @@ int interpreterStart(typeList *instrList) {
 		printf("Start print instructions\n");
 		listFirst(instrList);
 		while (instrList->active != NULL) {
-			printf(CGRN"%s\t", printInstr(instrList->active->instr.instrCode));
+			printf(CBLU"%s\t", printInstr(instrList->active->instr.instrCode));
 			printOperand(instrList->active->instr.addressOne);
 			printf("\t");
 			printOperand(instrList->active->instr.addressTwo);
@@ -141,12 +142,13 @@ int interpreterStart(typeList *instrList) {
 		}
 		printf("Finish print instructions\n");
 	}
+	int gotoFlag = 0;
 	
 	listFirst(instrList);
 	typeInstruction* currentInstr;
 	while (1) {
 		currentInstr = getCurrent(instrList);
-		printf(CBLU"PROCESSING %s\n"CNRM, printInstr(instrList->active->instr.instrCode));
+		// printf(CBLU"PROCESSING %s\n"CNRM, printInstr(instrList->active->instr.instrCode));
 		switch (currentInstr->instrCode) {
 			
 			case I_STOP:
@@ -154,16 +156,40 @@ int interpreterStart(typeList *instrList) {
 				break;
 
 			case I_GOTO:
+				//DEBUG!!!
+				printf(CGRN"%s\t", printInstr(instrList->active->instr.instrCode));
+				printOperand(instrList->active->instr.addressOne);
+				printf("\t");
+				printOperand(instrList->active->instr.addressTwo);
+				printf("\t");
+				printOperand(instrList->active->instr.addressThree);
+				printf("\n"CNRM);
+				gotoFlag = 1;
+
 				listGoto(instrList,currentInstr->addressTwo->instruction);
 				break;
 				
 			case I_GOTO_IF:
+				//DEBUG!!!
+				printf(CGRN"%s\t", printInstr(instrList->active->instr.instrCode));
+				printOperand(instrList->active->instr.addressOne);
+				printf("\t");
+				printOperand(instrList->active->instr.addressTwo);
+				printf("\t");
+				printOperand(instrList->active->instr.addressThree);
+				printf("\n"CNRM);
+				gotoFlag = 1;
+
 				//void * p=typeFind(currentInstr->addressOne);
-				 
-				if(currentInstr->addressOne->valueOf.type_LOGICAL)
-					listGoto(instrList,currentInstr->addressTwo->instruction);
-				 break;      
-				 
+				if(currentInstr->addressOne->type == _LOGICAL) {
+					if(currentInstr->addressOne->valueOf.type_LOGICAL)
+						listGoto(instrList,currentInstr->addressTwo->instruction);
+					else
+						listGoto(instrList,currentInstr->addressThree->instruction);
+				} else {
+					return S_EXPRESS_ERROR;
+				} 
+				break;
 				 		
 			case I_ASSIGN:
 				if((DATA_TYPE(currentInstr->addressTwo)) == _NULL){
@@ -659,16 +685,8 @@ int interpreterStart(typeList *instrList) {
 			case I_SORT_STR:
 	*/		
 		}
-		if (currentInstr->instrCode == I_STOP) break;
-		listNext(instrList);
-	}
 
-
-	if (DEBUG_FLAG) {
-		printf("Interpeter debug mode\n");
-		printf("Start print instructions\n");
-		listFirst(instrList);
-		while (instrList->active != NULL) {
+		if (!gotoFlag) {
 			printf(CGRN"%s\t", printInstr(instrList->active->instr.instrCode));
 			printOperand(instrList->active->instr.addressOne);
 			printf("\t");
@@ -676,10 +694,31 @@ int interpreterStart(typeList *instrList) {
 			printf("\t");
 			printOperand(instrList->active->instr.addressThree);
 			printf("\n"CNRM);
-			listNext(instrList);
+		} else {
+			gotoFlag = 0;
 		}
-		printf("Finish print instructions\n");
+
+		if (currentInstr->instrCode == I_STOP) break;
+		listNext(instrList);
 	}
+
+
+	// if (DEBUG_FLAG) {
+	// 	printf("Interpeter debug mode\n");
+	// 	printf("Start print instructions\n");
+	// 	listFirst(instrList);
+	// 	while (instrList->active != NULL) {
+	// 		printf(CGRN"%s\t", printInstr(instrList->active->instr.instrCode));
+	// 		printOperand(instrList->active->instr.addressOne);
+	// 		printf("\t");
+	// 		printOperand(instrList->active->instr.addressTwo);
+	// 		printf("\t");
+	// 		printOperand(instrList->active->instr.addressThree);
+	// 		printf("\n"CNRM);
+	// 		listNext(instrList);
+	// 	}
+	// 	printf("Finish print instructions\n");
+	// }
 
 	if (DEBUG_FLAG) printf("Interpeter finish\n");
 	
