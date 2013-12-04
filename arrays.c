@@ -35,17 +35,6 @@ void arrayAdd( typeInputArray * array, typeData * content) {
 	array->arr[array->size]=content;
 }
 
-int arraysMerge( typeInputArray * array1, typeInputArray * array2) {
-	if (array1->size == array2->size) {
-		int i;
-		for (i=0; i<=array1->size; i++) {
-			array1->arr[i]=array2->arr[i];
-		}
-		return SUCCESS;
-	}
-	return MERGE_FAIL;
-}
-
 typeData * arrayGet( typeInputArray * array, int idx) {
 	if (idx > array->size) {
 		return NULL;
