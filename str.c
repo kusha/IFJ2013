@@ -20,8 +20,6 @@
 #include <string.h>
 #include "str.h"
 
-#define DEBUG_FLAG 0
-
 int strInit(string *s) {
 	if ((s->str = (char*) malloc(STR_ALLOC_DELTA)) == NULL) {
 		if (DEBUG_FLAG) printf("string allocation error\n");

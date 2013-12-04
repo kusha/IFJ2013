@@ -129,6 +129,8 @@ int interpreterStart(typeList *instrList) {
 
 	if (DEBUG_FLAG) printf("Interpeter start\n");
 
+	#undef DEBUG_FLAG
+	#define DEBUG_FLAG 1
 	if (DEBUG_FLAG) {
 		printf("Interpeter debug mode\n");
 		printf("Start print instructions\n");
@@ -147,6 +149,9 @@ int interpreterStart(typeList *instrList) {
 		printf("Finish print instructions\n");
 	}
 	int gotoFlag = 0;
+
+	#undef DEBUG_FLAG
+	#define DEBUG_FLAG 0
 	
 	// return SUCCESS;
 	// stack for functions
@@ -877,7 +882,7 @@ int interpreterStart(typeList *instrList) {
 			break;
 			
 			case I_CONVERT:
-			printf("%c\n",currentInstr->addressThree->type) ;	
+			// printf("%c\n",currentInstr->addressThree->type) ;	
 				if((DATA_TYPE(currentInstr->addressTwo)) != (DATA_TYPE(currentInstr->addressThree))){
 					void *p=typeFind(currentInstr->addressTwo);
 						  

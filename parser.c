@@ -126,7 +126,7 @@ int parserPrecedence();
 // generate functions
 
 void createInstruction(int instrCode, typeData * addressOne, typeData * addressTwo, typeData * addressThree) {
-	printf("Called instruction creation: %i\n",instrCode);
+	if (DEBUG_FLAG) printf("Called instruction creation: %i\n",instrCode);
 	typeInstruction instruction;
 	instruction.instrCode = instrCode;
 	instruction.addressOne = addressOne;
@@ -407,7 +407,6 @@ int CMD_SEQUENCE() {
 			// <cmd_sequence> -> <cmd> <cmd_sequence>
 			if (DEBUG_FLAG) printf("<cmd_sequence> -> <cmd> <cmd_sequence>\n");
 			CALL(CMD)
-			printf("CURRENT TOKEN:%i\n", tokenType);
 			UPDATE_TOKEN
 
 			CALL(CMD_SEQUENCE)
@@ -907,14 +906,12 @@ int INPUT_MORE() {
 **
 ** -------------------------------------------------------------------------*/
 
-#undef DEBUG_FLAG
-#define DEBUG_FLAG 0
+
 
 
 /* -- Macro definitions ----------------------------------------------------*/
 
-#undef DEBUG_FLAG
-#define DEBUG_FLAG 1
+ 
 #define CLOSE_BRACKET 13
 
 #define EXPRESSION_END 14
@@ -1048,6 +1045,7 @@ char * priorToInstr (int priority) {
 		case 8: 	return "I_C_MORE_EQ	";
 		case 9: 	return "I_C_IS		";
 		case 10: 	return "I_C_IS_NOT	";
+		default: 	return "WARNING		";
 	}
 }
 
@@ -1057,6 +1055,7 @@ char * priorToStr (int priority) {
 		case PMore:		return "MORE";
 		case PEqual:	return "EQUAL";
 		case PError:	return "ERROR";
+		default: 		return "WARNING";
 	}
 }
 
@@ -1083,10 +1082,6 @@ int parserPrecedence() {
 	int exitFlag = 0;
 
 	while (1) {
-
-		printf("\nSTACK CONTENT:\n");
-		printTermStack(&termStack);
-		printf("tokenType: %s\n", debugTokens(tokenType));
 
 		if (tokenType == IDENTIFIER_VARIABLE 	|| \
 			tokenType == LITERAL_NULL 			|| \
@@ -1122,7 +1117,6 @@ int parserPrecedence() {
 			tokenType == RIGHT_BRACKET 			)) {
 				currentToken = tokenToPriority(EXPRESSION_END);
 				exitFlag = 1;
-				printf("%i\n", tokenType);
 				if (DEBUG_FLAG) printf("We should exit\n");
 			} else {
 				currentToken = tokenToPriority(tokenType);
@@ -1143,12 +1137,14 @@ int parserPrecedence() {
 							stackNotermPop (&notermStack);
 							typeData * operandOne = stackNotermTop(&notermStack);
 							stackNotermPop (&notermStack);
-							printf(CBLU "%i = %i %s %i\n" CNRM ,tempVar->valueOf.type_INTEGER,operandOne->valueOf.type_INTEGER,debugPreced(popedTerm),operandSecond->valueOf.type_INTEGER);
+							if (operandSecond==NULL||operandOne==NULL) {
+								REPORT("Not enough operands in stack, error in expression")
+								return SYNTAX_WRONG;
+							}
 							createInstruction(tableToInstruction(popedTerm), tempVar, operandOne, operandSecond);
 							stackNotermPush (&notermStack, tempVar);
 							stackTermPop(&termStack);
 						}
-						printf("%i %i\n", currentToken, stackTermTop(&termStack));
 						priority = priorityTable[stackTermTop(&termStack)][currentToken];
 						if (DEBUG_FLAG) printf("priority: %s\n",priorToStr(priority));
 						if (priority == PError) {
@@ -1184,7 +1180,6 @@ int parserPrecedence() {
 			expressionResult = stackNotermTop(&notermStack);
 			stackNotermPop (&notermStack);
 			RECOVER_TOKEN
-			printf("was %i\n", tokenType);
 			return SYNTAX_OK;
 		} else {
 			UPDATE_TOKEN

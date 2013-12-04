@@ -17,8 +17,6 @@
 #include <ctype.h> //isspace
 #include "lexer.h"
 
-#define DEBUG_FLAG 0
-
 // S is STATE
 #define S_START			0
 #define S_IDENTIFIER	1
