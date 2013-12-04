@@ -125,14 +125,14 @@ int stackTableFull ( tStackTable* s ) {
 	return s->top == MAX_STACK_FUNC-1;
 }
 
-int stackTableTop ( tStackTable* s, /*typeNodePtr* Node,*/ typeListItem* List, typeData* Data) {
+int stackTableTop ( tStackTable* s, /*typeNodePtr* Node,*/ typeData** List, typeData** Data) {
 	if (stackTableEmpty(s)) {
-		if (DEBUG_FLAG) printf("No elements is stack TERMINALS!\n");
-		return -1;
+		if (DEBUG_FLAG) printf("No elements is stack Tables!\n");
+		return STACK_EMPTY;
 	} else {
 		/*Node=s->arrNode[s->top];*/
-		List=s->arrList[s->top];
-		Data=s->arrData[s->top];
+		(*List)=s->arrList[s->top];
+		(*Data)=s->arrData[s->top];
 		return SUCCESS;
 	}
 }
@@ -143,7 +143,7 @@ void stackTablePop ( tStackTable* s ) {
 	}
 }
 
-void stackTablePush ( tStackTable* s, /*typeNodePtr* Node,*/ typeListItem* List, typeData* Data ) {
+void stackTablePush ( tStackTable* s, /*typeNodePtr* Node,*/ typeData* List, typeData* Data ) {
 	if (stackTableFull(s)) {
 		if (DEBUG_FLAG) printf("Stack is full!\n");
 	} else {

@@ -53,19 +53,22 @@ void stackNotermPush ( tStackNoterm* s, typeData * c );	//push element to the to
 
 void printTermStack ( tStackTerm* s ) ;	//debug stack print function
 
+#define STACK_EMPTY -1	//stack empty return
+
 typedef struct {						//datatype for stack of type data pointers
 	// typeNodePtr * arrNode[MAX_STACK_FUNC];
-	typeListItem* arrList[MAX_STACK_FUNC];
-	typeData* arrData[MAX_STACK_FUNC];
+	typeData * arrList[MAX_STACK_FUNC];
+	typeData * arrData[MAX_STACK_FUNC];
 	int top;							//counter for top element
 } tStackTable;							//type declaration (without struct)
 
 void stackTableInit ( tStackTable* s );				//init the stack
 int stackTableEmpty ( tStackTable* s );				//helper (is stack empty?)
 int stackTableFull ( tStackTable* s );				//helper (is stack full?)
-int stackTableTop ( tStackTable* s, /*typeNodePtr* Node,*/ typeListItem* List, typeData* Data);	//return top element
+//int stackTableTop ( tStackTable* s, /*typeNodePtr* Node,*/ typeData* List, typeData* Data);	//return top element
+int stackTableTop ( tStackTable* s, /*typeNodePtr* Node,*/ typeData** List, typeData** Data);
 void stackTablePop ( tStackTable* s );				//pop top element
-void stackTablePush ( tStackTable* s, /*typeNodePtr* Node,*/ typeListItem* List, typeData* Data );	//push element to the top
+void stackTablePush ( tStackTable* s, /*typeNodePtr* Node,*/ typeData* List, typeData* Data );	//push element to the top
 
 
 #endif
