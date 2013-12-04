@@ -18,6 +18,7 @@
 
 /* -- Includes part --------------------------------------------------------*/
 
+#include <stdlib.h>
 #include "common.h"
 #include "arrays.h"
 
@@ -43,4 +44,11 @@ int arraysMerge( typeInputArray * array1, typeInputArray * array2) {
 		return SUCCESS;
 	}
 	return MERGE_FAIL;
+}
+
+typeData * arrayGet( typeInputArray * array, int idx) {
+	if (idx > array->size) {
+		return NULL;
+	}
+	return array->arr[idx];
 }

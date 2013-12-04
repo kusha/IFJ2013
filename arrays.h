@@ -32,5 +32,6 @@
 void arrayClear( typeInputArray * array );
 void arrayAdd( typeInputArray * array, typeData * content);
 int arraysMerge( typeInputArray * array1, typeInputArray * array2);
+typeData * arrayGet( typeInputArray * array, int idx);
 
 #endif
