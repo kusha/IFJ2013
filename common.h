@@ -45,4 +45,8 @@
 #define INTERNAL_ERROR	99	// exit codes: internal interpreter error
 #define ALLOC_FAIL 		-1	// error occurred during allocation
 
+extern int troubleLine;
+extern int troubleColumn;
+extern int troubleCharacter;
+
 #endif

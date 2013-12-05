@@ -69,6 +69,7 @@ int stackTableFull ( tStackTable* s );				//helper (is stack full?)
 int stackTableTop ( tStackTable* s, /*typeNodePtr* Node,*/ typeData** List, typeData** Data);
 void stackTablePop ( tStackTable* s );				//pop top element
 void stackTablePush ( tStackTable* s, /*typeNodePtr* Node,*/ typeData* List, typeData* Data );	//push element to the top
+int stackTableCount ( tStackTable* s/*, typeData* List */); //counting function
 
 
 #endif

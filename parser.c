@@ -553,18 +553,18 @@ int CMD() {
 						typeData * subStart;
 						typeData * subFinish;
 						if ((inputString = arrayGet(&inputArray, 0))==NULL) {
-							REPORT("too few params")
+							REPORT("too few params1")
 							return S_PARAM_ERROR;
 						}
-						if ((subStart = arrayGet(&inputArray, 2))==NULL) {
-							REPORT("too few params")
+						if ((subStart = arrayGet(&inputArray, 1))==NULL) {
+							REPORT("too few params2")
 							return S_PARAM_ERROR;
 						}
-						if ((subFinish = arrayGet(&inputArray, 3))==NULL) {
-							REPORT("too few params")
+						if ((subFinish = arrayGet(&inputArray, 2))==NULL) {
+							REPORT("too few params3")
 							return S_PARAM_ERROR;
 						}
-						if ((tester = arrayGet(&inputArray, 4))!=NULL) {
+						if ((tester = arrayGet(&inputArray, 3))!=NULL) {
 							REPORT("too many params")
 							return S_PARAM_ERROR;
 						}
@@ -612,15 +612,15 @@ int CMD() {
 						typeData * inputString1;
 						typeData * inputString2;
 						if ((inputString1 = arrayGet(&inputArray, 0))==NULL) {
-							REPORT("too few params")
+							REPORT("too few param")
 							return S_PARAM_ERROR;
 						}
 						if ((inputString2 = arrayGet(&inputArray, 1))==NULL) {
-							REPORT("too few params")
+							REPORT("too few param")
 							return S_PARAM_ERROR;
 						}
 						if ((tester = arrayGet(&inputArray, 2))!=NULL) {
-							REPORT("too many params")
+							REPORT("too many param")
 							return S_PARAM_ERROR;
 						}
 						createInstruction(I_FIND_STR, resultVar, inputString1, inputString2);
@@ -812,7 +812,6 @@ int CMD() {
 			UPDATE_TOKEN
 			CALL(PRECEDENCE)
 
-			printf(CRED"TYPE_FROM_PARSER: %i\n"CNRM, expressionResult->type);
 			createInstruction(I_RETURN, expressionResult, NULL, NULL);
 
 			UPDATE_TOKEN

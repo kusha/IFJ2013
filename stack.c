@@ -154,6 +154,16 @@ void stackTablePush ( tStackTable* s, /*typeNodePtr* Node,*/ typeData* List, typ
 	}
 }
 
+int stackTableCount ( tStackTable* s/*, typeData* List */) {
+	// int c = 0;
+	// int idx;
+	// for (idx=0; idx<=s->top; idx++ ) {
+	// 	//printf(CYEL"%p <==> %p\n"CNRM,(typeData *)s->arrList[idx]->instruction,List);
+	// 	if ((typeData *)s->arrList[idx]->instruction - List == 0) c++;
+	// }
+	return s->top;//c+1;
+}
+
 /* -- Debug only function for stack printing -------------------------------*/
 
 void printTermStack ( tStackTerm* s ) {

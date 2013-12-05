@@ -77,6 +77,10 @@ int main (int argc, char * argv[]) {
 					REPORT("Syntax analysis failure.")
 					break;
 			}
+			if (DEBUG_FLAG) {
+				printf("Incident caused at %i:%i.\n", \
+					troubleLine, troubleColumn);
+			}
 			CLOSE_ALL
 			HALT(statusCode)
 			break;

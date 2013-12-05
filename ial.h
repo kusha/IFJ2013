@@ -55,6 +55,7 @@ typedef struct Data{						//datatype for data of node
 		typeInputArray		inputData;		//array of pointers to typeData (input)
 		struct typeNode *	table;			//table of variables of current function
 	} funcWith;
+	struct Data *		deeper;				//recursive variable
 } typeData;									//datatype declaration (without struct)
 
 typedef struct typeNode{		//structure of tree node
