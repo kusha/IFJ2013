@@ -135,7 +135,7 @@ int interpreterStart(typeList *instrList) {
 		printf("Start print instructions\n");
 		listFirst(instrList);
 		while (instrList->active != NULL) {
-			printf(CBLU"%p\t\t", (struct typeData *)instrList->active);
+			printf(CBLU"%p\t\t", (void*)instrList->active);
 			printf("%s\t", printInstr(instrList->active->instr.instrCode));
 			printOperand(instrList->active->instr.addressOne);
 			printf("\t");
@@ -209,7 +209,7 @@ int interpreterStart(typeList *instrList) {
 			case I_GOTO:
 				//DEBUG!!!
 				if (DEBUG_FLAG) {
-					printf(CGRN"%p\t\t", (struct typeData *)instrList->active);
+					printf(CGRN"%p\t\t", (void*)instrList->active);
 					printf("%s\t", printInstr(instrList->active->instr.instrCode));
 					printOperand(instrList->active->instr.addressOne);
 					printf("\t");
@@ -225,7 +225,7 @@ int interpreterStart(typeList *instrList) {
 			case I_GOTO_IF:
 				//DEBUG!!!
 				if (DEBUG_FLAG) {
-					printf(CGRN"%p\t\t", (struct typeData *)instrList->active);
+					printf(CGRN"%p\t\t", (void*)instrList->active);
 					printf("%s\t", printInstr(instrList->active->instr.instrCode));
 					printOperand(instrList->active->instr.addressOne);
 					printf("\t");
@@ -1125,7 +1125,7 @@ int interpreterStart(typeList *instrList) {
 
 		if (!gotoFlag) {
 			if (DEBUG_FLAG) {
-				printf(CGRN"%p\t\t", (struct typeData *)instrList->active);
+				printf(CGRN"%p\t\t", (void*)instrList->active);
 				printf("%s\t", printInstr(instrList->active->instr.instrCode));
 				printOperand(instrList->active->instr.addressOne);
 				printf("\t");
