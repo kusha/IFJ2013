@@ -308,8 +308,8 @@ int interpreterStart(typeList *instrList) {
 					printf("\t");
 					printf("\n"CNRM);
 				}
-				if (callFlag = 1) callFlag = 0;
-				if (retFlag = 1) retFlag = 0;
+				if (callFlag == 1) callFlag = 0;
+				if (retFlag == 1) retFlag = 0;
 				gotoFlag = 1;
 				listGoto(instrList,currentInstr->addressTwo->instruction);
 				break;
@@ -1007,17 +1007,17 @@ int interpreterStart(typeList *instrList) {
 					if (DATA_TYPE(currentInstr->addressTwo) == _NULL){ 
 						currentInstr->addressOne->valueOf.type_INTEGER = 0;
 					}
-					else if(DATA_TYPE(currentInstr->addressTwo) == _LOGICAL){
+					else if(DATA_TYPE(currentInstr->addressTwo) == _LOGICAL){ 
 						if(currentInstr->addressTwo->valueOf.type_LOGICAL == true){
 							currentInstr->addressOne->valueOf.type_INTEGER = 1;
 						}else{
 							currentInstr->addressOne->valueOf.type_INTEGER = 0;
 						}
 					}
-					else if(DATA_TYPE(currentInstr->addressTwo) == _INTEGER){
+					else if(DATA_TYPE(currentInstr->addressTwo) == _INTEGER){ 
 						currentInstr->addressOne->valueOf.type_INTEGER = currentInstr->addressTwo->valueOf.type_INTEGER;
 					}
-					else if(DATA_TYPE(currentInstr->addressTwo) == _DOUBLE){
+					else if(DATA_TYPE(currentInstr->addressTwo) == _DOUBLE){  
 						int x;
 						x=(int) currentInstr->addressTwo->valueOf.type_DOUBLE;
 						currentInstr->addressOne->valueOf.type_INTEGER = x;
@@ -1043,7 +1043,7 @@ int interpreterStart(typeList *instrList) {
 							x = atoi (str->str);
 							currentInstr->addressOne->valueOf.type_INTEGER = x;
 						}else{
-							currentInstr->addressOne->valueOf.type_INTEGER = 0.0;
+							currentInstr->addressOne->valueOf.type_INTEGER = 0;
 						}
 						strFree(str);
 					} 
@@ -1116,10 +1116,10 @@ int interpreterStart(typeList *instrList) {
 						}
 					}
 					else if(DATA_TYPE(currentInstr->addressTwo) == _INTEGER){
-						if (DEBUG_FLAG) sprintf(currentInstr->addressOne->valueOf.type_STRING.str, "%d", currentInstr->addressTwo->valueOf.type_INTEGER);
+						sprintf(currentInstr->addressOne->valueOf.type_STRING.str, "%d", currentInstr->addressTwo->valueOf.type_INTEGER);
 					}
 					else if(DATA_TYPE(currentInstr->addressTwo) == _DOUBLE){	
-						if (DEBUG_FLAG) sprintf(currentInstr->addressOne->valueOf.type_STRING.str, "%g", currentInstr->addressTwo->valueOf.type_DOUBLE); 
+						sprintf(currentInstr->addressOne->valueOf.type_STRING.str, "%g", currentInstr->addressTwo->valueOf.type_DOUBLE); 
 					}
 					else if(DATA_TYPE(currentInstr->addressTwo) == _STRING){
 						currentInstr->addressOne->valueOf.type_STRING = currentInstr->addressTwo->valueOf.type_STRING;
@@ -1134,12 +1134,13 @@ int interpreterStart(typeList *instrList) {
 			case I_READ:
 				if(1){
 					char str;
-					string result;
-					strInit(&result);
+					string *result = malloc(sizeof(string));
+					strInit(result);
 					while ((str=getchar())!=10) {
-						strAddChar(&result,str);
+						strAddChar(result,str);
 					}	
-					currentInstr->addressOne->valueOf.type_STRING = result;				
+					currentInstr->addressOne->valueOf.type_STRING = *result;
+					currentInstr->addressOne->type=_STRING;				
 					}
 					break;
 			
@@ -1181,7 +1182,8 @@ int interpreterStart(typeList *instrList) {
 								j=currentInstr->addressTwo->valueOf.type_STRING.length
 											+currentInstr->addressThree->valueOf.type_INTEGER;
 							}
-					  string *str;
+					  string *str =malloc(sizeof(string));
+					  strInit(str);
 						char c;
 						for(int i=k;i<=j;i++){
 							c = currentInstr->addressOne->valueOf.type_STRING.str[i];
@@ -1191,23 +1193,21 @@ int interpreterStart(typeList *instrList) {
 					//	printf("%s",currentInstr->addressOne->valueOf.type_STRING.str) ;
 				}
 				break;
-			
-			
-	/*		case I_FIND_STR:
-				 	if((DATA_TYPE(currentInstr->addressOne)==_STRING) 
-				 		&&(DATA_TYPE(currentInstr->addressTwo)==_STRING)){
-				 		
-						if((strstr(currentInstr->addressOne->valueOf.type_STRING.str,
-						 					currentInstr->addressTwo->valueOf.type_STRING.str))==0){
-						 	return -1;
-							}	
-						else{
-						
-						}
+				
+		case I_FIND_STR:
+				 	if((DATA_TYPE(currentInstr->addressTwo)==_STRING)&&(DATA_TYPE(currentInstr->addressThree)==_STRING)){				 		
+            currentInstr->addressOne->valueOf.type_INTEGER = find_string(currentInstr->addressTwo->valueOf.type_STRING.str, currentInstr->addressThree->valueOf.type_STRING.str);
+           /* if(currentInstr->addressOne->valueOf.type_INTEGER != -1){
+              printf("nalezeno\n");            
+            }else{
+              printf("niiiic\n");
+            }
+            printf("%d\n", currentInstr->addressOne->valueOf.type_INTEGER);    */
 					} 
-					break; */
-			 			
-			case I_SORT_STR:
+					break; 
+					
+					
+		 case I_SORT_STR:
 				if(DATA_TYPE(currentInstr->addressTwo)==_STRING){
 				currentInstr->addressOne->valueOf.type_STRING.str 
 						= sort_string(currentInstr->addressTwo->valueOf.type_STRING.str);	
