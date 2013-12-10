@@ -73,5 +73,10 @@ void treePrint (typeNodePtr *Root);								//debug tree print function
 
 char *sort_string(char *string);	//shell sort
 
+# define zadnyZeZnaku 256 // Boyer-Moore
+int max(int a, int b); 							//Boyer-Moore -	pomocna funkce pro vyhledani vetsi hodnoty
+void nesouhlasZnakFce(char *str, int size, int badchar[zadnyZeZnaku]);	//Boyer-Moore -	Funkce pro BMA , zpracuje pole nesouhlasnych znaku
+int find_string(char *txt, char *pat);		//Boyer-Moore - BMA vyhledavaci algoritmus
+
 
 #endif
