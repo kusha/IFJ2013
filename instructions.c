@@ -105,3 +105,8 @@ typeInstruction * getCurrent(typeList *list) {
 typeListItem * getPtrToCurrent(typeList *list) {
 	return list->last;
 }
+
+typeListItem * getPtrToActive(typeList *list) {
+	return list->active;
+}
+

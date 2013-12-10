@@ -20,6 +20,7 @@
 #include <ctype.h>
 #include "interpreter.h"
 
+
 /* -- Debug for printing insttructions -------------------------------------------------*/
 
 char * printInstr (int priority) {
@@ -125,6 +126,38 @@ switch (type->type){
 	}
 }
 
+typeData * getDeep(typeData * first, int deep) {
+	//printf(CMAG"Going to deep: %i\n"CNRM,deep);
+	printf(">>> ");
+	if (first == NULL) {
+		// printf(CMAG"Looks like null\n"CNRM);
+		printf("\n");
+		return NULL;
+	} else {
+		typeData * saver = first;
+		int currentDeep = 0;
+		typeData * currentPos = first;
+		printf(CMAG"%p"CRED" > "CNRM,(void*)currentPos);
+		while (currentDeep< deep) {
+			if (currentPos->deeper == NULL){
+				//printf("Allocation needed\n");
+				typeData * tmp = malloc(sizeof(typeData));
+				*tmp = *saver;
+				tmp->deeper = NULL;
+				currentPos->deeper = tmp;
+			} else {
+				//printf("Already allocated\n");
+				currentPos = currentPos->deeper;
+				currentDeep += 1;
+				printf(CMAG"%p"CRED" > "CNRM,(void*)currentPos);
+			}
+		}
+		printf("\n");
+		// printf(CMAG"Return pointer: %p\n"CNRM,(void*)currentPos);
+		return currentPos;
+	}
+}
+
 
 int interpreterStart(typeList *instrList) {
 
@@ -148,16 +181,64 @@ int interpreterStart(typeList *instrList) {
 		printf("Finish print instructions\n");
 	}
 	int gotoFlag = 0;
+
 	
 	// return SUCCESS;
 	// stack for functions
 	tStackTable deepStack;
 	stackTableInit ( &deepStack );	
+	int recursiveDeep = 0;
+	int callFlag = 0;
+	int retFlag = 0;
 
 	listFirst(instrList);
+	typeInstruction realInstruction;
 	typeInstruction* currentInstr;
 	while (1) {
+
+		 if (DEBUG_FLAG) printf(CRED"\nCurrent deep: %i\n"CNRM, recursiveDeep);
+		 if (DEBUG_FLAG) printf(CRED"Call (only first change) flag: %i\n"CNRM, callFlag);
+		 if (DEBUG_FLAG) printf(CRED"Return (not first change) flag: %i\n"CNRM, retFlag);
+
 		currentInstr = getCurrent(instrList);
+
+		realInstruction = *currentInstr;
+
+		if (currentInstr->instrCode == I_ASSIGN) {
+
+			realInstruction.addressOne = getDeep(currentInstr->addressOne, recursiveDeep);
+			
+		} else if (currentInstr->instrCode == I_RETURN) {
+
+			realInstruction.addressOne = getDeep(currentInstr->addressOne, 0);
+
+		} else {
+
+			realInstruction.addressOne = getDeep(currentInstr->addressOne, recursiveDeep);
+
+		}
+
+		if (currentInstr->instrCode == I_ASSIGN) {
+
+			realInstruction.addressTwo = getDeep(currentInstr->addressTwo, recursiveDeep-callFlag+retFlag);
+
+		} else if (currentInstr->instrCode == I_CALL) {
+
+			realInstruction.addressTwo = getDeep(currentInstr->addressTwo, 0);
+
+		} else {
+
+			realInstruction.addressTwo = getDeep(currentInstr->addressTwo, recursiveDeep);
+
+		}
+
+		realInstruction.addressThree = getDeep(currentInstr->addressThree, recursiveDeep);
+ 
+
+		currentInstr = &realInstruction;
+
+		if (DEBUG_FLAG) printf(CYEL"ADRESSES:\t\t\t\t%p %p %p\n"CNRM, currentInstr->addressOne,currentInstr->addressTwo,currentInstr->addressThree);
+
 		switch (currentInstr->instrCode) {
 			
 			case I_STOP:
@@ -165,6 +246,12 @@ int interpreterStart(typeList *instrList) {
 				break;
 
 			case I_CALL:
+				callFlag = 1;
+				//printf("TEST\n");
+				//printf("DEBUG: %p\n", currentInstr->addressOne->instruction);
+				//printf("TEST\n");
+				//currentInstr->addressOne->instruction = getPtrToCurrent(instrList); 
+				//printf("DEBUG: %s\n", currentInstr->addressOne->instruction);
 				stackTablePush ( &deepStack, currentInstr->addressOne, currentInstr->addressTwo );
 				break;
 
@@ -203,21 +290,26 @@ int interpreterStart(typeList *instrList) {
 						return res;
 					}
 					stackTablePop ( &deepStack );
+					REPORT("INSTR GENRATED")
 				}
+				retFlag = 1;
 				break; }
 
 			case I_GOTO:
 				//DEBUG!!!
 				if (DEBUG_FLAG) {
-					printf(CGRN"%p\t\t", (void*)instrList->active);
-					printf("%s\t", printInstr(instrList->active->instr.instrCode));
-					printOperand(instrList->active->instr.addressOne);
+					printf(CGRN"%p\t\t", (void*)currentInstr);
+					printf("%s\t", printInstr(currentInstr->instrCode));
+					printOperand(currentInstr->addressOne);
 					printf("\t");
-					printOperand(instrList->active->instr.addressTwo);
+					printOperand(currentInstr->addressTwo);
 					printf("\t");
-					printOperand(instrList->active->instr.addressThree);
+					printOperand(currentInstr->addressThree);
+					printf("\t");
 					printf("\n"CNRM);
 				}
+				if (callFlag = 1) callFlag = 0;
+				if (retFlag = 1) retFlag = 0;
 				gotoFlag = 1;
 				listGoto(instrList,currentInstr->addressTwo->instruction);
 				break;
@@ -225,13 +317,14 @@ int interpreterStart(typeList *instrList) {
 			case I_GOTO_IF:
 				//DEBUG!!!
 				if (DEBUG_FLAG) {
-					printf(CGRN"%p\t\t", (void*)instrList->active);
-					printf("%s\t", printInstr(instrList->active->instr.instrCode));
-					printOperand(instrList->active->instr.addressOne);
+					printf(CGRN"%p\t\t", (void*)currentInstr);
+					printf("%s\t", printInstr(currentInstr->instrCode));
+					printOperand(currentInstr->addressOne);
 					printf("\t");
-					printOperand(instrList->active->instr.addressTwo);
+					printOperand(currentInstr->addressTwo);
 					printf("\t");
-					printOperand(instrList->active->instr.addressThree);
+					printOperand(currentInstr->addressThree);
+					printf("\t");
 					printf("\n"CNRM);
 				}
 				gotoFlag = 1;
@@ -263,7 +356,7 @@ int interpreterStart(typeList *instrList) {
 					currentInstr->addressOne->type = _INTEGER;
 					void * p=typeFind(currentInstr->addressTwo);
 					int *i=p;
-					currentInstr->addressOne->valueOf.type_INTEGER = *i;	  
+					currentInstr->addressOne->valueOf.type_INTEGER = *i;
 				}
 			 	else if((DATA_TYPE(currentInstr->addressTwo)) == _DOUBLE){
 			 		currentInstr->addressOne->type = _DOUBLE;
@@ -277,9 +370,8 @@ int interpreterStart(typeList *instrList) {
 					string *i=p;
 					currentInstr->addressOne->valueOf.type_STRING = *i;	
 			 	}
-			 	else
-			 		return 12;
-				
+			 	else {
+			 		return 12; }
 				break;	
 				
 			case I_PLUS:
@@ -427,8 +519,8 @@ int interpreterStart(typeList *instrList) {
 					 	x=(double) *i;
 					 	y=(double) *j;
 					 	result = (x)/(y);
-					 		printf("%f\n\n",x );
-					 		printf("%f\n\n",y );
+					 		//printf("%f\n\n",x );
+					 		//printf("%f\n\n",y );
 					}
 					else if (((DATA_TYPE(currentInstr->addressTwo))== _DOUBLE) 
 							&& ((DATA_TYPE(currentInstr->addressThree))== _DOUBLE)){
@@ -1024,10 +1116,10 @@ int interpreterStart(typeList *instrList) {
 						}
 					}
 					else if(DATA_TYPE(currentInstr->addressTwo) == _INTEGER){
-						sprintf(currentInstr->addressOne->valueOf.type_STRING.str, "%d", currentInstr->addressTwo->valueOf.type_INTEGER);
+						if (DEBUG_FLAG) sprintf(currentInstr->addressOne->valueOf.type_STRING.str, "%d", currentInstr->addressTwo->valueOf.type_INTEGER);
 					}
 					else if(DATA_TYPE(currentInstr->addressTwo) == _DOUBLE){	
-						sprintf(currentInstr->addressOne->valueOf.type_STRING.str, "%g", currentInstr->addressTwo->valueOf.type_DOUBLE); 
+						if (DEBUG_FLAG) sprintf(currentInstr->addressOne->valueOf.type_STRING.str, "%g", currentInstr->addressTwo->valueOf.type_DOUBLE); 
 					}
 					else if(DATA_TYPE(currentInstr->addressTwo) == _STRING){
 						currentInstr->addressOne->valueOf.type_STRING = currentInstr->addressTwo->valueOf.type_STRING;
@@ -1123,15 +1215,18 @@ int interpreterStart(typeList *instrList) {
 				break;
 		}
 
+		//catch recursive call
+		recursiveDeep = stackTableCount ( &deepStack/*, instrList->active*/ )+1;
+
 		if (!gotoFlag) {
 			if (DEBUG_FLAG) {
-				printf(CGRN"%p\t\t", (void*)instrList->active);
-				printf("%s\t", printInstr(instrList->active->instr.instrCode));
-				printOperand(instrList->active->instr.addressOne);
+				printf(CGRN"%p\t\t", (void*)currentInstr);
+				printf("%s\t", printInstr(currentInstr->instrCode));
+				printOperand(currentInstr->addressOne);
 				printf("\t");
-				printOperand(instrList->active->instr.addressTwo);
+				printOperand(currentInstr->addressTwo);
 				printf("\t");
-				printOperand(instrList->active->instr.addressThree);
+				printOperand(currentInstr->addressThree);
 				printf("\t");
 				printf("\n"CNRM);
 			}

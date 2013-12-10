@@ -645,6 +645,10 @@ int CMD() {
 							return S_FUNC_ERROR;
 						}
 
+						typeData * returnPoint = getEmpty(actualTable);
+						returnPoint->type = _FUNCTION;
+						returnPoint->instruction  = NULL;
+						createInstruction(I_CALL, returnPoint, resultVar, NULL);
 
 						int idx = 0;
 						typeData * forMerge1 = arrayGet(&inputArray, idx);
@@ -660,12 +664,6 @@ int CMD() {
 							forMerge1 = arrayGet(&inputArray, idx);
 						}
 
-
-						typeData * returnPoint = getEmpty(actualTable);
-						returnPoint->type = _FUNCTION;
-						returnPoint->instruction  = NULL;
-
-						createInstruction(I_CALL, returnPoint, resultVar, NULL);
 						createInstruction(I_GOTO, NULL, currentFunction, NULL);
 
 						returnPoint->instruction = getPtrToCurrent(instrList); 

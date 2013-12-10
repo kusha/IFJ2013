@@ -97,6 +97,7 @@ void listNext(typeList *list);							//set current to the next
 typeInstruction * getCurrent(typeList *list);			//return current instructions content
 void listGoto(typeList *list, void *instr);				//goto instruction, set current
 typeListItem * getPtrToCurrent(typeList *list);			//generate pointer to instruction
+typeListItem * getPtrToActive(typeList *list);			//return pointer for return position
 
 
 #endif

@@ -37,6 +37,7 @@ typeData * getVariable(typeNodePtr * table, string * name, char existFlag) {
 		return &(*searchNode)->data;
 	} else {
 		typeData newData;
+		newData.deeper = NULL;
 		newData.type = _NONE;
 		if (treeInsert(table, *name, newData)==ALLOC_FAIL) return NULL;
 		return &(*treeSearch(table, *name))->data;
@@ -66,6 +67,7 @@ string tempVariableName () {
 
 typeData * getLiteral(typeNodePtr * table, int dataType, string * atribute) {
 	typeData newData;
+	newData.deeper = NULL;
 	newData.type = dataType;
 	switch (dataType) {
 		case _NULL:
@@ -106,6 +108,7 @@ typeData * getLiteral(typeNodePtr * table, int dataType, string * atribute) {
 
 typeData * getEmpty(typeNodePtr * table) {
 	typeData newData;
+	newData.deeper = NULL;
 	newData.type = _NONE;
 	string newName = tempVariableName();
 	if (treeInsert(table, newName, newData)==ALLOC_FAIL) return NULL;
