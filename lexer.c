@@ -447,7 +447,9 @@ int getToken(string *attribute) {
 			case S_MLINE_CMNT:
 				if (character=='*')  {
 					state = S_MLINE_ESC;
-				} //no error check (what a hell in comments?)
+				} else if (character==EOF)  {
+					return END;
+				}  //no error check (what a hell in comments?)
 				break;
 				
 			case S_MLINE_ESC:
@@ -461,7 +463,9 @@ int getToken(string *attribute) {
 			case S_LINE_CMNT:
 				if (character=='\n')  {
 					state = S_START;
-				} //no error check (what a hell in comments?)
+				} else if (character==EOF)  {
+					return END;
+				}//no error check (what a hell in comments?)
 				break;
 		}
 	}
