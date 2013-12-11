@@ -1078,6 +1078,8 @@ int parserPrecedence() {
 
 	int exitFlag = 0;
 
+	int popedTerm;
+
 	while (1) {
 
 		if (tokenType == IDENTIFIER_VARIABLE 	|| \
@@ -1118,12 +1120,21 @@ int parserPrecedence() {
 			} else {
 				currentToken = tokenToPriority(tokenType);
 			}
-			int priority = priorityTable[stackTermTop(&termStack)][currentToken];
+			popedTerm = stackTermTop(&termStack);
+			if (popedTerm == -1) {
+				//wrong expression
+				return SYNTAX_WRONG;
+			}
+			int priority = priorityTable[popedTerm][currentToken];
 			if (DEBUG_FLAG) printf("priority: %s\n",priorToStr(priority));
 			switch (priority) {
 				case PMore:
 					while (priority!=PLess && priority!=PEqual) {
-						int popedTerm = stackTermTop(&termStack);
+						popedTerm = stackTermTop(&termStack);
+						if (popedTerm == -1) {
+							//wrong expression
+							return SYNTAX_WRONG;
+						}
 						if (popedTerm==11) {
 							if (DEBUG_FLAG) printf("rule E->id, just pop\n");
 							stackTermPop(&termStack);
@@ -1142,10 +1153,15 @@ int parserPrecedence() {
 							stackNotermPush (&notermStack, tempVar);
 							stackTermPop(&termStack);
 						}
-						priority = priorityTable[stackTermTop(&termStack)][currentToken];
+						popedTerm = stackTermTop(&termStack);
+						if (popedTerm == -1) {
+							//wrong expression
+							return SYNTAX_WRONG;
+						}
+						priority = priorityTable[popedTerm][currentToken];
 						if (DEBUG_FLAG) printf("priority: %s\n",priorToStr(priority));
 						if (priority == PError) {
-							if (currentToken == CLOSE_BRACKET && stackTermTop(&termStack) == EXPRESSION_END) {
+							if (currentToken == CLOSE_BRACKET && popedTerm == EXPRESSION_END) {
 								exitFlag = 1;
 								currentToken = tokenToPriority(tokenType);
  								break;
@@ -1175,6 +1191,15 @@ int parserPrecedence() {
 		}
 		if (exitFlag) {
 			expressionResult = stackNotermTop(&notermStack);
+			stackNotermPop(&notermStack);
+			if (expressionResult==NULL) {
+				//wrong expression
+				return SYNTAX_WRONG;
+			}
+			if (stackNotermTop(&notermStack) != NULL) {
+				//one more variable: id id
+				return SYNTAX_WRONG;
+			}
 			stackNotermPop (&notermStack);
 			RECOVER_TOKEN
 			return SYNTAX_OK;
