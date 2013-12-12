@@ -180,8 +180,10 @@ int interpreterStart(typeList *instrList) {
 		}
 		printf("Finish print instructions\n");
 	}
-	int gotoFlag = 0;
 
+	int SubStr = -1;
+
+	int gotoFlag = 0;
 	
 	// return SUCCESS;
 	// stack for functions
@@ -1169,40 +1171,41 @@ int interpreterStart(typeList *instrList) {
 					}			
 				break;
 			
-			case I_SUB_STR: 	
-				if((DATA_TYPE(currentInstr->addressTwo)==_STRING)
-					&&(DATA_TYPE(currentInstr->addressThree)==_INTEGER)){
-				    	int k,j;
-							if(currentInstr->addressThree->valueOf.type_INTEGER>0){
-								k=currentInstr->addressThree->valueOf.type_INTEGER;
-								j=currentInstr->addressTwo->valueOf.type_STRING.length;
-							}
-							else{
-							 	k=0;
-								j=currentInstr->addressTwo->valueOf.type_STRING.length
-											+currentInstr->addressThree->valueOf.type_INTEGER;
-							}
-					  string *str =malloc(sizeof(string));
-					  strInit(str);
-						char c;
-						for(int i=k;i<=j;i++){
-							c = currentInstr->addressOne->valueOf.type_STRING.str[i];
-							strAddChar(str, c);
-						}	
-						currentInstr->addressOne->valueOf.type_STRING.str = str->str;
-					//	printf("%s",currentInstr->addressOne->valueOf.type_STRING.str) ;
-				}
+			case I_SUB_STR: 			
+					if(DATA_TYPE(currentInstr->addressThree)==_INTEGER){
+            if(SubStr == -1){
+              SubStr = currentInstr->addressThree->valueOf.type_INTEGER;
+            }else{          
+              if(DATA_TYPE(currentInstr->addressTwo)==_STRING 
+                && SubStr >= 0 
+                && currentInstr->addressThree->valueOf.type_INTEGER >= 0 
+                && currentInstr->addressThree->valueOf.type_INTEGER >= SubStr
+                && SubStr < currentInstr->addressTwo->valueOf.type_STRING.length 
+                && currentInstr->addressThree->valueOf.type_INTEGER <= currentInstr->addressTwo->valueOf.type_STRING.length){
+                
+            	  string *str = malloc(sizeof(string));
+					      strInit(str);
+						    char c; 
+						    int j = currentInstr->addressThree->valueOf.type_INTEGER;
+						    j--;
+						    for(int i = SubStr; i <= j; i++){
+						      c = currentInstr->addressTwo->valueOf.type_STRING.str[i];
+						      strAddChar(str, c);
+						    }
+						    currentInstr->addressOne->type = _STRING;
+						    currentInstr->addressOne->valueOf.type_STRING = *str;
+						    SubStr = -1;
+						    // printf("%s\n", currentInstr->addressOne->jovalueOf.type_STRING.str);
+              }else{
+                return S_OTHER_ERROR;
+              }
+            }
+          }
 				break;
 				
 		case I_FIND_STR:
 				 	if((DATA_TYPE(currentInstr->addressTwo)==_STRING)&&(DATA_TYPE(currentInstr->addressThree)==_STRING)){				 		
             currentInstr->addressOne->valueOf.type_INTEGER = find_string(currentInstr->addressTwo->valueOf.type_STRING.str, currentInstr->addressThree->valueOf.type_STRING.str);
-           /* if(currentInstr->addressOne->valueOf.type_INTEGER != -1){
-              printf("nalezeno\n");            
-            }else{
-              printf("niiiic\n");
-            }
-            printf("%d\n", currentInstr->addressOne->valueOf.type_INTEGER);    */
 					} 
 					break; 
 					
