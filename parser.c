@@ -553,60 +553,23 @@ int CMD() {
 						typeData * subStart;
 						typeData * subFinish;
 						if ((inputString = arrayGet(&inputArray, 0))==NULL) {
-							REPORT("too few params1")
+							REPORT("too few params")
 							return S_PARAM_ERROR;
 						}
 						if ((subStart = arrayGet(&inputArray, 1))==NULL) {
-							REPORT("too few params2")
+							REPORT("too few params")
 							return S_PARAM_ERROR;
 						}
 						if ((subFinish = arrayGet(&inputArray, 2))==NULL) {
-							REPORT("too few params3")
+							REPORT("too few params")
 							return S_PARAM_ERROR;
 						}
 						if ((tester = arrayGet(&inputArray, 3))!=NULL) {
 							REPORT("too many params")
 							return S_PARAM_ERROR;
 						}
-						int str_len, start_sub, finish_sub;
-						if (inputString->type == _STRING) {
-							str_len = inputString->valueOf.type_STRING.length;
-						} else {
-							REPORT("get_substring() first param isn't string")
-							return S_PARAM_ERROR;
-						}
-						if (subStart->type == _INTEGER) {
-							start_sub = inputString->valueOf.type_INTEGER;
-						} else {
-							REPORT("get_substring() second param isn't integer")
-							return S_PARAM_ERROR;
-						}
-						if (subFinish->type == _INTEGER) {
-							finish_sub = inputString->valueOf.type_INTEGER;
-						} else {
-							REPORT("get_substring() third param isn't integer")
-							return S_PARAM_ERROR;
-						}
-						if (start_sub < 0			|| \
-							finish_sub < 0			|| \
-							start_sub > finish_sub	|| \
-							start_sub >= str_len	|| \
-							finish_sub > str_len	){
-							REPORT("Get substring error.")
-							return S_OTHER_ERROR;
-						}
-						int second_value = 0 - (str_len - finish_sub);
-						char str[10];//like int max
-						sprintf(str, "%d", second_value);
-						int i = 0;
-						while (str[i]!='\0') {
-							strAddChar(&convertHelper, str[i]);
-							i++;
-						} 
-						typeData * finishSub = getLiteral(actualTable, _INTEGER, &convertHelper);
-						typeData * tempString = getEmpty(actualTable);
-						createInstruction(I_SUB_STR, tempString, inputString, subStart);
-						createInstruction(I_SUB_STR, resultVar, tempString, finishSub);
+						createInstruction(I_SUB_STR, NULL, NULL, subStart);
+						createInstruction(I_SUB_STR, resultVar, inputString, subFinish);
 					} else if (strCompareConst(&nameSaver, "find_string")) {
 						typeData * tester;
 						typeData * inputString1;
