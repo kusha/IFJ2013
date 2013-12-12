@@ -601,35 +601,35 @@ int CMD() {
 						createInstruction(I_SORT_STR, resultVar, inputString, NULL);
 					} else {															//user function
 						
-						typeData * currentFunction;
-						currentFunction = getVariable(&functionsTable, &nameSaver, SHOULD_EXIST);
-						if (currentFunction == NULL) {
-							REPORT("Undefined funciton call")
-							return S_FUNC_ERROR;
-						}
-
-						typeData * returnPoint = getEmpty(actualTable);
-						returnPoint->type = _FUNCTION;
-						returnPoint->instruction  = NULL;
-						createInstruction(I_CALL, returnPoint, resultVar, NULL);
-
-						int idx = 0;
-						typeData * forMerge1 = arrayGet(&inputArray, idx);
-						typeData * forMerge2;
-						while (forMerge1 != NULL) {
-
-							if ((forMerge2=arrayGet(&currentFunction->funcWith.inputData, idx))==NULL) {
-								REPORT("User func params error")
-								return S_PARAM_ERROR;
+							typeData * currentFunction;
+							currentFunction = getVariable(&functionsTable, &nameSaver, SHOULD_EXIST);
+							if (currentFunction == NULL) {
+								REPORT("Undefined funciton call")
+								return S_FUNC_ERROR;
 							}
-							createInstruction(I_ASSIGN, forMerge2, forMerge1, NULL);
-							idx++;
-							forMerge1 = arrayGet(&inputArray, idx);
-						}
 
-						createInstruction(I_GOTO, NULL, currentFunction, NULL);
+							typeData * returnPoint = getEmpty(actualTable);
+							returnPoint->type = _FUNCTION;
+							returnPoint->instruction  = NULL;
+							createInstruction(I_CALL, returnPoint, resultVar, NULL);
 
-						returnPoint->instruction = getPtrToCurrent(instrList); 
+							int idx = 0;
+							typeData * forMerge1 = arrayGet(&inputArray, idx);
+							typeData * forMerge2;
+							while (forMerge1 != NULL) {
+
+								if ((forMerge2=arrayGet(&currentFunction->funcWith.inputData, idx))==NULL) {
+									REPORT("User func params error")
+									return S_PARAM_ERROR;
+								}
+								createInstruction(I_ASSIGN, forMerge2, forMerge1, NULL);
+								idx++;
+								forMerge1 = arrayGet(&inputArray, idx);
+							}
+
+							createInstruction(I_GOTO, NULL, currentFunction, NULL);
+
+							returnPoint->instruction = getPtrToCurrent(instrList); 
 
 					}
 					UPDATE_TOKEN
