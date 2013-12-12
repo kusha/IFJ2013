@@ -86,6 +86,17 @@ void listNext(typeList *list) {
 	}
 }
 
+void listRemove(typeList *list) {
+	typeListItem *prev = list->first;
+	while (prev->next != list->active) {
+		prev = prev->next;
+	}
+	prev->next = list->active->next;
+	typeListItem *copy = list->active;
+	list->active = prev;
+	free(copy);
+}
+
 
 /* -- Additional functions for current implementation -----------------------*/
 

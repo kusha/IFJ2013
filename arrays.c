@@ -41,3 +41,20 @@ typeData * arrayGet( typeInputArray * array, int idx) {
 	}
 	return array->arr[idx];
 }
+
+
+/* -- Functions for array of type Data pointers ----------------------------*/
+
+void arrayCallsClear( typeCallsArray * array ) {
+	array->size = -1;
+}
+
+void arrayCallsAdd( typeCallsArray * array, void * instr, typeInputArray callParams,
+	string *funcName, typeData * returnPtr) {
+	array->size++;
+	array->instr[array->size]=instr;
+	array->callParams[array->size]=callParams;
+	if (strInit(&array->funcName[array->size]) == STR_ERROR) return;
+	if (strCopy(&array->funcName[array->size], funcName)== STR_ERROR) return;
+	array->returnPtr[array->size]=returnPtr;
+}

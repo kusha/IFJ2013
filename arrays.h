@@ -20,6 +20,7 @@
 #define __ARRAYS_H__
 
 #include "ial.h"			//for structure of array and typeData
+#include "string.h"
 
 // #define MAX_PARAMS 100	//number of maximum params for function
 #define MERGE_FAIL -1
@@ -32,5 +33,20 @@
 void arrayClear( typeInputArray * array );
 void arrayAdd( typeInputArray * array, typeData * content);
 typeData * arrayGet( typeInputArray * array, int idx);
+
+
+#define MAX_CALLS 100000	//number of maximum calls in program
+
+typedef struct inputCalls {		
+	void * 			instr[MAX_CALLS];
+	typeInputArray 	callParams[MAX_CALLS];
+	string 			funcName[MAX_CALLS];
+	typeData *		returnPtr[MAX_CALLS];
+	int size;			
+} typeCallsArray;
+
+void arrayCallsClear( typeCallsArray * array );
+void arrayCallsAdd( typeCallsArray * array, void * instr, typeInputArray callParams,
+	string * funcName, typeData * returnPtr);
 
 #endif

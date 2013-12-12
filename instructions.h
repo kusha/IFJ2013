@@ -27,6 +27,7 @@
 /* -- All instruction definition -------------------------------------------*/
 
 /* -- Common instructions ---------------------------------*/
+#define I_IDLE 			-1 	// none		-----	-----	-----
 #define I_STOP 			0 	// exit		-----	-----	-----
 
 /* -- Goto instrutcions -----------------------------------*/
@@ -98,6 +99,6 @@ typeInstruction * getCurrent(typeList *list);			//return current instructions co
 void listGoto(typeList *list, void *instr);				//goto instruction, set current
 typeListItem * getPtrToCurrent(typeList *list);			//generate pointer to instruction
 typeListItem * getPtrToActive(typeList *list);			//return pointer for return position
-
+void listRemove(typeList *list);
 
 #endif

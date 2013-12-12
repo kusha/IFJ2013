@@ -128,16 +128,16 @@ switch (type->type){
 
 typeData * getDeep(typeData * first, int deep) {
 	//printf(CMAG"Going to deep: %i\n"CNRM,deep);
-	printf(">>> ");
+	if (DEBUG_FLAG) printf(">>> ");
 	if (first == NULL) {
 		// printf(CMAG"Looks like null\n"CNRM);
-		printf("\n");
+		if (DEBUG_FLAG) printf("\n");
 		return NULL;
 	} else {
 		typeData * saver = first;
 		int currentDeep = 0;
 		typeData * currentPos = first;
-		printf(CMAG"%p"CRED" > "CNRM,(void*)currentPos);
+		if (DEBUG_FLAG) printf(CMAG"%p"CRED" > "CNRM,(void*)currentPos);
 		while (currentDeep< deep) {
 			if (currentPos->deeper == NULL){
 				//printf("Allocation needed\n");
@@ -149,10 +149,10 @@ typeData * getDeep(typeData * first, int deep) {
 				//printf("Already allocated\n");
 				currentPos = currentPos->deeper;
 				currentDeep += 1;
-				printf(CMAG"%p"CRED" > "CNRM,(void*)currentPos);
+				if (DEBUG_FLAG) printf(CMAG"%p"CRED" > "CNRM,(void*)currentPos);
 			}
 		}
-		printf("\n");
+		if (DEBUG_FLAG) printf("\n");
 		// printf(CMAG"Return pointer: %p\n"CNRM,(void*)currentPos);
 		return currentPos;
 	}
@@ -193,14 +193,18 @@ int interpreterStart(typeList *instrList) {
 	int callFlag = 0;
 	int retFlag = 0;
 
+	int nowCleanFlag = 0;
+	int nextCleanFlag = 0;
+	typeListItem * gotoWay = NULL;
+
 	listFirst(instrList);
 	typeInstruction realInstruction;
 	typeInstruction* currentInstr;
 	while (1) {
 
-		 if (DEBUG_FLAG) printf(CRED"\nCurrent deep: %i\n"CNRM, recursiveDeep);
-		 if (DEBUG_FLAG) printf(CRED"Call (only first change) flag: %i\n"CNRM, callFlag);
-		 if (DEBUG_FLAG) printf(CRED"Return (not first change) flag: %i\n"CNRM, retFlag);
+		if (DEBUG_FLAG) printf(CRED"\nCurrent deep: %i\n"CNRM, recursiveDeep);
+		if (DEBUG_FLAG) printf(CRED"Call (only first change) flag: %i\n"CNRM, callFlag);
+		if (DEBUG_FLAG) printf(CRED"Return (not first change) flag: %i\n"CNRM, retFlag);
 
 		currentInstr = getCurrent(instrList);
 
@@ -239,9 +243,18 @@ int interpreterStart(typeList *instrList) {
 
 		currentInstr = &realInstruction;
 
+
 		if (DEBUG_FLAG) printf(CYEL"ADRESSES:\t\t\t\t%p %p %p\n"CNRM, currentInstr->addressOne,currentInstr->addressTwo,currentInstr->addressThree);
 
+		nowCleanFlag = nextCleanFlag;
+
+		if (DEBUG_FLAG) printf(CRED"\nNow clean status: %i\n"CNRM, nowCleanFlag);
+		if (DEBUG_FLAG) printf(CRED"\nNext clean status: %i\n"CNRM, nextCleanFlag);
+
 		switch (currentInstr->instrCode) {
+
+			case I_IDLE:
+				break;
 			
 			case I_STOP:
 				//return 0;
@@ -295,6 +308,7 @@ int interpreterStart(typeList *instrList) {
 					REPORT("INSTR GENRATED")
 				}
 				retFlag = 1;
+				nextCleanFlag = 1;
 				break; }
 
 			case I_GOTO:
@@ -312,8 +326,10 @@ int interpreterStart(typeList *instrList) {
 				}
 				if (callFlag == 1) callFlag = 0;
 				if (retFlag == 1) retFlag = 0;
+				if (nextCleanFlag == 1) nextCleanFlag = 0;
 				gotoFlag = 1;
-				listGoto(instrList,currentInstr->addressTwo->instruction);
+				gotoWay = currentInstr->addressTwo->instruction;
+				//listGoto(instrList,currentInstr->addressTwo->instruction);
 				break;
 				
 			case I_GOTO_IF:
@@ -334,9 +350,11 @@ int interpreterStart(typeList *instrList) {
 				//void * p=typeFind(currentInstr->addressOne);
 				if(currentInstr->addressOne->type == _LOGICAL) {
 					if(currentInstr->addressOne->valueOf.type_LOGICAL)
-						listGoto(instrList,currentInstr->addressTwo->instruction);
+						gotoWay = currentInstr->addressTwo->instruction;
+						//listGoto(instrList,currentInstr->addressTwo->instruction);
 					else
-						listGoto(instrList,currentInstr->addressThree->instruction);
+						gotoWay = currentInstr->addressThree->instruction;
+						//listGoto(instrList,currentInstr->addressThree->instruction);
 				} else {
 					return S_EXPRESS_ERROR;
 				} 
@@ -1233,10 +1251,19 @@ int interpreterStart(typeList *instrList) {
 				printf("\t");
 				printf("\n"CNRM);
 			}
-		} else {
-			gotoFlag = 0;
 		}
 		if (currentInstr->instrCode == I_STOP) break;
+
+		if (nowCleanFlag) {
+			REPORT("Removing")
+			listRemove(instrList);
+		}
+
+		if (gotoFlag) {
+			listGoto(instrList,gotoWay);
+			gotoFlag = 0;
+		}
+
 		listNext(instrList);
 	}
 

@@ -124,20 +124,41 @@ int parserPrecedence();
 	if (tokenType != NEEDED) { return SYNTAX_WRONG; } else { expectedTokenType = -1; }
 
 // generate functions
+#define AT_END 		0
+#define AT_CURRENT	1
 
-void createInstruction(int instrCode, typeData * addressOne, typeData * addressTwo, typeData * addressThree) {
+
+void createInstruction(int notEndFlag, int instrCode, typeData * addressOne, typeData * addressTwo, typeData * addressThree) {
 	if (DEBUG_FLAG) printf("Called instruction creation: %i\n",instrCode);
 	typeInstruction instruction;
 	instruction.instrCode = instrCode;
 	instruction.addressOne = addressOne;
 	instruction.addressTwo = addressTwo;
 	instruction.addressThree = addressThree;
-	if (listAdd(instrList, instruction)!=SUCCESS) {
-		printf(CRED"Error in list addition\n"CNRM);
+	if (notEndFlag == 0) {
+		if (listAdd(instrList, instruction)!=SUCCESS) {
+			printf(CRED"Error in list addition\n"CNRM);
+		}
+	} else {
+		if (listAddNext(instrList, instruction)!=SUCCESS) {
+			printf(CRED"Error in list addition\n"CNRM);
+		}
+		listNext(instrList);	
 	}
 }
 
-// starter function 
+/* -- Function call tables ---------------------------------------------------
+**
+**
+** -------------------------------------------------------------------------*/
+
+typeCallsArray functionCalls;
+
+typeNodePtr globalTable;
+typeNodePtr functionsTable;
+typeNodePtr * actualTable;
+
+/* -- Parse starter --------------------------------------------------------*/
 
 int parseStarter(/* pointers to sumbol table, instruction list*/typeList *instructionList) {
 	if (DEBUG_FLAG) printf("Parser start\n");
@@ -175,6 +196,9 @@ int parseStarter(/* pointers to sumbol table, instruction list*/typeList *instru
 	//init tables
 	initTables();
 
+	//init calls array
+	arrayCallsClear( &functionCalls );
+
 	int statusCode;
 
 	UPDATE_TOKEN
@@ -183,18 +207,57 @@ int parseStarter(/* pointers to sumbol table, instruction list*/typeList *instru
 	//free attribute string
 	strFree(&attribute);
 
+	//adding calls instructions
+	if (DEBUG_FLAG) printf("Start printing func calls.\n");
+	int idx;
+	for (idx=0; idx<=functionCalls.size; idx++) {
+		listGoto(instrList, functionCalls.instr[idx]);
+		
+		typeData * currentFunction;
+		currentFunction = getVariable(&functionsTable,
+			&functionCalls.funcName[idx], SHOULD_EXIST);
+		if (currentFunction == NULL) {
+			REPORT("Undefined funciton call")
+			return S_FUNC_ERROR;
+		}
+
+		typeData * returnPoint = getEmpty(actualTable);
+		returnPoint->type = _FUNCTION;
+		returnPoint->instruction  = NULL;
+
+		createInstruction(AT_CURRENT, I_CALL, returnPoint, functionCalls.returnPtr[idx], NULL);
+
+		int i = 0;
+		typeData * forMerge1 = arrayGet(&functionCalls.callParams[idx], i);
+		typeData * forMerge2;
+		while (forMerge1 != NULL) {
+
+			if ((forMerge2=arrayGet(&currentFunction->funcWith.inputData, i))==NULL) {
+				REPORT("User func params error")
+				return S_PARAM_ERROR;
+			}
+			createInstruction(AT_CURRENT, I_ASSIGN, forMerge2, forMerge1, NULL);
+			i++;
+			forMerge1 = arrayGet(&functionCalls.callParams[idx], i);
+		}
+
+		createInstruction(AT_CURRENT, I_GOTO, NULL, currentFunction, NULL);
+
+		returnPoint->instruction = getPtrToActive(instrList); 
+
+		// printf(CGRN"%p %p %p %p\n"CNRM, 
+		// 	(void *) functionCalls.instr[idx],
+		// 	(void *) &functionCalls.callParams[idx],
+		// 	(void *) &functionCalls.funcName[idx],
+		// 	(void *) functionCalls.returnPtr[idx]);
+	}
+	if (DEBUG_FLAG) printf("Finish printing func calls.\n");
+
 	if (DEBUG_FLAG) printf("Parser complete with code %i\n", statusCode);
 	return statusCode;
 }
 
-/* -- Tables creation block --------------------------------------------------
-**
-**
-** -------------------------------------------------------------------------*/
 
-typeNodePtr globalTable;
-typeNodePtr functionsTable;
-typeNodePtr * actualTable;
 
 void initTables() {
 	globalTable = createTable();
@@ -220,6 +283,9 @@ int PROGRAM() {
 		case PHP:
 			// <program> -> PHP <program_units>
 			if (DEBUG_FLAG) printf("<program> -> PHP <program_units>\n");
+
+			createInstruction(AT_END, I_IDLE, NULL, NULL, NULL);
+
 			UPDATE_TOKEN
 			CALL(PROGRAM_UNITS)
 			// no instructions for this rule
@@ -257,7 +323,7 @@ int PROGRAM_UNITS() {
 			// <program_units>	-> EOF
 			if (DEBUG_FLAG) printf("<program_units>	-> EOF\n");
 			// instructions for this rule
-			createInstruction(I_STOP, NULL, NULL, NULL);
+			createInstruction(AT_END, I_STOP, NULL, NULL, NULL);
 			return SYNTAX_OK;
 			break;
 
@@ -284,7 +350,7 @@ int FUNC_DEFINE() {
 	typeData * gotoData = getEmpty(actualTable);
 	gotoData->type = _FUNCTION;
 	gotoData->instruction  = NULL;
-	createInstruction(I_GOTO, NULL, gotoData, NULL);
+	createInstruction(AT_END, I_GOTO, NULL, gotoData, NULL);
 
 	//COMMON CREATION
 	typeData * currentFunction;
@@ -468,7 +534,7 @@ int CMD() {
 							REPORT("too many params")
 							return S_PARAM_ERROR;
 						}
-						createInstruction(I_CONVERT, resultVar, converted, target);
+						createInstruction(AT_END, I_CONVERT, resultVar, converted, target);
 					} else if (strCompareConst(&nameSaver, "doubleval")) {
 						if (strAddChar(&convertHelper, 48+_DOUBLE)==STR_ERROR) return INTERNAL_ERROR;
 						typeData * target = getLiteral(actualTable, _INTEGER, &convertHelper);
@@ -482,7 +548,7 @@ int CMD() {
 							REPORT("too many params")
 							return S_PARAM_ERROR;
 						}
-						createInstruction(I_CONVERT, resultVar, converted, target);
+						createInstruction(AT_END, I_CONVERT, resultVar, converted, target);
 					} else if (strCompareConst(&nameSaver, "intval")) {
 						if (strAddChar(&convertHelper, 48+_INTEGER)==STR_ERROR) return INTERNAL_ERROR;
 						typeData * target = getLiteral(actualTable, _INTEGER, &convertHelper);
@@ -496,7 +562,7 @@ int CMD() {
 							REPORT("too many params")
 							return S_PARAM_ERROR;
 						}
-						createInstruction(I_CONVERT, resultVar, converted, target);
+						createInstruction(AT_END, I_CONVERT, resultVar, converted, target);
 					} else if (strCompareConst(&nameSaver, "strval")) {
 						if (strAddChar(&convertHelper, 48+_STRING)==STR_ERROR) return INTERNAL_ERROR;
 						typeData * target = getLiteral(actualTable, _INTEGER, &convertHelper);
@@ -510,19 +576,19 @@ int CMD() {
 							REPORT("too many params")
 							return S_PARAM_ERROR;
 						}
-						createInstruction(I_CONVERT, resultVar, converted, target);
+						createInstruction(AT_END, I_CONVERT, resultVar, converted, target);
 					} else if (strCompareConst(&nameSaver, "get_string")) {
 						typeData * tester;
 						if ((tester = arrayGet(&inputArray, 0))!=NULL) {
 							REPORT("too many params")
 							return S_PARAM_ERROR;
 						}
-						createInstruction(I_READ, resultVar, NULL, NULL);
+						createInstruction(AT_END, I_READ, resultVar, NULL, NULL);
 					} else if (strCompareConst(&nameSaver, "put_string")) {
 						int idx = 0;
 						typeData * forPrint= arrayGet(&inputArray, idx);
 						while (forPrint != NULL) {
-							createInstruction(I_WRITE, forPrint, NULL, NULL);
+							createInstruction(AT_END, I_WRITE, forPrint, NULL, NULL);
 							idx++;
 							forPrint= arrayGet(&inputArray, idx);
 						}
@@ -534,7 +600,7 @@ int CMD() {
 							i++;
 						} 
 						typeData * counter = getLiteral(actualTable, _INTEGER, &convertHelper);
-						createInstruction(I_ASSIGN, resultVar, counter, NULL);
+						createInstruction(AT_END, I_ASSIGN, resultVar, counter, NULL);
 					} else if (strCompareConst(&nameSaver, "strlen")) {
 						typeData * tester;
 						typeData * inputString;
@@ -546,7 +612,7 @@ int CMD() {
 							REPORT("too many params")
 							return S_PARAM_ERROR;
 						}
-						createInstruction(I_STR_LEN, resultVar, inputString, NULL);
+						createInstruction(AT_END, I_STR_LEN, resultVar, inputString, NULL);
 					} else if (strCompareConst(&nameSaver, "get_substring")) {
 						typeData * tester;
 						typeData * inputString;
@@ -568,8 +634,8 @@ int CMD() {
 							REPORT("too many params")
 							return S_PARAM_ERROR;
 						}
-						createInstruction(I_SUB_STR, NULL, NULL, subStart);
-						createInstruction(I_SUB_STR, resultVar, inputString, subFinish);
+						createInstruction(AT_END, I_SUB_STR, NULL, NULL, subStart);
+						createInstruction(AT_END, I_SUB_STR, resultVar, inputString, subFinish);
 					} else if (strCompareConst(&nameSaver, "find_string")) {
 						typeData * tester;
 						typeData * inputString1;
@@ -586,7 +652,7 @@ int CMD() {
 							REPORT("too many param")
 							return S_PARAM_ERROR;
 						}
-						createInstruction(I_FIND_STR, resultVar, inputString1, inputString2);
+						createInstruction(AT_END, I_FIND_STR, resultVar, inputString1, inputString2);
 					} else if (strCompareConst(&nameSaver, "sort_string")) {
 						typeData * tester;
 						typeData * inputString;
@@ -598,9 +664,12 @@ int CMD() {
 							REPORT("too many params")
 							return S_PARAM_ERROR;
 						}
-						createInstruction(I_SORT_STR, resultVar, inputString, NULL);
+						createInstruction(AT_END, I_SORT_STR, resultVar, inputString, NULL);
 					} else {															//user function
-						
+							
+							arrayCallsAdd( &functionCalls,  getPtrToCurrent(instrList),
+								inputArray, &nameSaver , resultVar);
+							/*
 							typeData * currentFunction;
 							currentFunction = getVariable(&functionsTable, &nameSaver, SHOULD_EXIST);
 							if (currentFunction == NULL) {
@@ -630,6 +699,7 @@ int CMD() {
 							createInstruction(I_GOTO, NULL, currentFunction, NULL);
 
 							returnPoint->instruction = getPtrToCurrent(instrList); 
+							*/
 
 					}
 					UPDATE_TOKEN
@@ -659,7 +729,7 @@ int CMD() {
 					if (DEBUG_FLAG) printf("<cmd> -> $id = <expression> ;\n");
 					CALL(PRECEDENCE)
 
-					createInstruction(I_ASSIGN, resultVar, expressionResult, NULL);
+					createInstruction(AT_END, I_ASSIGN, resultVar, expressionResult, NULL);
 
 					UPDATE_TOKEN
 					IS_TOKEN(SEMICOLON)
@@ -689,7 +759,7 @@ int CMD() {
 			gotoDataExit->type = _FUNCTION;
 			gotoDataExit->instruction  = NULL;
 
-			createInstruction(I_GOTO_IF, expressionResult, gotoDataIf, gotoDataElse);
+			createInstruction(AT_END, I_GOTO_IF, expressionResult, gotoDataIf, gotoDataElse);
 
 			UPDATE_TOKEN
 			IS_TOKEN(RIGHT_BRACKET)
@@ -703,7 +773,7 @@ int CMD() {
 			UPDATE_TOKEN
 			IS_TOKEN(RIGHT_CURLY_BRACKET)
 
-			createInstruction(I_GOTO, NULL, gotoDataExit, NULL);
+			createInstruction(AT_END, I_GOTO, NULL, gotoDataExit, NULL);
 
 			UPDATE_TOKEN
 			IS_TOKEN(KEYWORD_ELSE)
@@ -745,7 +815,7 @@ int CMD() {
 			gotoDataBreak->type = _FUNCTION;
 			gotoDataBreak->instruction  = NULL;
 
-			createInstruction(I_GOTO_IF, expressionResult, gotoDataDo, gotoDataBreak);
+			createInstruction(AT_END, I_GOTO_IF, expressionResult, gotoDataDo, gotoDataBreak);
 
 			gotoDataDo->instruction = getPtrToCurrent(instrList);
 
@@ -758,7 +828,7 @@ int CMD() {
 			CALL(CMD_SEQUENCE)
 			UPDATE_TOKEN
 
-			createInstruction(I_GOTO, NULL, gotoDataRepeat, NULL);
+			createInstruction(AT_END, I_GOTO, NULL, gotoDataRepeat, NULL);
 
 			IS_TOKEN(RIGHT_CURLY_BRACKET)
 
@@ -773,7 +843,7 @@ int CMD() {
 			UPDATE_TOKEN
 			CALL(PRECEDENCE)
 
-			createInstruction(I_RETURN, expressionResult, NULL, NULL);
+			createInstruction(AT_END, I_RETURN, expressionResult, NULL, NULL);
 
 			UPDATE_TOKEN
 			IS_TOKEN(SEMICOLON)
@@ -1112,7 +1182,7 @@ int parserPrecedence() {
 								REPORT("Not enough operands in stack, error in expression")
 								return SYNTAX_WRONG;
 							}
-							createInstruction(tableToInstruction(popedTerm), tempVar, operandOne, operandSecond);
+							createInstruction(AT_END, tableToInstruction(popedTerm), tempVar, operandOne, operandSecond);
 							stackNotermPush (&notermStack, tempVar);
 							stackTermPop(&termStack);
 						}
