@@ -228,17 +228,17 @@ int parseStarter(/* pointers to sumbol table, instruction list*/typeList *instru
 		createInstruction(AT_CURRENT, I_CALL, returnPoint, functionCalls.returnPtr[idx], NULL);
 
 		int i = 0;
-		typeData * forMerge1 = arrayGet(&functionCalls.callParams[idx], i);
+		typeData * forMerge1 = arrayGet(&currentFunction->funcWith.inputData, i);
 		typeData * forMerge2;
 		while (forMerge1 != NULL) {
 
-			if ((forMerge2=arrayGet(&currentFunction->funcWith.inputData, i))==NULL) {
+			if ((forMerge2=arrayGet(&functionCalls.callParams[idx], i))==NULL) {
 				REPORT("User func params error")
 				return S_PARAM_ERROR;
 			}
-			createInstruction(AT_CURRENT, I_ASSIGN, forMerge2, forMerge1, NULL);
+			createInstruction(AT_CURRENT, I_ASSIGN, forMerge1, forMerge2, NULL);
 			i++;
-			forMerge1 = arrayGet(&functionCalls.callParams[idx], i);
+			forMerge1 = arrayGet(&currentFunction->funcWith.inputData, i);
 		}
 
 		createInstruction(AT_CURRENT, I_GOTO, NULL, currentFunction, NULL);
@@ -502,7 +502,6 @@ int CMD() {
 		case IDENTIFIER_VARIABLE: {
 			// <cmd> -> $id = <expression> ;
 			// <cmd> -> $id = id ( <input> ) ;
-			typeData * resultVar = getVariable(actualTable, &attribute, MAY_NOT_EXIST);
 			strInit(&resultSaver); 
 			if (strCopy(&resultSaver, &attribute)==STR_ERROR) return INTERNAL_ERROR;
 
@@ -536,65 +535,40 @@ int CMD() {
 					if (strCompareConst(&nameSaver, "boolval")) {
 						if (strAddChar(&convertHelper, 48+_LOGICAL)==STR_ERROR) return INTERNAL_ERROR;
 						typeData * target = getLiteral(actualTable, _INTEGER, &convertHelper);
-						typeData * tester;
 						typeData * converted;
 						if ((converted = arrayGet(&inputArray, 0))==NULL) {
 							REPORT("too few params")
-							return S_PARAM_ERROR;
-						}
-						if ((tester = arrayGet(&inputArray, 1))!=NULL) {
-							REPORT("too many params")
 							return S_PARAM_ERROR;
 						}
 						createInstruction(AT_END, I_CONVERT, resultVar, converted, target);
 					} else if (strCompareConst(&nameSaver, "doubleval")) {
 						if (strAddChar(&convertHelper, 48+_DOUBLE)==STR_ERROR) return INTERNAL_ERROR;
 						typeData * target = getLiteral(actualTable, _INTEGER, &convertHelper);
-						typeData * tester;
 						typeData * converted;
 						if ((converted = arrayGet(&inputArray, 0))==NULL) {
 							REPORT("too few params")
-							return S_PARAM_ERROR;
-						}
-						if ((tester = arrayGet(&inputArray, 1))!=NULL) {
-							REPORT("too many params")
 							return S_PARAM_ERROR;
 						}
 						createInstruction(AT_END, I_CONVERT, resultVar, converted, target);
 					} else if (strCompareConst(&nameSaver, "intval")) {
 						if (strAddChar(&convertHelper, 48+_INTEGER)==STR_ERROR) return INTERNAL_ERROR;
 						typeData * target = getLiteral(actualTable, _INTEGER, &convertHelper);
-						typeData * tester;
 						typeData * converted;
 						if ((converted = arrayGet(&inputArray, 0))==NULL) {
 							REPORT("too few params")
-							return S_PARAM_ERROR;
-						}
-						if ((tester = arrayGet(&inputArray, 1))!=NULL) {
-							REPORT("too many params")
 							return S_PARAM_ERROR;
 						}
 						createInstruction(AT_END, I_CONVERT, resultVar, converted, target);
 					} else if (strCompareConst(&nameSaver, "strval")) {
 						if (strAddChar(&convertHelper, 48+_STRING)==STR_ERROR) return INTERNAL_ERROR;
 						typeData * target = getLiteral(actualTable, _INTEGER, &convertHelper);
-						typeData * tester;
 						typeData * converted;
 						if ((converted = arrayGet(&inputArray, 0))==NULL) {
 							REPORT("too few params")
 							return S_PARAM_ERROR;
 						}
-						if ((tester = arrayGet(&inputArray, 1))!=NULL) {
-							REPORT("too many params")
-							return S_PARAM_ERROR;
-						}
 						createInstruction(AT_END, I_CONVERT, resultVar, converted, target);
 					} else if (strCompareConst(&nameSaver, "get_string")) {
-						typeData * tester;
-						if ((tester = arrayGet(&inputArray, 0))!=NULL) {
-							REPORT("too many params")
-							return S_PARAM_ERROR;
-						}
 						createInstruction(AT_END, I_READ, resultVar, NULL, NULL);
 					} else if (strCompareConst(&nameSaver, "put_string")) {
 						int idx = 0;
@@ -614,19 +588,13 @@ int CMD() {
 						typeData * counter = getLiteral(actualTable, _INTEGER, &convertHelper);
 						createInstruction(AT_END, I_ASSIGN, resultVar, counter, NULL);
 					} else if (strCompareConst(&nameSaver, "strlen")) {
-						typeData * tester;
 						typeData * inputString;
 						if ((inputString = arrayGet(&inputArray, 0))==NULL) {
 							REPORT("too few params")
 							return S_PARAM_ERROR;
 						}
-						if ((tester = arrayGet(&inputArray, 1))!=NULL) {
-							REPORT("too many params")
-							return S_PARAM_ERROR;
-						}
 						createInstruction(AT_END, I_STR_LEN, resultVar, inputString, NULL);
 					} else if (strCompareConst(&nameSaver, "get_substring")) {
-						typeData * tester;
 						typeData * inputString;
 						typeData * subStart;
 						typeData * subFinish;
@@ -642,14 +610,9 @@ int CMD() {
 							REPORT("too few params")
 							return S_PARAM_ERROR;
 						}
-						if ((tester = arrayGet(&inputArray, 3))!=NULL) {
-							REPORT("too many params")
-							return S_PARAM_ERROR;
-						}
 						createInstruction(AT_END, I_SUB_STR, NULL, NULL, subStart);
 						createInstruction(AT_END, I_SUB_STR, resultVar, inputString, subFinish);
 					} else if (strCompareConst(&nameSaver, "find_string")) {
-						typeData * tester;
 						typeData * inputString1;
 						typeData * inputString2;
 						if ((inputString1 = arrayGet(&inputArray, 0))==NULL) {
@@ -660,20 +623,11 @@ int CMD() {
 							REPORT("too few param")
 							return S_PARAM_ERROR;
 						}
-						if ((tester = arrayGet(&inputArray, 2))!=NULL) {
-							REPORT("too many param")
-							return S_PARAM_ERROR;
-						}
 						createInstruction(AT_END, I_FIND_STR, resultVar, inputString1, inputString2);
 					} else if (strCompareConst(&nameSaver, "sort_string")) {
-						typeData * tester;
 						typeData * inputString;
 						if ((inputString = arrayGet(&inputArray, 0))==NULL) {
 							REPORT("too few params")
-							return S_PARAM_ERROR;
-						}
-						if ((tester = arrayGet(&inputArray, 1))!=NULL) {
-							REPORT("too many params")
 							return S_PARAM_ERROR;
 						}
 						createInstruction(AT_END, I_SORT_STR, resultVar, inputString, NULL);
