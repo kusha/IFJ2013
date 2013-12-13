@@ -21,7 +21,7 @@
 #include "interpreter.h"
 
 
-/* -- Debug for printing insttructions -------------------------------------------------*/
+/* -- Debug for printing instructions --------------------------------------*/
 
 char * printInstr (int priority) {
 	switch (priority){
@@ -1154,6 +1154,7 @@ int interpreterStart(typeList *instrList) {
 			
 			case I_READ: {
 				char str;
+				string *result = malloc(sizeof(string));
 				strInit(result);
 				while ((str=getchar())!=10) {
 					strAddChar(result,str);
@@ -1248,6 +1249,7 @@ int interpreterStart(typeList *instrList) {
 				while (processedString[i]!='\0') {
 					strAddChar(&str, processedString[i]);
 					i++;
+				}
 				if (strCopy(&currentInstr->addressOne->valueOf.type_STRING, &str)!=STR_SUCCESS)
 					return INTERNAL_ERROR;	
 			} 
