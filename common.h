@@ -20,7 +20,7 @@
 #define __COMMON_H__
 
 
-#define DEBUG_FLAG		0 	// print debug output flag
+#define DEBUG_FLAG		1 	// print debug output flag
 #define REPORT(MSG)		if (DEBUG_FLAG) fprintf(stderr,MSG"\n");
 
 #define CNRM	"\x1B[0m"	// print color code: normal
