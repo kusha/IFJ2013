@@ -1,3 +1,4 @@
 *.o
 ifj
 /examples/*
+README.md
