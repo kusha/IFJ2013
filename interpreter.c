@@ -1152,18 +1152,16 @@ int interpreterStart(typeList *instrList) {
 			break;
 			
 			
-			case I_READ:
-				if(1){
-					char str;
-					string *result = malloc(sizeof(string));
-					strInit(result);
-					while ((str=getchar())!=10) {
-						strAddChar(result,str);
-					}	
-					currentInstr->addressOne->valueOf.type_STRING = *result;
-					currentInstr->addressOne->type=_STRING;				
-					}
-					break;
+			case I_READ: {
+				char str;
+				strInit(result);
+				while ((str=getchar())!=10) {
+					strAddChar(result,str);
+				}	
+				currentInstr->addressOne->valueOf.type_STRING = *result;
+				currentInstr->addressOne->type=_STRING;				
+				}
+				break; }
 			
 			case I_WRITE:
 					if (DATA_TYPE(currentInstr->addressOne) == _NULL){ 
