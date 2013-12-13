@@ -1228,12 +1228,22 @@ int interpreterStart(typeList *instrList) {
 					break; 
 					
 					
-		 case I_SORT_STR:
-				if(DATA_TYPE(currentInstr->addressTwo)==_STRING){
-				currentInstr->addressOne->valueOf.type_STRING.str 
-						= sort_string(currentInstr->addressTwo->valueOf.type_STRING.str);	
-				} 
-				break;
+		case I_SORT_STR:
+			if (DATA_TYPE(currentInstr->addressTwo)==_STRING) {
+				currentInstr->addressOne->type = _STRING;
+				char * processedString =
+					sort_string(currentInstr->addressTwo->valueOf.type_STRING.str);
+				string str;
+				strInit(&str);
+				int i;
+				while (processedString[i]!='\0') {
+					strAddChar(&str, processedString[i]);
+					i++;
+				if (strCopy(&currentInstr->addressOne->valueOf.type_STRING, &str)!=STR_SUCCESS)
+					return INTERNAL_ERROR;	
+			} 
+			break;
+
 		}
 
 		//catch recursive call
