@@ -487,6 +487,8 @@ int CMD_SEQUENCE() {
 
 typeData * expressionResult;
 typeInputArray inputArray;
+string resultSaver;
+typeData * resultVar;
 
 int CMD() {
 	int status;
@@ -495,6 +497,9 @@ int CMD() {
 			// <cmd> -> $id = <expression> ;
 			// <cmd> -> $id = id ( <input> ) ;
 			typeData * resultVar = getVariable(actualTable, &attribute, MAY_NOT_EXIST);
+			strInit(&resultSaver); 
+			if (strCopy(&resultSaver, &attribute)==STR_ERROR) return INTERNAL_ERROR;
+
 			UPDATE_TOKEN
 			IS_TOKEN(OPERATION_ASSIGN)
 			UPDATE_TOKEN
@@ -515,6 +520,7 @@ int CMD() {
 					UPDATE_TOKEN
 					IS_TOKEN(RIGHT_BRACKET)
 
+					resultVar = getVariable(actualTable, &resultSaver, MAY_NOT_EXIST);
 
 					string convertHelper;
 					strInit(&convertHelper); 
@@ -729,6 +735,7 @@ int CMD() {
 					if (DEBUG_FLAG) printf("<cmd> -> $id = <expression> ;\n");
 					CALL(PRECEDENCE)
 
+					resultVar = getVariable(actualTable, &resultSaver, MAY_NOT_EXIST);
 					createInstruction(AT_END, I_ASSIGN, resultVar, expressionResult, NULL);
 
 					UPDATE_TOKEN
