@@ -1227,8 +1227,12 @@ int interpreterStart(typeList *instrList) {
 				break;
 				
 		case I_FIND_STR:
-				 	if((DATA_TYPE(currentInstr->addressTwo)==_STRING)&&(DATA_TYPE(currentInstr->addressThree)==_STRING)){				 		
-            currentInstr->addressOne->valueOf.type_INTEGER = find_string(currentInstr->addressTwo->valueOf.type_STRING.str, currentInstr->addressThree->valueOf.type_STRING.str);
+				 	if((DATA_TYPE(currentInstr->addressTwo)==_STRING)&&
+				 		(DATA_TYPE(currentInstr->addressThree)==_STRING)) {		
+				 			currentInstr->addressOne->type = _INTEGER ;
+            				currentInstr->addressOne->valueOf.type_INTEGER = 
+            				find_string(currentInstr->addressTwo->valueOf.type_STRING.str,
+            					currentInstr->addressThree->valueOf.type_STRING.str);
 					} 
 					break; 
 					
