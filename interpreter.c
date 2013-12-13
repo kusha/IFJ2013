@@ -1164,21 +1164,25 @@ int interpreterStart(typeList *instrList) {
 				break; }
 			
 			case I_WRITE:
-					if (DATA_TYPE(currentInstr->addressOne) == _NULL){ 
-							currentInstr->addressOne->valueOf.type_NULL = NULL;
-					} 							
-					else if(DATA_TYPE(currentInstr->addressOne)==_LOGICAL){
-							printf("%c",currentInstr->addressOne->valueOf.type_LOGICAL);
+				if (DATA_TYPE(currentInstr->addressOne) == _NULL){ 
+					printf("null");
+				} 							
+				else if(DATA_TYPE(currentInstr->addressOne)==_LOGICAL){
+					if (currentInstr->addressOne->valueOf.type_LOGICAL == 0) {
+						printf("false");
+					} else {
+						printf("true");
 					}
-					else if(DATA_TYPE(currentInstr->addressOne)==_INTEGER){
-						printf("%d",currentInstr->addressOne->valueOf.type_INTEGER);
-					}
-					else if(DATA_TYPE(currentInstr->addressOne)==_DOUBLE){
-						printf("%f",currentInstr->addressOne->valueOf.type_DOUBLE);
-					}
-					else if(DATA_TYPE(currentInstr->addressOne)==_STRING){
-						printf("%s",currentInstr->addressOne->valueOf.type_STRING.str);
-					}			     
+				}
+				else if(DATA_TYPE(currentInstr->addressOne)==_INTEGER){
+					printf("%d",currentInstr->addressOne->valueOf.type_INTEGER);
+				}
+				else if(DATA_TYPE(currentInstr->addressOne)==_DOUBLE){
+					printf("%f",currentInstr->addressOne->valueOf.type_DOUBLE);
+				}
+				else if(DATA_TYPE(currentInstr->addressOne)==_STRING){
+					printf("%s",currentInstr->addressOne->valueOf.type_STRING.str);
+				} 
 				break;
 				
 							
