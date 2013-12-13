@@ -181,7 +181,8 @@ int interpreterStart(typeList *instrList) {
 		printf("Finish print instructions\n");
 	}
 
-	int SubStr = -1;
+	int SubStr;
+	int SubStrFlag = 0;
 
 	int gotoFlag = 0;
 	
@@ -1190,35 +1191,35 @@ int interpreterStart(typeList *instrList) {
 				break;
 			
 			case I_SUB_STR: 			
-					if(DATA_TYPE(currentInstr->addressThree)==_INTEGER){
-            if(SubStr == -1){
-              SubStr = currentInstr->addressThree->valueOf.type_INTEGER;
-            }else{          
-              if(DATA_TYPE(currentInstr->addressTwo)==_STRING 
-                && SubStr >= 0 
-                && currentInstr->addressThree->valueOf.type_INTEGER >= 0 
-                && currentInstr->addressThree->valueOf.type_INTEGER >= SubStr
-                && SubStr < currentInstr->addressTwo->valueOf.type_STRING.length 
-                && currentInstr->addressThree->valueOf.type_INTEGER <= currentInstr->addressTwo->valueOf.type_STRING.length){
-                
-            	  string *str = malloc(sizeof(string));
-					      strInit(str);
-						    char c; 
-						    int j = currentInstr->addressThree->valueOf.type_INTEGER;
-						    j--;
-						    for(int i = SubStr; i <= j; i++){
-						      c = currentInstr->addressTwo->valueOf.type_STRING.str[i];
-						      strAddChar(str, c);
-						    }
-						    currentInstr->addressOne->type = _STRING;
-						    currentInstr->addressOne->valueOf.type_STRING = *str;
-						    SubStr = -1;
-						    // printf("%s\n", currentInstr->addressOne->jovalueOf.type_STRING.str);
-              }else{
-                return S_OTHER_ERROR;
-              }
-            }
-          }
+				if(DATA_TYPE(currentInstr->addressThree)==_INTEGER){  
+					if (SubStrFlag == 0) {
+						SubStr = currentInstr->addressThree->valueOf.type_INTEGER;
+						SubStrFlag = 1;
+					} else {      
+						if (DATA_TYPE(currentInstr->addressTwo)==_STRING 
+							&& SubStr >= 0 
+							&& currentInstr->addressThree->valueOf.type_INTEGER >= 0 
+							&& currentInstr->addressThree->valueOf.type_INTEGER >= SubStr
+							&& SubStr < currentInstr->addressTwo->valueOf.type_STRING.length 
+							&& currentInstr->addressThree->valueOf.type_INTEGER 
+							<= currentInstr->addressTwo->valueOf.type_STRING.length) {
+							string *str = malloc(sizeof(string));
+							strInit(str);
+							char c; 
+							int j = currentInstr->addressThree->valueOf.type_INTEGER;
+							j--;
+							for(int i = SubStr; i <= j; i++){
+								c = currentInstr->addressTwo->valueOf.type_STRING.str[i];
+								strAddChar(str, c);
+							}
+							currentInstr->addressOne->type = _STRING;
+							currentInstr->addressOne->valueOf.type_STRING = *str;
+							SubStrFlag = 0;
+						} else {
+							return S_OTHER_ERROR;
+						}
+					}
+				}
 				break;
 				
 		case I_FIND_STR:
