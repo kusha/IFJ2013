@@ -120,28 +120,43 @@ void treePrint (typeNodePtr *Root) {
 
 /* -- Shell sort -----------------------------------------------------------*/
 
-char *sort_string(char *string) {						//shell sort serazeni znaku retezce podle ordinalni hodnoty od nejmensi po nejvetsi
-	int n, step, i, j;
-	char tmp;										//pomocna pro razeni
-	n = strlen(string);								//zjistime delku stringu -> n
-	step = n / 2;
-	while(step > 0){									//opakuj dokud bude krok 1 a vetsi
-		for(i = step; i < n - step; i++){
-			j = i - step + 1;
-			while((j >= 0) && (string[j] > string[j + step])){
-				tmp = string[j + step];					//nasledujici 3 radky prohozeni hodnot jako u Bubble
-				string[j + step] = string[j];
-				string[j] = tmp;
-				j = j - step;							//snizeni indexu o krok
+char *sort_string(char *a) {						//shell sort serazeni znaku retezce podle ordinalni hodnoty od nejmensi po nejvetsi
+	// int n, step, i, j;
+	// char tmp;										//pomocna pro razeni
+	// n = strlen(string);								//zjistime delku stringu -> n
+	// step = n / 2;
+	// while(step > 0){									//opakuj dokud bude krok 1 a vetsi
+	// 	for(i = step; i < n - step; i++){
+	// 		j = i - step + 1;
+	// 		while((j >= 0) && (string[j] > string[j + step])){
+	// 			tmp = string[j + step];					//nasledujici 3 radky prohozeni hodnot jako u Bubble
+	// 			string[j + step] = string[j];
+	// 			string[j] = tmp;
+	// 			j = j - step;							//snizeni indexu o krok
+	// 		}
+	// 	}
+	// 	step = step / 2;								//opet puleni kroku
+	// }
+	// return string;
+	int n = strlen(a);
+	int j,i,k,m,mid;
+	for(m = n/2;m>0;m/=2) {
+		for(j = m;j< n;j++) {
+			for(i=j-m;i>=0;i-=m) {
+				if(a[i+m]>=a[i])
+					break;
+				else {
+					mid = a[i];
+					a[i] = a[i+m];
+					a[i+m] = mid;
+				}
 			}
 		}
-		step = step / 2;								//opet puleni kroku
 	}
-	return string;
+	return a;
 }
 
-
-/* -- Boyer-Moorův ---------------------------------------------------------*/
+/* -- Boyer-Mooruv ---------------------------------------------------------*/
 
 int max(int a, int b)  //	pomocna funkce pro vyhledani vetsi hodnoty
 {
