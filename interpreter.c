@@ -1187,9 +1187,11 @@ int interpreterStart(typeList *instrList) {
 				
 							
 			case I_STR_LEN:
-				 if(DATA_TYPE(currentInstr->addressTwo)==_STRING){
-					 currentInstr->addressOne->valueOf.type_INTEGER= currentInstr->addressTwo->valueOf.type_STRING.length;
-					}			
+				if (DATA_TYPE(currentInstr->addressTwo)==_STRING) {
+					currentInstr->addressOne->type = _INTEGER;
+					currentInstr->addressOne->valueOf.type_INTEGER = 
+					currentInstr->addressTwo->valueOf.type_STRING.length;
+				}			
 				break;
 			
 			case I_SUB_STR: 			
