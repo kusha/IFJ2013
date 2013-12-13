@@ -1123,6 +1123,10 @@ int parserPrecedence() {
 			tokenType == LITERAL_STRING ) {
 			if (tokenType == IDENTIFIER_VARIABLE) {
 				actualNoterm = getVariable(actualTable, &attribute, SHOULD_EXIST);
+				if (actualNoterm == NULL) {
+					REPORT("Variable not declared")
+					return S_DECLAR_ERROR;
+				}
 			} else {
 				actualNoterm = getLiteral(actualTable, tokenType-30, &attribute);
 			}
