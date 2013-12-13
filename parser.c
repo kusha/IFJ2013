@@ -385,6 +385,12 @@ int FUNC_DEFINE() {
 	IS_TOKEN(LEFT_CURLY_BRACKET)
 	UPDATE_TOKEN
 	CALL(CMD_SEQUENCE)
+
+	typeData * retNull = getEmpty(actualTable);
+	retNull->type = _NULL;
+	retNull->valueOf.type_NULL = NULL;
+	createInstruction(AT_END, I_RETURN, retNull, NULL, NULL);
+
 	UPDATE_TOKEN
 	IS_TOKEN(RIGHT_CURLY_BRACKET)
 
