@@ -221,7 +221,7 @@ int parseStarter(/* pointers to sumbol table, instruction list*/typeList *instru
 			return S_FUNC_ERROR;
 		}
 
-		typeData * returnPoint = getEmpty(actualTable);
+		typeData * returnPoint = getEmpty(&functionsTable);
 		returnPoint->type = _FUNCTION;
 		returnPoint->instruction  = NULL;
 
@@ -940,12 +940,12 @@ static int priorityTable [15][15] = {
 /*/	 +	/*/	 {L	,L	,M	,M	,W	,M	,M	,M	,M	,M	,M	,L	,L	,M 	,M } ,
 /*/	 -	/*/	 {L	,L	,M	,M	,W	,M	,M	,M	,M	,M	,M	,L	,L	,M 	,M } ,
 /*/	 .	/*/	 {W	,W	,W	,W	,M	,M	,M	,M	,M	,M	,M	,L	,L	,M 	,M } ,
-/*/	 <	/*/	 {L	,L	,L	,L	,L	,W	,W	,W	,W	,W	,W	,L	,L	,M	,M } ,
-/*/	 >	/*/	 {L	,L	,L	,L	,L	,W	,W	,W	,W	,W	,W	,L	,L	,M	,M } ,
-/*/	 <=	/*/	 {L	,L	,L	,L	,L	,W	,W	,W	,W	,W	,W	,L	,L	,M	,M } ,
-/*/	 >=	/*/	 {L	,L	,L	,L	,L	,W	,W	,W	,W	,W	,W	,L	,L	,M	,M } ,
-/*/	=== /*/	 {L	,L	,L	,L	,L	,W	,W	,W	,W	,W	,W	,L	,L	,M	,M } ,
-/*/	!==	/*/	 {L	,L	,L	,L	,L	,W	,W	,W	,W	,W	,W	,L	,L	,M	,M } ,
+/*/	 <	/*/	 {L	,L	,L	,L	,L	,M	,M	,M	,M	,M	,M	,L	,L	,M	,M } ,
+/*/	 >	/*/	 {L	,L	,L	,L	,L	,M	,M	,M	,M	,M	,M	,L	,L	,M	,M } ,
+/*/	 <=	/*/	 {L	,L	,L	,L	,L	,M	,M	,M	,M	,M	,M	,L	,L	,M	,M } ,
+/*/	 >=	/*/	 {L	,L	,L	,L	,L	,M	,M	,M	,M	,M	,M	,L	,L	,M	,M } ,
+/*/	=== /*/	 {L	,L	,L	,L	,L	,L	,L	,L	,L	,M	,M	,L	,L	,M	,M } ,
+/*/	!==	/*/	 {L	,L	,L	,L	,L	,L	,L	,L	,L	,M	,M	,L	,L	,M	,M } ,
 /*/	 ID	/*/	 {M	,M	,M	,M	,M	,M	,M	,M	,M	,M	,M	,W	,W	,M 	,M } ,
 /*/	 (	/*/	 {L	,L	,L	,L	,L	,L	,L	,L	,L	,L	,L	,L	,L	,E	,M } ,
 /*/	 )	/*/	 {M	,M	,M	,M	,M	,M	,M	,M	,M	,M	,M	,W	,W	,W	,M } ,
