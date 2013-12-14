@@ -158,6 +158,225 @@ typeData * getDeep(typeData * first, int deep) {
 	}
 }
 
+int convertData(typeData *dataOne, typeData *dataTwo, int type){            // target, input, type
+				if(type != _NONE){
+				  // PŘETYPOVÁÁÁÁÁÁNÍÍÍÍÍÍÍÍÍÍÍÍÍ
+			  // dataOne->type = type;
+	     // LOGICAAAAAAAAAAAAAAAALLLLLLLLLLLLL 
+				if(type == _LOGICAL){
+					if (DATA_TYPE(dataTwo) == _NULL){ 
+						dataOne->valueOf.type_LOGICAL = false;
+						return 0;
+					}
+					else if(DATA_TYPE(dataTwo) == _LOGICAL){
+						dataOne->valueOf.type_LOGICAL = dataTwo->valueOf.type_LOGICAL;
+					  return 0;
+          }
+					else if(DATA_TYPE(dataTwo) == _INTEGER){
+						if(dataTwo->valueOf.type_INTEGER == 0)
+							dataOne->valueOf.type_LOGICAL = false;
+						else
+							dataOne->valueOf.type_LOGICAL = true;
+						return 0;
+					}
+					else if(DATA_TYPE(dataTwo) == _DOUBLE){
+						if(dataTwo->valueOf.type_DOUBLE == 0.0)	
+							dataOne->valueOf.type_LOGICAL = false;
+						else
+							dataOne->valueOf.type_LOGICAL = true;
+					  return 0;
+          }
+					else if(DATA_TYPE(dataTwo) == _STRING){
+						if(dataTwo->valueOf.type_STRING.length == 0)	
+							dataOne->valueOf.type_LOGICAL = false;
+						else
+							dataOne->valueOf.type_LOGICAL = true;
+					  return 0;
+          }else{
+            return -1;              
+          }
+
+				}	// INTEEEEEEEEEGEEEEEEEEEEEERRRRRRR
+				else if(type == _INTEGER){
+					if (DATA_TYPE(dataTwo) == _NULL){ 
+						dataOne->valueOf.type_INTEGER = 0;
+						return 0;
+					}
+					else if(DATA_TYPE(dataTwo) == _LOGICAL){ 
+						if(dataTwo->valueOf.type_LOGICAL == true){
+							dataOne->valueOf.type_INTEGER = 1;
+						}else{
+							dataOne->valueOf.type_INTEGER = 0;
+						}
+					  return 0;
+          }
+					else if(DATA_TYPE(dataTwo) == _INTEGER){ 
+						dataOne->valueOf.type_INTEGER = dataTwo->valueOf.type_INTEGER;
+					  return 0;
+          }
+					else if(DATA_TYPE(dataTwo) == _DOUBLE){  
+						int x;
+						x=(int) dataTwo->valueOf.type_DOUBLE;
+						dataOne->valueOf.type_INTEGER = x;
+					  return 0;
+          } 
+					else if(DATA_TYPE(dataTwo) == _STRING){
+						char c;
+						string *str = malloc(sizeof(string));
+						strInit(str);
+						int k = 0;
+						while(dataTwo->valueOf.type_STRING.length >= k){
+							c = dataTwo->valueOf.type_STRING.str[k];
+							if(!(isspace(c))){
+								if(isdigit(c)){
+									strAddChar(str, c);
+								}else{
+									break;
+								} 
+							}
+							k++; 
+						}
+						if(str->length != 0){
+							int x;
+							x = atoi (str->str);
+							dataOne->valueOf.type_INTEGER = x;
+						}else{
+							dataOne->valueOf.type_INTEGER = 0;
+						}
+						strFree(str);
+						return 0;
+					}else{
+            return -1;              
+          } 
+
+				}		 // DOOOOOOOOOOOOOUBLEEEEEEEEEEEEEEEEE
+				else if(type == _DOUBLE){
+					if (DATA_TYPE(dataTwo) == _NULL){ 
+						dataOne->valueOf.type_DOUBLE = 0.0;
+					  return 0;
+          }
+					else if(DATA_TYPE(dataTwo) == _LOGICAL){
+						if(dataTwo->valueOf.type_LOGICAL == true){
+							dataOne->valueOf.type_DOUBLE = 1.0;
+						}else{
+							dataOne->valueOf.type_DOUBLE = 0.0;
+						}
+					  return 0;
+          }
+					else if(DATA_TYPE(dataTwo) == _INTEGER){
+						double x;
+						x=(double) dataTwo->valueOf.type_INTEGER;
+						dataOne->valueOf.type_DOUBLE = x;
+					  return 0;
+          } 
+					else if(DATA_TYPE(dataTwo) == _DOUBLE){
+						dataOne->valueOf.type_DOUBLE = dataTwo->valueOf.type_DOUBLE;
+					  return 0;
+          }
+					else if(DATA_TYPE(dataTwo) == _STRING){
+						char c;
+						string *s = malloc(sizeof(string));
+						strInit(s);
+						int num = 0, exp = 0, bot = 0, k = 0, isok = 1;
+						// printf("INPUT: %s\n", dataTwo->valueOf.type_STRING.str);
+						if (!(dataTwo->valueOf.type_STRING.length == 0)) {
+							while(dataTwo->valueOf.type_STRING.length >= k){
+								//printf("%d %d\n",c, num);
+								c = dataTwo->valueOf.type_STRING.str[k];
+								if(!isspace(c)){
+									if((c == 'e' || c == 'E') && exp == 0 && num == 1){
+										strAddChar(s, c);
+										isok = 0;
+										exp = 1;
+									}else if((c == '-' || c == '+') && exp == 1 && num == 1){
+										strAddChar(s, c);
+										isok = 0;
+									}else if(c == '.' && bot == 0 && num != 0){
+										strAddChar(s, c);
+										bot = 1;
+									}else if(isdigit(c)){
+										strAddChar(s, c);
+										num = 1;
+										if (exp==1) isok=1;
+									}else{
+										break;
+									} 
+								}
+
+								k++; 
+							}
+							// printf("isok -  %d, num -  %d\n",isok, num);
+							if (!isok) return S_TYPE_ERROR;
+							if (!num) return S_TYPE_ERROR;
+						}
+						if(s->length != 0){
+							double x;
+							x = atof (s->str);
+							dataOne->valueOf.type_DOUBLE = x;
+						}else{
+							dataOne->valueOf.type_DOUBLE = 0.0;
+						}
+						strFree(s);
+						return 0;
+					}else{
+            return -1;              
+          }  
+
+				} // STRIIIIIIIIIIIINGGGGGGGGGGGGGGGGG
+				else if(type == _STRING){
+					if (DATA_TYPE(dataTwo) == _NULL){ 
+						dataOne->valueOf.type_STRING.str = "";
+						dataOne->valueOf.type_STRING.length = 0;
+					  return 0;                       
+          }
+					else if(DATA_TYPE(dataTwo) == _LOGICAL){
+						if(dataTwo->valueOf.type_LOGICAL == true){
+							dataOne->valueOf.type_STRING.str = "1";
+							dataOne->valueOf.type_STRING.length = 1;
+						}else{
+							dataOne->valueOf.type_STRING.str = "";
+							dataOne->valueOf.type_STRING.length = 0;
+						}
+						return 0;
+					}
+					else if(DATA_TYPE(dataTwo) == _INTEGER){
+						string *str = malloc(sizeof(string));
+						strInit(str);
+						sprintf(str->str, "%d", dataTwo->valueOf.type_INTEGER);
+						int i = 0;
+            while(str->str[i] != '\0'){
+              i++;
+            }
+            dataOne->valueOf.type_STRING.str = str->str;
+            dataOne->valueOf.type_STRING.length = i;   
+  					//strFree(str);          
+						return 0;
+					}
+					else if(DATA_TYPE(dataTwo) == _DOUBLE){	
+						string *str = malloc(sizeof(string));
+						strInit(str);
+						sprintf(str->str, "%g", dataTwo->valueOf.type_DOUBLE);
+            int i = 0;
+            while(str->str[i] != '\0'){
+              i++;
+            }
+            dataOne->valueOf.type_STRING.str = str->str;
+            dataOne->valueOf.type_STRING.length = i; 
+            //strFree(str);
+						return 0;
+					}
+					else if(DATA_TYPE(dataTwo) == _STRING){
+						dataOne->valueOf.type_STRING = dataTwo->valueOf.type_STRING;
+            dataOne->valueOf.type_STRING.length = dataTwo->valueOf.type_STRING.length;
+						return 0;
+					}else{
+            return -1;              
+          }  
+				}
+			}else{
+        return -1;              
+      } 
+}
 
 int interpreterStart(typeList *instrList) {
 
@@ -392,7 +611,8 @@ int interpreterStart(typeList *instrList) {
 					currentInstr->addressOne->valueOf.type_STRING = *i;	
 			 	}
 			 	else {
-			 		return 12; }
+			 		return S_EXPRESS_ERROR; 
+        }
 				break;	
 				
 			case I_PLUS:
@@ -404,12 +624,9 @@ int interpreterStart(typeList *instrList) {
 					int *j = q;
 					currentInstr->addressOne->valueOf.type_INTEGER = (*i)+(*j);	  	
 				}
-				else if ((((DATA_TYPE(currentInstr->addressTwo)) == _DOUBLE) 
-						 && ((DATA_TYPE(currentInstr->addressThree))== _INTEGER)) 
-						 || (((DATA_TYPE(currentInstr->addressTwo)) == _INTEGER) 
-						 && ((DATA_TYPE(currentInstr->addressThree))== _DOUBLE))
-						 || (((DATA_TYPE(currentInstr->addressTwo)) == _DOUBLE) 
-						 && ((DATA_TYPE(currentInstr->addressThree))== _DOUBLE))){
+				else if ((DATA_TYPE(currentInstr->addressTwo) == _DOUBLE && DATA_TYPE(currentInstr->addressThree) == _INTEGER) 
+						 || (DATA_TYPE(currentInstr->addressTwo) == _INTEGER && DATA_TYPE(currentInstr->addressThree) == _DOUBLE)
+						 || (DATA_TYPE(currentInstr->addressTwo) == _DOUBLE && DATA_TYPE(currentInstr->addressThree) == _DOUBLE)){
 					currentInstr->addressOne->type = _DOUBLE;
 					void * p=typeFind(currentInstr->addressTwo);
 					void * q=typeFind(currentInstr->addressThree);
@@ -433,7 +650,9 @@ int interpreterStart(typeList *instrList) {
 							result = (*i)+(*j);
 							}
 					currentInstr->addressOne->valueOf.type_DOUBLE = result;								
-				}	  
+				}else{
+          return S_EXPRESS_ERROR; 
+        }		  
 				break;	 
 			
 			case I_MINUS:
@@ -445,12 +664,9 @@ int interpreterStart(typeList *instrList) {
 					int *j = q;
 					currentInstr->addressOne->valueOf.type_INTEGER = (*i)-(*j);				
 				}
-			else if ((((DATA_TYPE(currentInstr->addressTwo)) == _DOUBLE) 
-						 && ((DATA_TYPE(currentInstr->addressThree))== _INTEGER)) 
-						 || (((DATA_TYPE(currentInstr->addressTwo)) == _INTEGER) 
-						 && ((DATA_TYPE(currentInstr->addressThree))== _DOUBLE))
-						 || (((DATA_TYPE(currentInstr->addressTwo)) == _DOUBLE) 
-						 && ((DATA_TYPE(currentInstr->addressThree))== _DOUBLE))){
+			else if ((DATA_TYPE(currentInstr->addressTwo) == _DOUBLE && DATA_TYPE(currentInstr->addressThree)== _INTEGER)
+						 || (DATA_TYPE(currentInstr->addressTwo) == _INTEGER && DATA_TYPE(currentInstr->addressThree)== _DOUBLE)
+						 || (DATA_TYPE(currentInstr->addressTwo) == _DOUBLE && DATA_TYPE(currentInstr->addressThree)== _DOUBLE)){
 					currentInstr->addressOne->type = _DOUBLE;
 					void * p=typeFind(currentInstr->addressTwo);
 					void * q=typeFind(currentInstr->addressThree);
@@ -474,7 +690,9 @@ int interpreterStart(typeList *instrList) {
 							result = (*i)-(*j);
 							}
 					currentInstr->addressOne->valueOf.type_DOUBLE = result;								
-				}	  
+				}else{
+          return S_EXPRESS_ERROR; 
+        }		  
 				break;
 			
 			case I_MULTIPLY:
@@ -486,12 +704,9 @@ int interpreterStart(typeList *instrList) {
 					int *j = q;
 					currentInstr->addressOne->valueOf.type_INTEGER = (*i)*(*j);					
 				}
-				else if ((((DATA_TYPE(currentInstr->addressTwo)) == _DOUBLE) 
-						 && ((DATA_TYPE(currentInstr->addressThree))== _INTEGER)) 
-						 || (((DATA_TYPE(currentInstr->addressTwo)) == _INTEGER) 
-						 && ((DATA_TYPE(currentInstr->addressThree))== _DOUBLE))
-						 || (((DATA_TYPE(currentInstr->addressTwo)) == _DOUBLE) 
-						 && ((DATA_TYPE(currentInstr->addressThree))== _DOUBLE))){
+				else if ((DATA_TYPE(currentInstr->addressTwo) == _DOUBLE && DATA_TYPE(currentInstr->addressThree)== _INTEGER) 
+						 || (DATA_TYPE(currentInstr->addressTwo) == _INTEGER && DATA_TYPE(currentInstr->addressThree)== _DOUBLE)
+						 || (DATA_TYPE(currentInstr->addressTwo) == _DOUBLE	 && DATA_TYPE(currentInstr->addressThree)== _DOUBLE)){
 					currentInstr->addressOne->type = _DOUBLE;
 					void * p=typeFind(currentInstr->addressTwo);
 					void * q=typeFind(currentInstr->addressThree);
@@ -515,18 +730,17 @@ int interpreterStart(typeList *instrList) {
 							result = (*i)*(*j);
 							}
 					currentInstr->addressOne->valueOf.type_DOUBLE = result;								
-				}	    
+				}else{
+          return S_EXPRESS_ERROR; 
+        }		    
 				break;
 			
 			case I_DIVIDE:
-				if ((((DATA_TYPE(currentInstr->addressTwo)) == _INTEGER)
-						 && (((DATA_TYPE(currentInstr->addressThree))== _INTEGER)))
-						 || ((((DATA_TYPE(currentInstr->addressTwo)) == _DOUBLE) 
-						 && ((DATA_TYPE(currentInstr->addressThree))== _INTEGER))) 
-						 || ((((DATA_TYPE(currentInstr->addressTwo)) == _INTEGER) 
-						 && ((DATA_TYPE(currentInstr->addressThree))== _DOUBLE)))
-						 || ((((DATA_TYPE(currentInstr->addressTwo)) == _DOUBLE) 
-						 && ((DATA_TYPE(currentInstr->addressThree))== _DOUBLE)))){
+				if ((DATA_TYPE(currentInstr->addressTwo) == _INTEGER && DATA_TYPE(currentInstr->addressThree) == _INTEGER)
+						|| (DATA_TYPE(currentInstr->addressTwo) == _DOUBLE && DATA_TYPE(currentInstr->addressThree)== _INTEGER) 
+						|| (DATA_TYPE(currentInstr->addressTwo) == _INTEGER && DATA_TYPE(currentInstr->addressThree)== _DOUBLE)
+						|| (DATA_TYPE(currentInstr->addressTwo) == _DOUBLE && DATA_TYPE(currentInstr->addressThree)== _DOUBLE)){
+						
 					currentInstr->addressOne->type = _DOUBLE;
 					void * p=typeFind(currentInstr->addressTwo);
 					void * q=typeFind(currentInstr->addressThree);
@@ -539,55 +753,83 @@ int interpreterStart(typeList *instrList) {
 					 	double x,y;
 					 	x=(double) *i;
 					 	y=(double) *j;
-					 	result = (x)/(y);
-					 		//printf("%f\n\n",x );
+					 	if(y == 0){
+              return S_ZERODIV_ERROR;             
+            }else{
+              result = (x)/(y);
+					 	}
+             	//printf("%f\n\n",x );
 					 		//printf("%f\n\n",y );
 					}
 					else if (((DATA_TYPE(currentInstr->addressTwo))== _DOUBLE) 
 							&& ((DATA_TYPE(currentInstr->addressThree))== _DOUBLE)){
 							double* i = p;
 							double* j = q;
+						if(*j == 0){
+              return S_ZERODIV_ERROR;             
+            }else{
 							result = (*i)/(*j);
+					 	}
+
 					}
 					else if	(((DATA_TYPE(currentInstr->addressTwo))== _DOUBLE) 
 							&& ((DATA_TYPE(currentInstr->addressThree))== _INTEGER)){
 							double* i = p;
 							int* j = q;
+							
+            if(*j == 0){
+              return S_ZERODIV_ERROR;             
+            }else{
 							result = (*i)/(*j);
+					 	}
 					}
 					else if	(((DATA_TYPE(currentInstr->addressTwo))== _INTEGER) 
 							&& ((DATA_TYPE(currentInstr->addressThree))== _DOUBLE)){
 							int* i = p;
 							double* j = q;
+            if(*j == 0){
+              return S_ZERODIV_ERROR;             
+            }else{
 							result = (*i)/(*j);
+					 	}
 					}
 					currentInstr->addressOne->valueOf.type_DOUBLE = result;	
 						//printf("ahoj...%f",result);					
-				}	  	  
+				}else{
+          return S_EXPRESS_ERROR; 
+        }	  	  
 				break;
 			
 			case I_CONCATEN:
-				if (((DATA_TYPE(currentInstr->addressTwo))== _STRING) 
-					&& ((DATA_TYPE(currentInstr->addressThree))== _STRING)){
+				if (DATA_TYPE(currentInstr->addressTwo)== _STRING){
+				  if(DATA_TYPE(currentInstr->addressThree) != _STRING){
+            if(convertData(currentInstr->addressThree, currentInstr->addressThree, _STRING) != 0){
+              return S_TYPE_ERROR;
+            }
+          }
 					currentInstr->addressOne->type = _STRING;
 					void * p=typeFind(currentInstr->addressTwo);
 					void * q=typeFind(currentInstr->addressThree);
 					string *i=p;
 					string *j=q;
-					string *result=malloc(sizeof(string));
+					string result;
+					strInit(&result);
 					int k=0;
-					strCopy(result,i);
+					strCopy(&result,i);
 					while(j->str[k]!='\0'){
-						strAddChar(result,(j->str[k]));
+						strAddChar(&result,(j->str[k]));
 						k++;
 					} 
-					currentInstr->addressOne->valueOf.type_STRING = *result;						
+					strInit(&currentInstr->addressOne->valueOf.type_STRING);
+					strCopy(&currentInstr->addressOne->valueOf.type_STRING,&result);
+				} else {
+					return S_EXPRESS_ERROR;
 				}
 				break;
 			
 			
 			case I_C_IS:	
-				if((DATA_TYPE(currentInstr->addressTwo)) == (DATA_TYPE(currentInstr->addressThree))){
+				if(DATA_TYPE(currentInstr->addressTwo) == DATA_TYPE(currentInstr->addressThree)){
 					currentInstr->addressOne->type = _LOGICAL;
 					void *p=typeFind(currentInstr->addressTwo);
 					void *q=typeFind(currentInstr->addressThree);		  
@@ -648,14 +890,15 @@ int interpreterStart(typeList *instrList) {
 				  }
 				}
 				else{
+				currentInstr->addressOne->type = _LOGICAL;
 				currentInstr->addressOne->valueOf.type_LOGICAL = 0;
-			//	printf("konec %d\n\n",currentInstr->addressOne->valueOf.type_LOGICAL);
+				//printf("konec %d\n\n",currentInstr->addressOne->valueOf.type_LOGICAL);
 
 				}
 			break;
 	
    		case I_C_IS_NOT:
-		  	if((DATA_TYPE(currentInstr->addressTwo)) == (DATA_TYPE(currentInstr->addressThree))){
+		  	if(DATA_TYPE(currentInstr->addressTwo) == DATA_TYPE(currentInstr->addressThree)){
 					currentInstr->addressOne->type = _LOGICAL;
 					void *p=typeFind(currentInstr->addressTwo);
 					void *q=typeFind(currentInstr->addressThree);		  
@@ -716,6 +959,7 @@ int interpreterStart(typeList *instrList) {
 				  }
 				}
 				else{
+				currentInstr->addressOne->type = _LOGICAL;
 				currentInstr->addressOne->valueOf.type_LOGICAL = 0;
 			//	printf("konec %d\n\n",currentInstr->addressOne->valueOf.type_LOGICAL);
 
@@ -723,7 +967,7 @@ int interpreterStart(typeList *instrList) {
 			break;
 			
 			case I_C_LESS:
-				if((DATA_TYPE(currentInstr->addressTwo)) == (DATA_TYPE(currentInstr->addressThree))){
+				if(DATA_TYPE(currentInstr->addressTwo) == DATA_TYPE(currentInstr->addressThree)){
 					currentInstr->addressOne->type = _LOGICAL;
 					void *p=typeFind(currentInstr->addressTwo);
 					void *q=typeFind(currentInstr->addressThree);		  
@@ -784,14 +1028,15 @@ int interpreterStart(typeList *instrList) {
 				  }
 				}
 				else{
-				currentInstr->addressOne->valueOf.type_LOGICAL = 0;
+				  return S_EXPRESS_ERROR;
+				//currentInstr->addressOne->valueOf.type_LOGICAL = 0;
 			//	printf("konec %d\n\n",currentInstr->addressOne->valueOf.type_LOGICAL);
 
 				}
 			break;
 				
 			case I_C_LESS_EQ:
-				if((DATA_TYPE(currentInstr->addressTwo)) == (DATA_TYPE(currentInstr->addressThree))){
+				if(DATA_TYPE(currentInstr->addressTwo) == DATA_TYPE(currentInstr->addressThree)){
 					currentInstr->addressOne->type = _LOGICAL;
 					void *p=typeFind(currentInstr->addressTwo);
 					void *q=typeFind(currentInstr->addressThree);		  
@@ -852,14 +1097,15 @@ int interpreterStart(typeList *instrList) {
 				  }
 				}
 				else{
-				currentInstr->addressOne->valueOf.type_LOGICAL = 0;
+				  return S_EXPRESS_ERROR;
+				//currentInstr->addressOne->valueOf.type_LOGICAL = 0;
 			//	printf("konec %d\n\n",currentInstr->addressOne->valueOf.type_LOGICAL);
 
 				}
 			break;
 			
 			case I_C_MORE:
-				if((DATA_TYPE(currentInstr->addressTwo)) == (DATA_TYPE(currentInstr->addressThree))){
+				if(DATA_TYPE(currentInstr->addressTwo) == DATA_TYPE(currentInstr->addressThree)){
 					currentInstr->addressOne->type = _LOGICAL;
 					void *p=typeFind(currentInstr->addressTwo);
 					void *q=typeFind(currentInstr->addressThree);		  
@@ -920,14 +1166,15 @@ int interpreterStart(typeList *instrList) {
 				  }
 				}
 				else{
-				currentInstr->addressOne->valueOf.type_LOGICAL = 0;
+				  return S_EXPRESS_ERROR;
+				//currentInstr->addressOne->valueOf.type_LOGICAL = 0;
 				//printf("konec %d\n\n",currentInstr->addressOne->valueOf.type_LOGICAL);
 
 				}
 			break;
 			
 			case I_C_MORE_EQ:
-				if((DATA_TYPE(currentInstr->addressTwo)) == (DATA_TYPE(currentInstr->addressThree))){
+				if(DATA_TYPE(currentInstr->addressTwo) == DATA_TYPE(currentInstr->addressThree)){
 					currentInstr->addressOne->type = _LOGICAL;
 					void *p=typeFind(currentInstr->addressTwo);
 					void *q=typeFind(currentInstr->addressThree);		  
@@ -988,183 +1235,36 @@ int interpreterStart(typeList *instrList) {
 				  }
 				}
 				else{
-				currentInstr->addressOne->valueOf.type_LOGICAL = 0;
+				  return S_EXPRESS_ERROR;
+        //currentInstr->addressOne->valueOf.type_LOGICAL = 0;
 				//printf("konec %d\n\n",currentInstr->addressOne->valueOf.type_LOGICAL);
-
 				}
 			break;
 			
 			case I_CONVERT:
-				if(currentInstr->addressThree->valueOf.type_INTEGER != _NONE){
-	// LOGICAAAAAAAAAAAAAAAALLLLLLLLLLLLL 
-				if(currentInstr->addressThree->valueOf.type_INTEGER == _LOGICAL){
-					if (DATA_TYPE(currentInstr->addressTwo) == _NULL){ 
-						currentInstr->addressOne->valueOf.type_LOGICAL = false;
-					}
-					else if(DATA_TYPE(currentInstr->addressTwo) == _LOGICAL){
-						currentInstr->addressOne->valueOf.type_LOGICAL = currentInstr->addressTwo->valueOf.type_LOGICAL;
-					}
-					else if(DATA_TYPE(currentInstr->addressTwo) == _INTEGER){
-						if(currentInstr->addressTwo->valueOf.type_INTEGER == 0)
-							currentInstr->addressOne->valueOf.type_LOGICAL = false;
-						else
-							currentInstr->addressOne->valueOf.type_LOGICAL = true;
-					}
-					else if(DATA_TYPE(currentInstr->addressTwo) == _DOUBLE){
-						if(currentInstr->addressTwo->valueOf.type_DOUBLE == 0.0)	
-							currentInstr->addressOne->valueOf.type_LOGICAL = false;
-						else
-							currentInstr->addressOne->valueOf.type_LOGICAL = true;
-					}
-					else if(DATA_TYPE(currentInstr->addressTwo) == _STRING){
-						if(currentInstr->addressTwo->valueOf.type_STRING.length == 0)	
-							currentInstr->addressOne->valueOf.type_LOGICAL = false;
-						else
-							currentInstr->addressOne->valueOf.type_LOGICAL = true;
-					}
-
-				}	// INTEEEEEEEEEGEEEEEEEEEEEERRRRRRR
-				else if(currentInstr->addressThree->valueOf.type_INTEGER == _INTEGER){
-					if (DATA_TYPE(currentInstr->addressTwo) == _NULL){ 
-						currentInstr->addressOne->valueOf.type_INTEGER = 0;
-					}
-					else if(DATA_TYPE(currentInstr->addressTwo) == _LOGICAL){ 
-						if(currentInstr->addressTwo->valueOf.type_LOGICAL == true){
-							currentInstr->addressOne->valueOf.type_INTEGER = 1;
-						}else{
-							currentInstr->addressOne->valueOf.type_INTEGER = 0;
-						}
-					}
-					else if(DATA_TYPE(currentInstr->addressTwo) == _INTEGER){ 
-						currentInstr->addressOne->valueOf.type_INTEGER = currentInstr->addressTwo->valueOf.type_INTEGER;
-					}
-					else if(DATA_TYPE(currentInstr->addressTwo) == _DOUBLE){  
-						int x;
-						x=(int) currentInstr->addressTwo->valueOf.type_DOUBLE;
-						currentInstr->addressOne->valueOf.type_INTEGER = x;
-					} 
-					else if(DATA_TYPE(currentInstr->addressTwo) == _STRING){
-						char c;
-						string *str = malloc(sizeof(string));
-						strInit(str);
-						int k = 0;
-						while(currentInstr->addressTwo->valueOf.type_STRING.length >= k){
-							c = currentInstr->addressTwo->valueOf.type_STRING.str[k];
-							if(!(isspace(c))){
-								if(isdigit(c)){
-									strAddChar(str, c);
-								}else{
-									break;
-								} 
-							}
-							k++; 
-						}
-						if(str->length != 0){
-							int x;
-							x = atoi (str->str);
-							currentInstr->addressOne->valueOf.type_INTEGER = x;
-						}else{
-							currentInstr->addressOne->valueOf.type_INTEGER = 0;
-						}
-						strFree(str);
-					} 
-
-				}		 // DOOOOOOOOOOOOOUBLEEEEEEEEEEEEEEEEE
-				else if(currentInstr->addressThree->valueOf.type_INTEGER == _DOUBLE){
-					if (DATA_TYPE(currentInstr->addressTwo) == _NULL){ 
-						currentInstr->addressOne->valueOf.type_DOUBLE = 0.0;
-					}
-					else if(DATA_TYPE(currentInstr->addressTwo) == _LOGICAL){
-						if(currentInstr->addressTwo->valueOf.type_LOGICAL == true){
-							currentInstr->addressOne->valueOf.type_DOUBLE = 1.0;
-						}else{
-							currentInstr->addressOne->valueOf.type_DOUBLE = 0.0;
-						}
-					}
-					else if(DATA_TYPE(currentInstr->addressTwo) == _INTEGER){
-						double x;
-						x=(double) currentInstr->addressTwo->valueOf.type_INTEGER;
-						currentInstr->addressOne->valueOf.type_DOUBLE = x;
-					} 
-					else if(DATA_TYPE(currentInstr->addressTwo) == _DOUBLE){
-						currentInstr->addressOne->valueOf.type_DOUBLE = currentInstr->addressTwo->valueOf.type_DOUBLE;
-					}
-					else if(DATA_TYPE(currentInstr->addressTwo) == _STRING){
-						char c;
-						string *s = malloc(sizeof(string));
-						strInit(s);
-						int num = 0, exp = 0, bot = 0, k = 0;
-						while(currentInstr->addressTwo->valueOf.type_STRING.length >= k){
-							c = currentInstr->addressTwo->valueOf.type_STRING.str[k];
-							if(!isspace(c)){
-								if((c == 'e' || c == 'E') && exp == 0 && num == 1){
-									strAddChar(s, c);
-									exp = 1;
-								}else if((c == '-' || c == '+') && exp == 1 && num == 1){
-									strAddChar(s, c);
-								}else if(c == '.' && bot == 0 && num != 0){
-									strAddChar(s, c);
-									bot = 1;
-								}else if(isdigit(c)){
-									strAddChar(s, c);
-									num = 1;
-								}else{
-									break;
-								} 
-							}
-							k++; 
-						}
-						if(s->length != 0){
-							double x;
-							x = atof (s->str);
-							currentInstr->addressOne->valueOf.type_DOUBLE = x;
-						}else{
-							currentInstr->addressOne->valueOf.type_DOUBLE = 0.0;
-						}
-						strFree(s);
-					} 
-
-				} // STRIIIIIIIIIIIINGGGGGGGGGGGGGGGGG
-				else if(currentInstr->addressThree->valueOf.type_INTEGER == _STRING){
-					if (DATA_TYPE(currentInstr->addressTwo) == _NULL){ 
-						currentInstr->addressOne->valueOf.type_STRING.str = "";
-					}
-					else if(DATA_TYPE(currentInstr->addressTwo) == _LOGICAL){
-						if(currentInstr->addressTwo->valueOf.type_LOGICAL == true){
-							currentInstr->addressOne->valueOf.type_STRING.str = "1";
-						}else{
-							currentInstr->addressOne->valueOf.type_STRING.str = "";
-						}
-					}
-					else if(DATA_TYPE(currentInstr->addressTwo) == _INTEGER){
-						sprintf(currentInstr->addressOne->valueOf.type_STRING.str, "%d", currentInstr->addressTwo->valueOf.type_INTEGER);
-					}
-					else if(DATA_TYPE(currentInstr->addressTwo) == _DOUBLE){	
-						sprintf(currentInstr->addressOne->valueOf.type_STRING.str, "%g", currentInstr->addressTwo->valueOf.type_DOUBLE); 
-					}
-					else if(DATA_TYPE(currentInstr->addressTwo) == _STRING){
-						currentInstr->addressOne->valueOf.type_STRING = currentInstr->addressTwo->valueOf.type_STRING;
-					} 
-				}
-			} 
-// PŘETYPOVÁÁÁÁÁÁNÍÍÍÍÍÍÍÍÍÍÍÍÍ
-			currentInstr->addressOne->type = currentInstr->addressThree->valueOf.type_INTEGER;
+        if(convertData(currentInstr->addressOne, currentInstr->addressTwo, currentInstr->addressThree->valueOf.type_INTEGER) != 0){
+          return S_TYPE_ERROR;
+        }else{
+          currentInstr->addressOne->type = currentInstr->addressThree->valueOf.type_INTEGER;
+        }
 			break;
 			
 			
-			case I_READ: {
-					char str;
-					string *result = malloc(sizeof(string));
-					strInit(result);
-					while ((str=getchar())!=10) {
-						strAddChar(result,str);
-					}	
-					currentInstr->addressOne->valueOf.type_STRING = *result;
+			case I_READ: {			    
+					int c;
+					string result;
+					strInit(&result);
+					while (((c=getchar())!='\n') && (c != EOF)) {
+						strAddChar(&result,c);
+					}
+					strInit(&currentInstr->addressOne->valueOf.type_STRING);
+					if (strCopy(&currentInstr->addressOne->valueOf.type_STRING, &result)
+						!=STR_SUCCESS) return INTERNAL_ERROR;
 					currentInstr->addressOne->type=_STRING;				
 				break; }
 			
 			case I_WRITE:
-				if (DATA_TYPE(currentInstr->addressOne) == _NULL){ 
+				if(DATA_TYPE(currentInstr->addressOne) == _NULL){ 
 					printf("null");
 				} 							
 				else if(DATA_TYPE(currentInstr->addressOne)==_LOGICAL){
@@ -1178,7 +1278,7 @@ int interpreterStart(typeList *instrList) {
 					printf("%d",currentInstr->addressOne->valueOf.type_INTEGER);
 				}
 				else if(DATA_TYPE(currentInstr->addressOne)==_DOUBLE){
-					printf("%f",currentInstr->addressOne->valueOf.type_DOUBLE);
+					printf("%g",currentInstr->addressOne->valueOf.type_DOUBLE);
 				}
 				else if(DATA_TYPE(currentInstr->addressOne)==_STRING){
 					printf("%s",currentInstr->addressOne->valueOf.type_STRING.str);
@@ -1187,11 +1287,17 @@ int interpreterStart(typeList *instrList) {
 				
 							
 			case I_STR_LEN:
-				if (DATA_TYPE(currentInstr->addressTwo)==_STRING) {
+				if(DATA_TYPE(currentInstr->addressTwo)==_STRING){
 					currentInstr->addressOne->type = _INTEGER;
-					currentInstr->addressOne->valueOf.type_INTEGER = 
-					currentInstr->addressTwo->valueOf.type_STRING.length;
-				}			
+					currentInstr->addressOne->valueOf.type_INTEGER = currentInstr->addressTwo->valueOf.type_STRING.length;
+				}else{
+				  if(convertData(currentInstr->addressTwo, currentInstr->addressTwo, _STRING) != 0){
+            return S_TYPE_ERROR;
+          }else{
+          	currentInstr->addressOne->type = _INTEGER;
+					  currentInstr->addressOne->valueOf.type_INTEGER = currentInstr->addressTwo->valueOf.type_STRING.length;
+          }
+        }		
 				break;
 			
 			case I_SUB_STR: 			
@@ -1200,13 +1306,18 @@ int interpreterStart(typeList *instrList) {
 						SubStr = currentInstr->addressThree->valueOf.type_INTEGER;
 						SubStrFlag = 1;
 					} else {      
-						if (DATA_TYPE(currentInstr->addressTwo)==_STRING 
-							&& SubStr >= 0 
+						if (DATA_TYPE(currentInstr->addressTwo)==_STRING
+              && SubStr >= 0 
 							&& currentInstr->addressThree->valueOf.type_INTEGER >= 0 
 							&& currentInstr->addressThree->valueOf.type_INTEGER >= SubStr
 							&& SubStr < currentInstr->addressTwo->valueOf.type_STRING.length 
 							&& currentInstr->addressThree->valueOf.type_INTEGER 
-							<= currentInstr->addressTwo->valueOf.type_STRING.length) {
+							<= currentInstr->addressTwo->valueOf.type_STRING.length) { 
+							/*if(DATA_TYPE(currentInstr->addressTwo)==_STRING){
+                if(convertData(currentInstr->addressTwo, currentInstr->addressTwo, _STRING) != 0){
+                  return S_TYPE_ERROR;
+                }
+              } */
 							string *str = malloc(sizeof(string));
 							strInit(str);
 							char c; 
@@ -1239,18 +1350,20 @@ int interpreterStart(typeList *instrList) {
 					
 		case I_SORT_STR:
 			if (DATA_TYPE(currentInstr->addressTwo)==_STRING) {
+
 				currentInstr->addressOne->type = _STRING;
 				char * processedString =
 					sort_string(currentInstr->addressTwo->valueOf.type_STRING.str);
 				string str;
 				strInit(&str);
-				int i;
+				int i=0;
 				while (processedString[i]!='\0') {
 					strAddChar(&str, processedString[i]);
 					i++;
 				}
+				strInit(&currentInstr->addressOne->valueOf.type_STRING);
 				if (strCopy(&currentInstr->addressOne->valueOf.type_STRING, &str)!=STR_SUCCESS)
-					return INTERNAL_ERROR;	
+					return INTERNAL_ERROR;
 			} 
 			break;
 
