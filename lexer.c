@@ -40,11 +40,12 @@
 #define S_PHP1			19
 #define S_PHP2			20
 #define S_PHP3			21
-#define S_MORE			22
-#define S_DIVIDE		23
-#define S_MLINE_CMNT	24
-#define S_LINE_CMNT		25
-#define S_MLINE_ESC		26
+#define S_PHP4			22
+#define S_MORE			23
+#define S_DIVIDE		24
+#define S_MLINE_CMNT	25
+#define S_LINE_CMNT		26
+#define S_MLINE_ESC		27
 
 FILE *source;
 
@@ -415,6 +416,17 @@ int getToken(string *attribute) {
 			
 			case S_PHP3:
 				if (character=='p') {
+					state = S_PHP4;
+				} else {
+					if (DEBUG_FLAG)
+						printf("LEXER_ERROR at %c [%i] with state=%i\n", \
+							character,character,state);
+					return LEXER_ERROR;
+				}
+				break;
+
+			case S_PHP4:
+				if (isspace(character)) {
 					return PHP;
 				} else {
 					if (DEBUG_FLAG)
