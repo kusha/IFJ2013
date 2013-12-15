@@ -1264,15 +1264,16 @@ int interpreterStart(typeList *instrList) {
 			case I_STR_LEN:
 				if(DATA_TYPE(currentInstr->addressTwo)==_STRING){
 					currentInstr->addressOne->type = _INTEGER;
-					currentInstr->addressOne->valueOf.type_INTEGER = currentInstr->addressTwo->valueOf.type_STRING.length;
-				}else{
-				  if(convertData(currentInstr->addressTwo, currentInstr->addressTwo, _STRING) != 0){
-            return S_TYPE_ERROR;
-          }else{
-          	currentInstr->addressOne->type = _INTEGER;
-					  currentInstr->addressOne->valueOf.type_INTEGER = currentInstr->addressTwo->valueOf.type_STRING.length;
-          }
-        }		
+					currentInstr->addressOne->valueOf.type_INTEGER = 
+						currentInstr->addressTwo->valueOf.type_STRING.length;
+				} else {
+					typeData * tmp= malloc(sizeof(typeData));
+					if (convertData(tmp, currentInstr->addressTwo, _STRING)!= 0)
+						return S_TYPE_ERROR;
+					currentInstr->addressOne->type = _INTEGER;
+					currentInstr->addressOne->valueOf.type_INTEGER =
+						tmp->valueOf.type_STRING.length;
+				}		
 				break;
 			
 			case I_SUB_STR: 			
