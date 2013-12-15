@@ -228,7 +228,7 @@ int parseStarter(/* pointers to sumbol table, instruction list*/typeList *instru
 		createInstruction(AT_CURRENT, I_CALL, returnPoint, functionCalls.returnPtr[idx], NULL);
 
 		int i = 0;
-		typeData * forMerge1 = arrayGet(&currentFunction->funcWith.inputData, i);
+		typeData * forMerge1 = arrayGet(&currentFunction->inputData, i);
 		typeData * forMerge2;
 		while (forMerge1 != NULL) {
 
@@ -238,7 +238,7 @@ int parseStarter(/* pointers to sumbol table, instruction list*/typeList *instru
 			}
 			createInstruction(AT_CURRENT, I_ASSIGN, forMerge1, forMerge2, NULL);
 			i++;
-			forMerge1 = arrayGet(&currentFunction->funcWith.inputData, i);
+			forMerge1 = arrayGet(&currentFunction->inputData, i);
 		}
 
 		createInstruction(AT_CURRENT, I_GOTO, NULL, currentFunction, NULL);
@@ -379,7 +379,7 @@ int FUNC_DEFINE() {
 	UPDATE_TOKEN
 	IS_TOKEN(RIGHT_BRACKET)
 
-	currentFunction->funcWith.inputData = functionInput;
+	currentFunction->inputData = functionInput;
 
 	UPDATE_TOKEN
 	IS_TOKEN(LEFT_CURLY_BRACKET)

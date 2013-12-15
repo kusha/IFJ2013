@@ -43,7 +43,7 @@ typedef struct inputArray {			//input array structure from arrays.h
 
 typedef struct Data{						//datatype for data of node
 	char type;								//type of current data (more above)
-	union {									//dynamic types: all types in one
+	union {						//dynamic types: all types in one
 		const void *	type_NULL;			//const value of type null
 		char			type_LOGICAL;		//value of type boolean
 		int 			type_INTEGER;		//value of type integer
@@ -51,10 +51,7 @@ typedef struct Data{						//datatype for data of node
 		string			type_STRING;		//value of type string (really structure)
 	} valueOf;
 	void * instruction;
-	union {									//for function only
-		typeInputArray		inputData;		//array of pointers to typeData (input)
-		struct typeNode *	table;			//table of variables of current function
-	} funcWith;
+	typeInputArray		inputData;		//array of pointers to typeData (input)
 	struct Data *		deeper;				//recursive variable
 } typeData;									//datatype declaration (without struct)
 
