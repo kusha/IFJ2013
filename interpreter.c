@@ -1276,42 +1276,39 @@ int interpreterStart(typeList *instrList) {
 				}		
 				break;
 			
-			case I_SUB_STR: 			
-				if(DATA_TYPE(currentInstr->addressThree)==_INTEGER){  
-					if (SubStrFlag == 0) {
-						SubStr = currentInstr->addressThree->valueOf.type_INTEGER;
-						SubStrFlag = 1;
-					} else {      
-						if (DATA_TYPE(currentInstr->addressTwo)==_STRING
-              && SubStr >= 0 
-							&& currentInstr->addressThree->valueOf.type_INTEGER >= 0 
-							&& currentInstr->addressThree->valueOf.type_INTEGER >= SubStr
-							&& SubStr < currentInstr->addressTwo->valueOf.type_STRING.length 
-							&& currentInstr->addressThree->valueOf.type_INTEGER 
-							<= currentInstr->addressTwo->valueOf.type_STRING.length) { 
-							/*if(DATA_TYPE(currentInstr->addressTwo)==_STRING){
-                if(convertData(currentInstr->addressTwo, currentInstr->addressTwo, _STRING) != 0){
-                  return S_TYPE_ERROR;
-                }
-              } */
-							string *str = malloc(sizeof(string));
-							strInit(str);
-							char c; 
-							int j = currentInstr->addressThree->valueOf.type_INTEGER;
-							j--;
-							for(int i = SubStr; i <= j; i++){
-								c = currentInstr->addressTwo->valueOf.type_STRING.str[i];
-								strAddChar(str, c);
-							}
-							currentInstr->addressOne->type = _STRING;
-							currentInstr->addressOne->valueOf.type_STRING = *str;
-							SubStrFlag = 0;
-						} else {
-							return S_OTHER_ERROR;
+			case I_SUB_STR: {		
+				typeData * tmp= malloc(sizeof(typeData));
+				if (convertData(tmp, currentInstr->addressThree, _INTEGER)!= 0)
+					return S_TYPE_ERROR;
+				if (SubStrFlag == 0) {
+					SubStr = tmp->valueOf.type_INTEGER;
+					SubStrFlag = 1;
+				} else {
+					typeData * tmp1= malloc(sizeof(typeData));
+					if (convertData(tmp1, currentInstr->addressTwo, _STRING)!= 0)
+						return S_TYPE_ERROR;
+					if (SubStr >= 0 
+						&& tmp->valueOf.type_INTEGER >= 0 
+						&& tmp->valueOf.type_INTEGER >= SubStr
+						&& SubStr < tmp1->valueOf.type_STRING.length 
+						&& tmp->valueOf.type_INTEGER <= tmp1->valueOf.type_STRING.length) { 
+						string *str = malloc(sizeof(string));
+						strInit(str);
+						char c; 
+						int j = tmp->valueOf.type_INTEGER;
+						j--;
+						for(int i = SubStr; i <= j; i++){
+							c = tmp1->valueOf.type_STRING.str[i];
+							strAddChar(str, c);
 						}
+						currentInstr->addressOne->type = _STRING;
+						currentInstr->addressOne->valueOf.type_STRING = *str;
+						SubStrFlag = 0;
+					} else {
+						return S_OTHER_ERROR;
 					}
 				}
-				break;
+				break; }
 				
 		case I_FIND_STR:
 				 	if((DATA_TYPE(currentInstr->addressTwo)==_STRING)&&
