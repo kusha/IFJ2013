@@ -1,36 +1,38 @@
-/*
-	IFJ project 2013
-	Interpreter of IFJ2013 language
-	4.11.2013 - 15.12.2013
-	
-	Team 13 (b/3/I):
+/*	--- IFJ project 2013 ------------------------------------------------------
+**
+**	Interpreter of IFJ2013 language
+**	4.11.2013 - 15.12.2013
+**
+**	Team 13 (b/3/I):
+**
+** +Bank Tomáš			<xbankt00@stud.fit.vutbr.cz>
+** +Birger Mark			<xbirge00@stud.fit.vutbr.cz>
+**	Botka Roland		<xbotka00@stud.fit.vutbr.cz>
+**	Brandejs Zdenko		<xbrand06@stud.fit.vutbr.cz>
+**	Khudiakov Daniil	<xkhudi00@stud.fit.vutbr.cz>
+**
+**	Lexer header file - define token names, structures and 2 functions:
+**		delegate file pointer from main to lexer
+**		generate token function for parser
+**
+**	uses in main.c and in parser.c
+**
+**	-------------------------------------------------------------------------*/
 
-	Bank Tomáš			<xbankt00@stud.fit.vutbr.cz>
-	Birger Mark			<xbirge00@stud.fit.vutbr.cz>
-	Botka Roland		<xbotka00@stud.fit.vutbr.cz>
-	Brandejs Zdenko		<xbrand06@stud.fit.vutbr.cz>
-	Khudiakov Daniil	<xkhudi00@stud.fit.vutbr.cz>
-	
-	Lexer header file - define token names, structures and 2 functions:
-		delegate file pointer from main to lexer
-		generate token function for parser
-
-	uses in main.c and in parser.c
-*/
 
 #ifndef __LEXER_H__
 #define __LEXER_H__
 
+
 #include "common.h"
 #include "str.h"
 
-//lexer datatypes and structures section
-
-//common resources
+/* -- Common resources -----------------------------------------------------*/
 extern int troubleLine;
 extern int troubleColumn;
 extern int troubleCharacter;
 
+/* -- All tokens -----------------------------------------------------------*/
 //must use macros for token names
 //bcs in parser switch it'll be harder to use enum
 #define PHP					0  // <?php
@@ -75,7 +77,7 @@ extern int troubleCharacter;
 #define LEXER_ERROR			-1 // lexer error code for parser
 #define LEXER_START_ERROR	-2
 
-//functions prototypes section
+/* -- Functions prototypes section -----------------------------------------*/
 void delegateSourceFile(FILE *f);
 int getToken(string *attribute);
 

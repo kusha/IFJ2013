@@ -1,29 +1,29 @@
-/*
-	IFJ project 2013
-	Interpreter of IFJ2013 language
-	4.11.2013 - 15.12.2013
-	
-	Team 13 (b/3/I):
+/* -- IFJ project 2013 -------------------------------------------------------
+**	
+**	Interpreter of IFJ2013 language
+**	4.11.2013 - 15.12.2013
+**	
+**	Team 13 (b/3/I):
+**   
+** +Bank Tomáš			<xbankt00@stud.fit.vutbr.cz>
+**  Birger Mark			<xbirge00@stud.fit.vutbr.cz>
+** +Botka Roland		<xbotka00@stud.fit.vutbr.cz>
+**  Brandejs Zdenko		<xbrand06@stud.fit.vutbr.cz>
+**  Khudiakov Daniil	<xkhudi00@stud.fit.vutbr.cz>
+**	
+**	Interpreter of 3AK instructions header file
+** -------------------------------------------------------------------------*/
 
-	Bank Tomáš			<xbankt00@stud.fit.vutbr.cz>
-	Birger Mark			<xbirge00@stud.fit.vutbr.cz>
-	Botka Roland		<xbotka00@stud.fit.vutbr.cz>
-	Brandejs Zdenko		<xbrand06@stud.fit.vutbr.cz>
-	Khudiakov Daniil	<xkhudi00@stud.fit.vutbr.cz>
-	
-	Interpreter of 3AK instructions header file
-*/
-
+/* -- Macro definitions ----------------------------------------------------*/
 #ifndef __INTERPRETER_H__
 #define __INTERPRETER_H__
+
 
 #include "common.h"
 #include "ial.h"
 #include "instructions.h"
 #include "stack.h"
 
-// one shared function
-int interpreterStart(/* same input like parser*/typeList *instrList);
-
+int interpreterStart(typeList *instrList);
 
 #endif

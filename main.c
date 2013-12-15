@@ -5,8 +5,8 @@
 **
 **	Team 13 (b/3/I):
 **
-**	Bank Tomáš			<xbankt00@stud.fit.vutbr.cz>
-**	Birger Mark			<xbirge00@stud.fit.vutbr.cz>
+**  Bank Tomáš			<xbankt00@stud.fit.vutbr.cz>
+** +Birger Mark			<xbirge00@stud.fit.vutbr.cz>
 **	Botka Roland		<xbotka00@stud.fit.vutbr.cz>
 **	Brandejs Zdenko		<xbrand06@stud.fit.vutbr.cz>
 **	Khudiakov Daniil	<xkhudi00@stud.fit.vutbr.cz>
@@ -83,7 +83,8 @@ int main (int argc, char * argv[]) {
 					break;
 
 				case S_FUNC_ERROR:
-					fprintf(stderr,"Semantic error: undef/redef of the function.\n");
+					fprintf(stderr,
+						"Semantic error: undef/redef of the function.\n");
 					break;
 
 				case S_PARAM_ERROR:
@@ -115,7 +116,8 @@ int main (int argc, char * argv[]) {
 					break;
 
 				case S_EXPRESS_ERROR:
-					fprintf(stderr,"Semantic error: operation comptability.\n");
+					fprintf(stderr,
+						"Semantic error: operation comptability.\n");
 					break;
 
 				case S_ZERODIV_ERROR:

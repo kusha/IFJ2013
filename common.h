@@ -1,4 +1,4 @@
-/* -- IFJ project 2013 ------------------------------------------------------
+/* -- IFJ project 2013 --------------------------------------------------------
 **
 **	Interpreter of IFJ2013 language
 **	4.11.2013 - 15.12.2013
@@ -13,12 +13,11 @@
 **
 **	Defines for all units of the project.
 **
-** -------------------------------------------------------------------------*/
+** --------------------------------------------------------------------------*/
 
 
 #ifndef __COMMON_H__
 #define __COMMON_H__
-
 
 #define DEBUG_FLAG		0 	// print debug output flag
 #define REPORT(MSG)		if (DEBUG_FLAG) fprintf(stderr,MSG"\n");
@@ -48,5 +47,6 @@
 extern int troubleLine;
 extern int troubleColumn;
 extern int troubleCharacter;
+
 
 #endif

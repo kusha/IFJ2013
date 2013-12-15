@@ -6,10 +6,10 @@
 **	Team 13 (b/3/I):
 **
 **	Bank Tomáš			<xbankt00@stud.fit.vutbr.cz>
-**	Birger Mark			<xbirge00@stud.fit.vutbr.cz>
+** +Birger Mark			<xbirge00@stud.fit.vutbr.cz>
 **	Botka Roland		<xbotka00@stud.fit.vutbr.cz>
 **	Brandejs Zdenko		<xbrand06@stud.fit.vutbr.cz>
-**	Khudiakov Daniil	<xkhudi00@stud.fit.vutbr.cz>
+** +Khudiakov Daniil	<xkhudi00@stud.fit.vutbr.cz>
 **
 **	String support functions.
 **
@@ -32,7 +32,6 @@ typedef struct {
 	int allocated;	//allocated memory size
 } string;
 
-//functions:
 int strInit(string *s);
 void strFree(string *s);
 void strClear(string *s);

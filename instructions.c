@@ -6,7 +6,7 @@
 **	Team 13 (b/3/I):
 **
 **	Bank Tomáš			<xbankt00@stud.fit.vutbr.cz>
-**	Birger Mark			<xbirge00@stud.fit.vutbr.cz>
+** +Birger Mark			<xbirge00@stud.fit.vutbr.cz>
 **	Botka Roland		<xbotka00@stud.fit.vutbr.cz>
 **	Brandejs Zdenko		<xbrand06@stud.fit.vutbr.cz>
 **	Khudiakov Daniil	<xkhudi00@stud.fit.vutbr.cz>
@@ -98,7 +98,7 @@ void listRemove(typeList *list) {
 }
 
 
-/* -- Additional functions for current implementation -----------------------*/
+/* -- Additional functions for current implementation ----------------------*/
 
 void listGoto(typeList *list, void *instr) {
 	list->active = (typeListItem *) instr;
@@ -108,7 +108,8 @@ typeInstruction * getCurrent(typeList *list) {
 	if (list->active != NULL ) {
 		return &(list->active->instr);
 	} else {
-		if (DEBUG_FLAG) printf("There is no active instruction for response!\n");
+		if (DEBUG_FLAG)
+			printf("There is no active instruction for response!\n");
 		return NULL;
 	}
 }
@@ -120,4 +121,3 @@ typeListItem * getPtrToCurrent(typeList *list) {
 typeListItem * getPtrToActive(typeList *list) {
 	return list->active;
 }
-

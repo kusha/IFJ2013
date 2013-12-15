@@ -6,10 +6,10 @@
 **	Team 13 (b/3/I):
 **
 **	Bank Tomáš			<xbankt00@stud.fit.vutbr.cz>
-**	Birger Mark			<xbirge00@stud.fit.vutbr.cz>
+** +Birger Mark			<xbirge00@stud.fit.vutbr.cz>
 **	Botka Roland		<xbotka00@stud.fit.vutbr.cz>
 **	Brandejs Zdenko		<xbrand06@stud.fit.vutbr.cz>
-**	Khudiakov Daniil	<xkhudi00@stud.fit.vutbr.cz>
+** +Khudiakov Daniil	<xkhudi00@stud.fit.vutbr.cz>
 **
 **	Helper stack for precedence analysis.
 **
@@ -22,11 +22,12 @@
 #include "stack.h"
 
 
-/* -- Functionы for stack of integer ---------------------------------------*/
+/* -- Function for stack of integer ----------------------------------------*/
 
 void stackTermInit ( tStackTerm* s ) {
 	if (s == NULL) {
-		if (DEBUG_FLAG) printf("NULL pointer isn't a stack!\n");
+		if (DEBUG_FLAG)
+			printf("NULL pointer isn't a stack!\n");
 	} else {
 		s->top=-1;
 	}
@@ -43,7 +44,7 @@ int stackTermFull ( tStackTerm* s ) {
 int stackTermTop ( tStackTerm* s) {
 	if (stackTermEmpty(s)) {
 		if (DEBUG_FLAG) printf("No elements is stack TERMINALS!\n");
-		return -1;
+			return -1;
 	} else {
 		return s->arr[s->top];
 	}
@@ -65,7 +66,7 @@ void stackTermPush ( tStackTerm* s, int c ) {
 }
 
 
-/* -- Functionы for stack of type Data pointers ----------------------------*/
+/* -- Function for stack of type Data pointers ----------------------------*/
 
 void stackNotermInit ( tStackNoterm* s ) {
 	if (s == NULL) {
@@ -86,7 +87,7 @@ int stackNotermFull ( tStackNoterm* s ) {
 typeData * stackNotermTop ( tStackNoterm* s) {
 	if (stackNotermEmpty(s)) {
 		if (DEBUG_FLAG) printf("No elements is stack NOTERMINALS!\n");
-		return NULL;
+			return NULL;
 	} else {
 		return s->arr[s->top];
 	}
@@ -107,7 +108,7 @@ void stackNotermPush ( tStackNoterm* s, typeData * c ) {
 	}
 }
 
-/* -- Functionы for stack of Nodes ---------------------------------------*/
+/* -- Function for stack of Nodes -----------------------------------------*/
 
 void stackTableInit ( tStackTable* s ) {
 	if (s == NULL) {
@@ -125,12 +126,11 @@ int stackTableFull ( tStackTable* s ) {
 	return s->top == MAX_STACK_FUNC-1;
 }
 
-int stackTableTop ( tStackTable* s, /*typeNodePtr* Node,*/ typeData** List, typeData** Data) {
+int stackTableTop ( tStackTable* s, typeData** List, typeData** Data) {
 	if (stackTableEmpty(s)) {
 		if (DEBUG_FLAG) printf("No elements is stack Tables!\n");
-		return STACK_EMPTY;
+			return STACK_EMPTY;
 	} else {
-		/*Node=s->arrNode[s->top];*/
 		(*List)=s->arrList[s->top];
 		(*Data)=s->arrData[s->top];
 		return SUCCESS;
@@ -143,25 +143,18 @@ void stackTablePop ( tStackTable* s ) {
 	}
 }
 
-void stackTablePush ( tStackTable* s, /*typeNodePtr* Node,*/ typeData* List, typeData* Data ) {
+void stackTablePush ( tStackTable* s, typeData* List, typeData* Data ) {
 	if (stackTableFull(s)) {
 		if (DEBUG_FLAG) printf("Stack is full!\n");
 	} else {
 		s->top++;
-		/*s->arrNode[s->top]=Node;*/
 		s->arrList[s->top]=List;
 		s->arrData[s->top]=Data;
 	}
 }
 
-int stackTableCount ( tStackTable* s/*, typeData* List */) {
-	// int c = 0;
-	// int idx;
-	// for (idx=0; idx<=s->top; idx++ ) {
-	// 	//printf(CYEL"%p <==> %p\n"CNRM,(typeData *)s->arrList[idx]->instruction,List);
-	// 	if ((typeData *)s->arrList[idx]->instruction - List == 0) c++;
-	// }
-	return s->top;//c+1;
+int stackTableCount ( tStackTable* s) {
+	return s->top;
 }
 
 /* -- Debug only function for stack printing -------------------------------*/

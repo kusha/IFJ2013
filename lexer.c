@@ -1,23 +1,23 @@
-/*
-	IFJ project 2013
-	Interpreter of IFJ2013 language
-	4.11.2013 - 15.12.2013
-	
-	Team 13 (b/3/I):
-
-	Bank Tomáš			<xbankt00@stud.fit.vutbr.cz>
-	Birger Mark			<xbirge00@stud.fit.vutbr.cz>
-	Botka Roland		<xbotka00@stud.fit.vutbr.cz>
-	Brandejs Zdenko		<xbrand06@stud.fit.vutbr.cz>
-	Khudiakov Daniil	<xkhudi00@stud.fit.vutbr.cz>
-	
-*/
+/*	--- IFJ project 2013 ------------------------------------------------------
+**
+**	Interpreter of IFJ2013 language
+**	4.11.2013 - 15.12.2013
+**
+**	Team 13 (b/3/I):
+**
+** +Bank Tomáš			<xbankt00@stud.fit.vutbr.cz>
+** +Birger Mark			<xbirge00@stud.fit.vutbr.cz>
+**	Botka Roland		<xbotka00@stud.fit.vutbr.cz>
+**	Brandejs Zdenko		<xbrand06@stud.fit.vutbr.cz>
+**	Khudiakov Daniil	<xkhudi00@stud.fit.vutbr.cz>
+**
+**	-------------------------------------------------------------------------*/
 
 #include <stdio.h> //getc
 #include <ctype.h> //isspace
 #include "lexer.h"
 
-// S is STATE
+/* -- List of states of FSM -------------------------------------------------*/
 #define S_START			0
 #define S_IDENTIFIER	1
 #define S_VARIABLE_D	2
@@ -53,6 +53,7 @@ void delegateSourceFile(FILE *f) {
 	source = f;
 }
 
+/* -- Keywords check -------------------------------------------------------*/
 int checkKeywords(string *attribute) {
 	if (strCompareConst(attribute, "else")) {
 		return KEYWORD_ELSE;
@@ -70,7 +71,7 @@ int checkKeywords(string *attribute) {
 		return LITERAL_NULL;
 	} else if (strCompareConst(attribute, "true")) {
 		return LITERAL_LOGICAL;
-	} else {				//maybe there will be std functions
+	} else {	//maybe there will be std functions
 		return IDENTIFIER;
 	}
 }
@@ -83,6 +84,7 @@ int troubleCharacter;
 
 int starterFlag = 1;
 
+/* -- Main lexer function --------------------------------------------------*/
 int getToken(string *attribute) {
 	//in case of error reuturn LEXER_ERROR;
 	int character; //int bcs of EOF
@@ -112,7 +114,7 @@ int getToken(string *attribute) {
 						strAddChar(attribute, character);
 						state = S_IDENTIFIER;
 					} else if (character=='$') {
-						strAddChar(attribute, character); //is dollar at start of varid needed?
+						strAddChar(attribute, character);
 						state = S_VARIABLE_D;
 					} else if (isdigit(character)) {
 						strAddChar(attribute, character);
@@ -194,7 +196,7 @@ int getToken(string *attribute) {
 				if (isdigit(character)) {
 					strAddChar(attribute, character);
 				} else if (character=='e'||character=='E') {
-					strAddChar(attribute, character); //what add at e/E for scanf?
+					strAddChar(attribute, character);
 					state = S_EXPONENT_E;
 				} else if (character=='.') {
 					strAddChar(attribute, character);
@@ -214,12 +216,11 @@ int getToken(string *attribute) {
 				}
 				break;
 
-
 			case S_DOUBLE:
 				if (isdigit(character)) {
 					strAddChar(attribute, character);
 				} else if (character=='e'||character=='E') {
-					strAddChar(attribute, character); //what add at e/E for scanf?
+					strAddChar(attribute, character);
 					state = S_EXPONENT_E;
 				} else {
 					ungetc(character, source);
@@ -229,7 +230,7 @@ int getToken(string *attribute) {
 
 			case S_EXPONENT_E:
 				if (character=='+'||character=='-') {
-					strAddChar(attribute, character); //what add at e/E for scanf?
+					strAddChar(attribute, character);
 					state = S_EXPONENT_S;
 				} else if (isdigit(character))  {
 					strAddChar(attribute, character);
@@ -298,7 +299,8 @@ int getToken(string *attribute) {
 					strAddChar(attribute, '\"');
 					state = S_STRING;
 				} else if (character>31) {
-					strAddChar(attribute, '\\');	//add \\ (esc for \) and character
+					//add \\ (esc for \) and character
+					strAddChar(attribute, '\\');
 					strAddChar(attribute, character);
 					state = S_STRING;
 				} else {

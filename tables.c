@@ -1,4 +1,4 @@
-/* -- IFJ project 2013 ------------------------------------------------------
+/* -- IFJ project 2013 -------------------------------------------------------
 **
 **	Interpreter of IFJ2013 language
 **	4.11.2013 - 15.12.2013
@@ -6,7 +6,7 @@
 **	Team 13 (b/3/I):
 **
 **	Bank Tomáš			<xbankt00@stud.fit.vutbr.cz>
-**	Birger Mark			<xbirge00@stud.fit.vutbr.cz>
+** +Birger Mark			<xbirge00@stud.fit.vutbr.cz>
 **	Botka Roland		<xbotka00@stud.fit.vutbr.cz>
 **	Brandejs Zdenko		<xbrand06@stud.fit.vutbr.cz>
 **	Khudiakov Daniil	<xkhudi00@stud.fit.vutbr.cz>
@@ -15,23 +15,22 @@
 **
 ** -------------------------------------------------------------------------*/
 
-
+/* -- Includes part --------------------------------------------------------*/
 #include <stdio.h>
 #include <stdlib.h>
 #include "tables.h"
 
+int varCounter = 0;
 
+/* -- Get Variable function ------------------------------------------------*/
 typeData * getVariable(typeNodePtr * table, string * name, char existFlag) {
-	// 1. if we call it from top-down and want to assign
-	// just assign expressiom / func result from temp var name
-	// 2. if we call from expression - NULL is semantic error
 	typeNodePtr * searchNode = treeSearch(table, *name); 			
 	if (searchNode == NULL && existFlag == SHOULD_EXIST) {
 		if (DEBUG_FLAG) printf("Can't return unexist variable\n");
-		return NULL;
+			return NULL;
 	} else if (searchNode != NULL && existFlag == SHOULD_NOT_EXIST) {
 		if (DEBUG_FLAG) printf("Node exist, but already declared.\n");
-		return NULL;
+			return NULL;
 	}
 	if (searchNode != NULL) {
 		return &(*searchNode)->data;
@@ -39,32 +38,30 @@ typeData * getVariable(typeNodePtr * table, string * name, char existFlag) {
 		typeData newData;
 		newData.deeper = NULL;
 		newData.type = _NONE;
-		if (treeInsert(table, *name, newData)==ALLOC_FAIL) return NULL;
+		if (treeInsert(table, *name, newData)==ALLOC_FAIL) 
+			return NULL;
 		return &(*treeSearch(table, *name))->data;
 	}
 }
 
-int varCounter = 0;
+/* -- Temp Variable Name function ------------------------------------------*/
 string tempVariableName () {
-	// integer -> char *
 	char str[MAX_TEMP_VARS];
 	sprintf(str, "%d", varCounter);
-	// create string
 	string tempName;
 	strInit(&tempName);
-	// char * -> string
 	int i = 0;
 	while (str[i]!='\0') {
 		strAddChar(&tempName, str[i]);
 		i++;
 	} 
-	// will be Freeed by dispose
-	if (DEBUG_FLAG) printf("Created variable with name %s\n", tempName.str);
-	// add counter
+	if (DEBUG_FLAG) 
+		printf("Created variable with name %s\n", tempName.str);
 	varCounter++;
 	return tempName;
 }
 
+/* -- Get Literal function -------------------------------------------------*/
 typeData * getLiteral(typeNodePtr * table, int dataType, string * atribute) {
 	typeData newData;
 	newData.deeper = NULL;
@@ -99,30 +96,27 @@ typeData * getLiteral(typeNodePtr * table, int dataType, string * atribute) {
 			strCopy(&newData.valueOf.type_STRING, atribute);
 			break;
 
-		// case TYPE_FUNCTION:
 	}
 	string newName = tempVariableName();
-	if (treeInsert(table, newName, newData)==ALLOC_FAIL) return NULL;
+	if (treeInsert(table, newName, newData)==ALLOC_FAIL) 
+		return NULL;
 	return &(*treeSearch(table, newName))->data;
 }
 
+/* -- Get Empty function ---------------------------------------------------*/
 typeData * getEmpty(typeNodePtr * table) {
 	typeData newData;
 	newData.deeper = NULL;
 	newData.type = _NONE;
 	string newName = tempVariableName();
-	if (treeInsert(table, newName, newData)==ALLOC_FAIL) return NULL;
+	if (treeInsert(table, newName, newData)==ALLOC_FAIL) 
+		return NULL;
 	return &(*treeSearch(table, newName))->data;
 }
 
+/* -- Create Table Function ------------------------------------------------*/
 typeNodePtr createTable() {
 	typeNodePtr newTable;
 	treeInit(&newTable);	
 	return newTable;
 }
-
-
-
-
-
-

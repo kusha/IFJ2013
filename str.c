@@ -6,10 +6,10 @@
 **	Team 13 (b/3/I):
 **
 **	Bank Tomáš			<xbankt00@stud.fit.vutbr.cz>
-**	Birger Mark			<xbirge00@stud.fit.vutbr.cz>
+** +Birger Mark			<xbirge00@stud.fit.vutbr.cz>
 **	Botka Roland		<xbotka00@stud.fit.vutbr.cz>
 **	Brandejs Zdenko		<xbrand06@stud.fit.vutbr.cz>
-**	Khudiakov Daniil	<xkhudi00@stud.fit.vutbr.cz>
+** +Khudiakov Daniil	<xkhudi00@stud.fit.vutbr.cz>
 **
 **	String support functions.
 **
@@ -31,7 +31,7 @@ int strInit(string *s) {
 	return STR_SUCCESS;
 }
 
-void strFree(string *s) {	//is OK add after free?
+void strFree(string *s) {
 	free(s->str);
 }
 
@@ -43,7 +43,8 @@ void strClear(string *s) {
 int strAddChar(string *s, char c) {
 	if (s->length + 1 >= s->allocated) {
 		if (DEBUG_FLAG) printf("string reallocation needed\n");
-		if ((s->str = (char*) realloc(s->str, s->length + STR_ALLOC_DELTA)) == NULL) {
+		if ((s->str = (char*) realloc(s->str, s->length + STR_ALLOC_DELTA))
+			== NULL) {
 			if (DEBUG_FLAG) printf("string allocation error\n");
 			return STR_ERROR;
 		}
@@ -65,8 +66,7 @@ int strCompare(string *s1, string *s2) {
 
 int strCopy(string *s1, string *s2) {
 	int newLength = s2->length;
-	if (newLength >= s1->allocated)
-	{
+	if (newLength >= s1->allocated) {
 		if ((s1->str = (char*) realloc(s1->str, newLength + 1)) == NULL)
 			return STR_ERROR;
 		s1->allocated = newLength + 1;

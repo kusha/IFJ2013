@@ -8,10 +8,10 @@
 **	Bank Tomáš			<xbankt00@stud.fit.vutbr.cz>
 **	Birger Mark			<xbirge00@stud.fit.vutbr.cz>
 **	Botka Roland		<xbotka00@stud.fit.vutbr.cz>
-**	Brandejs Zdenko		<xbrand06@stud.fit.vutbr.cz>
-**	Khudiakov Daniil	<xkhudi00@stud.fit.vutbr.cz>
+** +Brandejs Zdenko		<xbrand06@stud.fit.vutbr.cz>
+** +Khudiakov Daniil	<xkhudi00@stud.fit.vutbr.cz>
 **
-**	Binary Search Tree implementation. ...
+**	Binary Search Tree implementation.
 **
 ** -------------------------------------------------------------------------*/
 
@@ -39,7 +39,7 @@ typedef struct inputArray {			//input array structure from arrays.h
 	int size;			
 } typeInputArray;
 
-/* -------------------------------------------------------------------------*/
+/* -- Data of interpreter structure ----------------------------------------*/
 
 typedef struct Data{						//datatype for data of node
 	char type;								//type of current data (more above)
@@ -55,6 +55,8 @@ typedef struct Data{						//datatype for data of node
 	struct Data *		deeper;				//recursive variable
 } typeData;									//datatype declaration (without struct)
 
+/* -- Binary search tree struct + functions ---------------------------------*/
+
 typedef struct typeNode{		//structure of tree node
 	string key;					//ranging key of node
 	typeData data;				//data of current node
@@ -68,12 +70,16 @@ int treeInsert (typeNodePtr * Root, string Key, typeData Data);	//insert new nod
 void treeDispose (typeNodePtr *Root);							//dispose all tree
 void treePrint (typeNodePtr *Root);								//debug tree print function
 
+
+/* -- Shell sort -----------------------------------------------------------*/
 char *sort_string(char *string);	//shell sort
 
-# define zadnyZeZnaku 256 // Boyer-Moore
-int max(int a, int b); 							//Boyer-Moore -	pomocna funkce pro vyhledani vetsi hodnoty
-void nesouhlasZnakFce(char *str, int size, int badchar[zadnyZeZnaku]);	//Boyer-Moore -	Funkce pro BMA , zpracuje pole nesouhlasnych znaku
-int find_string(char *txt, char *pat);		//Boyer-Moore - BMA vyhledavaci algoritmus
+/* -- Booyer-Moore search --------------------------------------------------*/
+# define zadnyZeZnaku 256 	// Boyer-Moore
+int max(int a, int b);		//Boyer-Moore - pomocna funkce pro vyhledani vetsi hodnoty
+//Boyer-Moore - Funkce pro BMA , zpracuje pole nesouhlasnych znaku
+void nesouhlasZnakFce(char *str, int size, int badchar[zadnyZeZnaku]);
+int find_string(char *txt, char *pat);	//Boyer-Moore - BMA vyhledavaci algoritmus
 
 
 #endif
