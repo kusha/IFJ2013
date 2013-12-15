@@ -322,54 +322,51 @@ int convertData(typeData *dataOne, typeData *dataTwo, int type){            // t
             return -1;              
           }  
 
-				} // STRIIIIIIIIIIIINGGGGGGGGGGGGGGGGG
-				else if(type == _STRING){
-					if (DATA_TYPE(dataTwo) == _NULL){ 
-						dataOne->valueOf.type_STRING.str = "";
-						dataOne->valueOf.type_STRING.length = 0;
-					  return 0;                       
-          }
-					else if(DATA_TYPE(dataTwo) == _LOGICAL){
-						if(dataTwo->valueOf.type_LOGICAL == true){
-							dataOne->valueOf.type_STRING.str = "1";
+				} else if(type == _STRING) {
+					string newStr;
+					strInit(&newStr);
+					strClear(&newStr);
+					char result[50];
+					if (DATA_TYPE(dataTwo) == _NULL) {
+						strInit(&dataOne->valueOf.type_STRING);
+						strCopy(&dataOne->valueOf.type_STRING, &newStr);
+						return 0;
+					} else if(DATA_TYPE(dataTwo) == _LOGICAL) {
+						if (dataTwo->valueOf.type_LOGICAL == 1) {
+							strAddChar(&newStr, '1');
 							dataOne->valueOf.type_STRING.length = 1;
-						}else{
-							dataOne->valueOf.type_STRING.str = "";
-							dataOne->valueOf.type_STRING.length = 0;
+						}
+						strInit(&dataOne->valueOf.type_STRING);
+						strCopy(&dataOne->valueOf.type_STRING, &newStr);
+						return 0;
+					} else if (DATA_TYPE(dataTwo) == _INTEGER) {
+						sprintf(result, "%d", dataTwo->valueOf.type_INTEGER);
+						int i = 0;
+						while(result[i] != '\0') {
+							strAddChar(&newStr, result[i]);
+							i++;
+						}
+						strInit(&dataOne->valueOf.type_STRING);
+						strCopy(&dataOne->valueOf.type_STRING, &newStr);
+						return 0;
+					} else if(DATA_TYPE(dataTwo) == _DOUBLE) {
+						sprintf(result, "%g", dataTwo->valueOf.type_DOUBLE);
+						int i = 0;
+						while(result[i] != '\0') {
+							strAddChar(&newStr, result[i]);
+							i++;
+						}
+						strInit(&dataOne->valueOf.type_STRING);
+						strCopy(&dataOne->valueOf.type_STRING, &newStr);
+						return 0;
+					}  else if(DATA_TYPE(dataTwo) == _STRING) {
+						if (dataOne != dataTwo) {
+							strInit(&dataOne->valueOf.type_STRING);
+							strCopy(&dataOne->valueOf.type_STRING, 
+								&dataTwo->valueOf.type_STRING);
 						}
 						return 0;
-					}
-					else if(DATA_TYPE(dataTwo) == _INTEGER){
-						string *str = malloc(sizeof(string));
-						strInit(str);
-						sprintf(str->str, "%d", dataTwo->valueOf.type_INTEGER);
-						int i = 0;
-            while(str->str[i] != '\0'){
-              i++;
-            }
-            dataOne->valueOf.type_STRING.str = str->str;
-            dataOne->valueOf.type_STRING.length = i;   
-  					//strFree(str);          
-						return 0;
-					}
-					else if(DATA_TYPE(dataTwo) == _DOUBLE){	
-						string *str = malloc(sizeof(string));
-						strInit(str);
-						sprintf(str->str, "%g", dataTwo->valueOf.type_DOUBLE);
-            int i = 0;
-            while(str->str[i] != '\0'){
-              i++;
-            }
-            dataOne->valueOf.type_STRING.str = str->str;
-            dataOne->valueOf.type_STRING.length = i; 
-            //strFree(str);
-						return 0;
-					}
-					else if(DATA_TYPE(dataTwo) == _STRING){
-						dataOne->valueOf.type_STRING = dataTwo->valueOf.type_STRING;
-            dataOne->valueOf.type_STRING.length = dataTwo->valueOf.type_STRING.length;
-						return 0;
-					}else{
+					} else{
             return -1;              
           }  
 				}
