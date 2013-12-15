@@ -1324,24 +1324,24 @@ int interpreterStart(typeList *instrList) {
 			break; }
 					
 					
-		case I_SORT_STR:
-			if (DATA_TYPE(currentInstr->addressTwo)==_STRING) {
-
-				currentInstr->addressOne->type = _STRING;
-				char * processedString =
-					sort_string(currentInstr->addressTwo->valueOf.type_STRING.str);
-				string str;
-				strInit(&str);
-				int i=0;
-				while (processedString[i]!='\0') {
-					strAddChar(&str, processedString[i]);
-					i++;
-				}
-				strInit(&currentInstr->addressOne->valueOf.type_STRING);
-				if (strCopy(&currentInstr->addressOne->valueOf.type_STRING, &str)!=STR_SUCCESS)
-					return INTERNAL_ERROR;
-			} 
-			break;
+		case I_SORT_STR: {
+			typeData * tmp= malloc(sizeof(typeData));
+			if (convertData(tmp, currentInstr->addressTwo, _STRING)!= 0)
+				return S_TYPE_ERROR;
+			currentInstr->addressOne->type = _STRING;
+			char * processedString =
+				sort_string(tmp->valueOf.type_STRING.str);
+			string str;
+			strInit(&str);
+			int i=0;
+			while (processedString[i]!='\0') {
+				strAddChar(&str, processedString[i]);
+				i++;
+			}
+			strInit(&currentInstr->addressOne->valueOf.type_STRING);
+			if (strCopy(&currentInstr->addressOne->valueOf.type_STRING, &str)!=STR_SUCCESS)
+				return INTERNAL_ERROR;		
+			break; }
 
 		}
 
