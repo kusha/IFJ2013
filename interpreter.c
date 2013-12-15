@@ -1310,15 +1310,18 @@ int interpreterStart(typeList *instrList) {
 				}
 				break; }
 				
-		case I_FIND_STR:
-				 	if((DATA_TYPE(currentInstr->addressTwo)==_STRING)&&
-				 		(DATA_TYPE(currentInstr->addressThree)==_STRING)) {		
-				 			currentInstr->addressOne->type = _INTEGER ;
-            				currentInstr->addressOne->valueOf.type_INTEGER = 
-            				find_string(currentInstr->addressTwo->valueOf.type_STRING.str,
-            					currentInstr->addressThree->valueOf.type_STRING.str);
-					} 
-					break; 
+		case I_FIND_STR:{		
+			typeData * tmp1= malloc(sizeof(typeData));
+			typeData * tmp2= malloc(sizeof(typeData));
+			if (convertData(tmp1, currentInstr->addressTwo, _STRING)!= 0)
+				return S_TYPE_ERROR;
+			if (convertData(tmp2, currentInstr->addressThree, _STRING)!= 0)
+				return S_TYPE_ERROR;	
+ 			currentInstr->addressOne->type = _INTEGER ;
+			currentInstr->addressOne->valueOf.type_INTEGER = 
+			find_string(tmp1->valueOf.type_STRING.str,
+				tmp2->valueOf.type_STRING.str);
+			break; }
 					
 					
 		case I_SORT_STR:
