@@ -63,23 +63,36 @@ int main (int argc, char * argv[]) {
 	statusCode = parseStarter(&instructionList/*maybe also tables?*/);
 
 	switch (statusCode) {
-		case SUCCESS:	
-			REPORT("Lexical and syntax analysis - OK.")
+		case SUCCESS:
 			break;
 
 		default:
 			switch (statusCode) {
 				case LEXICAL_ERROR:
-					REPORT("Lexical analysis failure.")
+					fprintf(stderr,"Lexical analysis failure.\n");
+					fprintf(stderr,"Incident caused at %i:%i.\n",
+						troubleLine, troubleColumn);
 					break;
 
 				case PARSER_ERROR:
-					REPORT("Syntax analysis failure.")
+					fprintf(stderr,"Syntax analysis failure.\n");
 					break;
-			}
-			if (DEBUG_FLAG) {
-				printf("Incident caused at %i:%i.\n", \
-					troubleLine, troubleColumn);
+
+				case INTERNAL_ERROR:
+					fprintf(stderr,"Internal interpreter error.\n");
+					break;
+
+				case S_FUNC_ERROR:
+					fprintf(stderr,"Semantic error: undef/redef of the function.\n");
+					break;
+
+				case S_PARAM_ERROR:
+					fprintf(stderr,"Semantic error: function call params.\n");
+					break;
+
+				case S_DECLAR_ERROR:
+					fprintf(stderr,"Semantic error: undeclared variable.\n");
+					break;
 			}
 			CLOSE_ALL
 			HALT(statusCode)
@@ -92,13 +105,31 @@ int main (int argc, char * argv[]) {
 	statusCode = interpreterStart(/*same input like parser*/&instructionList);
 
 	switch (statusCode) {
-		case SUCCESS:	
-			REPORT("Interpreter - OK.")
+		case SUCCESS:
 			break;
 
 		default:
-			// TODO switch for semantic errors
-			REPORT("Interpreter failure.")
+			switch (statusCode) {
+				case INTERNAL_ERROR:
+					fprintf(stderr,"Internal interpreter error.\n");
+					break;
+
+				case S_EXPRESS_ERROR:
+					fprintf(stderr,"Semantic error: operation comptability.\n");
+					break;
+
+				case S_ZERODIV_ERROR:
+					fprintf(stderr,"Semantic error: divide by zero.\n");
+					break;
+
+				case S_TYPE_ERROR:
+					fprintf(stderr,"Semantic error: type conversion error.\n");
+					break;
+
+				case S_OTHER_ERROR:
+					fprintf(stderr,"Semantic error: other error.\n");
+					break;
+			}
 			CLOSE_ALL
 			HALT(statusCode)
 			break;

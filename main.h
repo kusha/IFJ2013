@@ -26,7 +26,7 @@
 #include "interpreter.h"	// for interpretation start
 
 #define HALT(CODE) /* -- Prints exit status code and returns value --*/	\
-	if (DEBUG_FLAG) fprintf(stderr,"Exit with status code %i.\n",CODE);	\
+	if (CODE!=0) fprintf(stderr,"Exit with status code %i.\n",CODE);	\
 	return CODE;
 
 
