@@ -1230,6 +1230,7 @@ int interpreterStart(typeList *instrList) {
 			break;
 			
 			case I_CONVERT:
+
         if(convertData(currentInstr->addressOne, currentInstr->addressTwo, currentInstr->addressThree->valueOf.type_INTEGER) != 0){
           return S_TYPE_ERROR;
         }else{
