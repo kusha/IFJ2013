@@ -158,46 +158,37 @@ typeData * getDeep(typeData * first, int deep) {
 	}
 }
 
-int convertData(typeData *dataOne, typeData *dataTwo, int type){            // target, input, type
-				if(type != _NONE){
-				  // PŘETYPOVÁÁÁÁÁÁNÍÍÍÍÍÍÍÍÍÍÍÍÍ
-			  // dataOne->type = type;
-	     // LOGICAAAAAAAAAAAAAAAALLLLLLLLLLLLL 
-				if(type == _LOGICAL){
-					if (DATA_TYPE(dataTwo) == _NULL){ 
-						dataOne->valueOf.type_LOGICAL = false;
-						return 0;
-					}
-					else if(DATA_TYPE(dataTwo) == _LOGICAL){
-						dataOne->valueOf.type_LOGICAL = dataTwo->valueOf.type_LOGICAL;
-					  return 0;
-          }
-					else if(DATA_TYPE(dataTwo) == _INTEGER){
-						if(dataTwo->valueOf.type_INTEGER == 0)
-							dataOne->valueOf.type_LOGICAL = false;
-						else
-							dataOne->valueOf.type_LOGICAL = true;
-						return 0;
-					}
-					else if(DATA_TYPE(dataTwo) == _DOUBLE){
-						if(dataTwo->valueOf.type_DOUBLE == 0.0)	
-							dataOne->valueOf.type_LOGICAL = false;
-						else
-							dataOne->valueOf.type_LOGICAL = true;
-					  return 0;
-          }
-					else if(DATA_TYPE(dataTwo) == _STRING){
-						if(dataTwo->valueOf.type_STRING.length == 0)	
-							dataOne->valueOf.type_LOGICAL = false;
-						else
-							dataOne->valueOf.type_LOGICAL = true;
-					  return 0;
-          }else{
-            return -1;              
-          }
-
-				}	// INTEEEEEEEEEGEEEEEEEEEEEERRRRRRR
-				else if(type == _INTEGER){
+int convertData (typeData * dataOne, typeData * dataTwo, int type) {
+	if (type != _NONE) {
+		if(type == _LOGICAL){
+			if (DATA_TYPE(dataTwo) == _NULL) { 
+				dataOne->valueOf.type_LOGICAL = false;
+				return 0;
+			} else if(DATA_TYPE(dataTwo) == _LOGICAL) {
+				dataOne->valueOf.type_LOGICAL = dataTwo->valueOf.type_LOGICAL;
+				return 0;
+			} else if(DATA_TYPE(dataTwo) == _INTEGER) {
+				if(dataTwo->valueOf.type_INTEGER == 0)
+					dataOne->valueOf.type_LOGICAL = false;
+				else
+					dataOne->valueOf.type_LOGICAL = true;
+				return 0;
+			} else if(DATA_TYPE(dataTwo) == _DOUBLE) {
+				if(dataTwo->valueOf.type_DOUBLE == 0.0)	
+					dataOne->valueOf.type_LOGICAL = false;
+				else
+					dataOne->valueOf.type_LOGICAL = true;
+				return 0;
+			} else if(DATA_TYPE(dataTwo) == _STRING){
+				if(dataTwo->valueOf.type_STRING.length == 0)	
+					dataOne->valueOf.type_LOGICAL = false;
+				else
+					dataOne->valueOf.type_LOGICAL = true;
+				return 0;
+			} else {
+				return -1;              
+			}
+		} else if (type == _INTEGER) {
 					if (DATA_TYPE(dataTwo) == _NULL){ 
 						dataOne->valueOf.type_INTEGER = 0;
 						return 0;
