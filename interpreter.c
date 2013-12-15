@@ -445,8 +445,9 @@ int interpreterStart(typeList *instrList) {
 
 		if (DEBUG_FLAG) 
 			printf(CYEL"ADRESSES:\t\t\t\t%p %p %p\n"CNRM, 
-				currentInstr->addressOne,currentInstr->addressTwo,
-				currentInstr->addressThree);
+				(void *)currentInstr->addressOne,
+				(void *)currentInstr->addressTwo,
+				(void *)currentInstr->addressThree);
 
 			nowCleanFlag = nextCleanFlag;
 
