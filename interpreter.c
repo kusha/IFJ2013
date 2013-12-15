@@ -1252,27 +1252,13 @@ int interpreterStart(typeList *instrList) {
 					currentInstr->addressOne->type=_STRING;				
 				break; }
 			
-			case I_WRITE:
-				if(DATA_TYPE(currentInstr->addressOne) == _NULL){ 
-					printf("null");
-				} 							
-				else if(DATA_TYPE(currentInstr->addressOne)==_LOGICAL){
-					if (currentInstr->addressOne->valueOf.type_LOGICAL == 0) {
-						printf("false");
-					} else {
-						printf("true");
-					}
-				}
-				else if(DATA_TYPE(currentInstr->addressOne)==_INTEGER){
-					printf("%d",currentInstr->addressOne->valueOf.type_INTEGER);
-				}
-				else if(DATA_TYPE(currentInstr->addressOne)==_DOUBLE){
-					printf("%g",currentInstr->addressOne->valueOf.type_DOUBLE);
-				}
-				else if(DATA_TYPE(currentInstr->addressOne)==_STRING){
-					printf("%s",currentInstr->addressOne->valueOf.type_STRING.str);
-				} 
-				break;
+			case I_WRITE: {
+				// printf("TEST %d\n", currentInstr->addressOne->valueOf.type_INTEGER);
+				typeData * tmp= malloc(sizeof(typeData));
+				if (convertData(tmp, currentInstr->addressOne, _STRING)!= 0)
+            		return S_TYPE_ERROR;
+				printf("%s",tmp->valueOf.type_STRING); 
+				break; }
 				
 							
 			case I_STR_LEN:
