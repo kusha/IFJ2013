@@ -99,13 +99,14 @@ int parserPrecedence();
 
 
 
-#define UPDATE_TOKEN																			\
-	/* if (DEBUG_FLAG) printf(KRED "Token: %s\t%s\n" KBLU,debugTokens(tokenType),attribute.str); */	\
-	if (recoverFlag) {																			\
-		recoverFlag = 0;																		\
-	} else {																					\
-		strClear(&attribute);																	\
-		if ((tokenType=getToken(&attribute))==LEXER_ERROR) return LEXICAL_ERROR;				\
+#define UPDATE_TOKEN												\
+	if (recoverFlag) {												\
+		recoverFlag = 0;											\
+	} else {														\
+		strClear(&attribute);										\
+		tokenType=getToken(&attribute);								\
+		if (tokenType==LEXER_ERROR) return LEXICAL_ERROR;	 		\
+		else if (tokenType==LEXER_START_ERROR) return SYNTAX_WRONG;	\
 	}
 
 #define RECOVER_TOKEN																					\

@@ -81,6 +81,8 @@ int troubleLine = 1;
 int troubleColumn = 1;
 int troubleCharacter;
 
+int starterFlag = 1;
+
 int getToken(string *attribute) {
 	//in case of error reuturn LEXER_ERROR;
 	int character; //int bcs of EOF
@@ -97,56 +99,64 @@ int getToken(string *attribute) {
 
 		switch (state) {
 			case S_START:
-				if (isspace(character)) {
-					state = S_START;
-				} else if (isalpha(character)||character=='_') {
-					strAddChar(attribute, character);
-					state = S_IDENTIFIER;
-				} else if (character=='$') {
-					strAddChar(attribute, character); //is dollar at start of varid needed?
-					state = S_VARIABLE_D;
-				} else if (isdigit(character)) {
-					strAddChar(attribute, character);
-					state = S_INTEGER;
-				} else if (character==',') {
-					return COMMA;
-				} else if (character==';') {
-					return SEMICOLON;
-				} else if (character=='(') {
-					return LEFT_BRACKET;
-				} else if (character==')') {
-					return RIGHT_BRACKET;
-				} else if (character=='{') {
-					return LEFT_CURLY_BRACKET;
-				} else if (character=='}') {
-					return RIGHT_CURLY_BRACKET;
-				} else if (character=='"') {
-					state = S_STRING;
-				} else if (character==EOF) {
-					return END;
-				} else if (character=='=') {
-					state = S_EQUAL;
-				} else if (character=='+') {
-					return OPERATION_PLUS;
-				} else if (character=='-') {
-					return OPERATION_MINUS;
-				} else if (character=='*') {
-					return OPERATION_MULTIPLY;
-				} else if (character=='.') {
-					return OPERATION_CONCATEN;
-				} else if (character=='!') {
-					state = S_CMP_NOT1;
-				} else if (character=='<') {
-					state = S_LESS;
-				} else if (character=='>') {
-					state = S_MORE;
-				} else if (character=='/') {
-					state = S_DIVIDE;
+				if (starterFlag) {
+					if (character=='<') {
+						state = S_LESS;
+					} else {
+						return LEXER_START_ERROR;
+					}
 				} else {
-					if (DEBUG_FLAG)
-						printf("LEXER_ERROR at %c [%i] with state=%i\n", \
-							character,character,state);
-					return LEXER_ERROR;
+					if (isspace(character)) {
+						state = S_START;
+					} else if (isalpha(character)||character=='_') {
+						strAddChar(attribute, character);
+						state = S_IDENTIFIER;
+					} else if (character=='$') {
+						strAddChar(attribute, character); //is dollar at start of varid needed?
+						state = S_VARIABLE_D;
+					} else if (isdigit(character)) {
+						strAddChar(attribute, character);
+						state = S_INTEGER;
+					} else if (character==',') {
+						return COMMA;
+					} else if (character==';') {
+						return SEMICOLON;
+					} else if (character=='(') {
+						return LEFT_BRACKET;
+					} else if (character==')') {
+						return RIGHT_BRACKET;
+					} else if (character=='{') {
+						return LEFT_CURLY_BRACKET;
+					} else if (character=='}') {
+						return RIGHT_CURLY_BRACKET;
+					} else if (character=='"') {
+						state = S_STRING;
+					} else if (character==EOF) {
+						return END;
+					} else if (character=='=') {
+						state = S_EQUAL;
+					} else if (character=='+') {
+						return OPERATION_PLUS;
+					} else if (character=='-') {
+						return OPERATION_MINUS;
+					} else if (character=='*') {
+						return OPERATION_MULTIPLY;
+					} else if (character=='.') {
+						return OPERATION_CONCATEN;
+					} else if (character=='!') {
+						state = S_CMP_NOT1;
+					} else if (character=='<') {
+						state = S_LESS;
+					} else if (character=='>') {
+						state = S_MORE;
+					} else if (character=='/') {
+						state = S_DIVIDE;
+					} else {
+						if (DEBUG_FLAG)
+							printf("LEXER_ERROR at %c [%i] with state=%i\n", \
+								character,character,state);
+						return LEXER_ERROR;
+					}
 				}
 				break;
 
@@ -427,6 +437,7 @@ int getToken(string *attribute) {
 
 			case S_PHP4:
 				if (isspace(character)) {
+					starterFlag = 0;
 					return PHP;
 				} else {
 					if (DEBUG_FLAG)

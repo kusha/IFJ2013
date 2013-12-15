@@ -73,6 +73,7 @@ extern int troubleCharacter;
 #define COMPARE_MORE_EQ		65 // >=
 
 #define LEXER_ERROR			-1 // lexer error code for parser
+#define LEXER_START_ERROR	-2
 
 //functions prototypes section
 void delegateSourceFile(FILE *f);
